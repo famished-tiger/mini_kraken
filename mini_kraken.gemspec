@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Dimitri Geshef']
   spec.email         = ['famished.tiger@yahoo.com']
 
-  spec.summary       = %q{Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
+  spec.summary       = %q{Implementation of Minikanren language in Ruby. WIP}
+  spec.description   = %q{Implementation of Minikanren language in Ruby. WIP}
   spec.homepage      = "https://github.com/famished-tiger/mini_kraken"
   spec.license       = "MIT"
 
