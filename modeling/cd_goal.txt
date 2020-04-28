@@ -1,0 +1,30 @@
+@startuml
+  title Goal and Relation Model
+  
+  ' CLASSES
+  class Environment
+  abstract class Relation {
+    name : String
+    alt_name : String
+    arity() : Integer
+  }
+  abstract class NullaryRelation
+  class Fail
+  class Succeed
+  abstract class BinaryRelation
+  class Term
+  class Goal
+  class Outcome
+  class Singleton <<module>>
+  
+  ' RELATIONS
+  Environment o-- "* catalog" Relation
+  Relation <|-- NullaryRelation
+  Relation <|-- BinaryRelation  
+  NullaryRelation <|-- Fail
+  NullaryRelation <|-- Succeed
+  Singleton <.. Fail
+  Singleton <.. Succeed
+  Relation "1" -- "*" Goal
+  Goal o-- "* actuals" Term
+@enduml

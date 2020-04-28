@@ -3,25 +3,25 @@
 require_relative '../spec_helper' # Use the RSpec framework
 
 # Load the class under test
-require_relative '../../lib/mini_kraken/core/fail' 
+require_relative '../../lib/mini_kraken/core/succeed'
 
 module MiniKraken
   module Core
-    describe Fail do
-      subject { Fail.instance }
+    describe Succeed do
+      subject { Succeed.instance }
 
       context 'Initialization:' do
         it 'should have one instance' do
-          expect { Fail.instance }.not_to raise_error
+          expect { Succeed.instance }.not_to raise_error
         end
-        
+
         it 'should know its name' do
-          expect(subject.name).to eq('fail')
+          expect(subject.name).to eq('succeed')
         end
       end # context
 
       context 'Provided services:' do
-        it 'should unconditionally return a failure result' do
+        it 'should unconditionally return a success result' do
           args = double('fake-args')
           env = double('fake-env')
           
@@ -31,7 +31,7 @@ module MiniKraken
           # Solver should quack like a Fiber
           dummy_arg = double('dummy-stuff')
           result = solver.resume(dummy_arg)
-          expect(result).to eq(Failure)
+          expect(result).to eq(BasicSuccess)
           
           # Only one "solution", next 'resume' call should return nil
           result = solver.resume(dummy_arg)

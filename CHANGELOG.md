@@ -1,3 +1,6 @@
+## [0.1.02] - 2020-04-28
+Major code refactoring. Passes all frames 1:1 up to 1:36 of "Reasoned Schemer" book
+
 ## [0.1.01] - 2020-03-01
 First code commit
 ### Added

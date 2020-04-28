@@ -1,0 +1,22 @@
+@startuml
+  title Class & Environment Model
+  
+  ' CLASSES
+  class Environment {
+    add_var(aVariable)
+    add_assoc(anAssociation)
+  }
+  
+  class Variable {
+    name
+  }
+  class Association {
+    var_name : String
+    value : Term
+  }
+  
+  ' RELATIONS
+  Environment --> "0..1 parent" Environment
+  Environment o-- "* vars" Variable
+  Environment o-- "* associations" Association
+@enduml

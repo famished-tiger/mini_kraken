@@ -1,0 +1,33 @@
+@startuml
+  title Term Model
+
+  ' CLASSES
+  abstract class Term
+  abstract class AtomicTerm {
+    value
+    eql?(other) : Boolean
+    ground?() : Boolean
+  }
+  abstract class CompositeTerm
+  class KInteger
+  ' class KString not yet implement
+  ' class KString
+  class KSymbol
+  class VariableRef {
+    var_name : String
+  }
+  class ConsCell {
+    car : Term[0..1]
+    cdr : Term[0..1]
+  }
+
+  ' RELATIONSHIPS
+  Term <|-- AtomicTerm
+  Term <|-- CompositeTerm
+  CompositeTerm o-- "* children" Term
+  Term <|-- VariableRef
+  AtomicTerm <|-- KInteger
+  ' AtomicTerm <|-- KString
+  AtomicTerm <|-- KSymbol
+  CompositeTerm <|-- ConsCell
+@enduml
