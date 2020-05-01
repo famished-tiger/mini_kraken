@@ -182,6 +182,25 @@ module MiniKraken
           subject.add_assoc(Association.new('x', pea))
           expect(subject.fresh?(ref_q)).to be_falsey
         end
+
+        it 'should rank names sequentially' do
+          2.times do
+            expect(subject.get_rank('a')).to eq(0)
+            expect(subject.get_rank('z')).to eq(1)
+            expect(subject.get_rank('c')).to eq(2)
+          end
+        end
+        
+        it 'should clear the rankings' do
+          expect(subject.get_rank('a')).to eq(0)
+          expect(subject.get_rank('z')).to eq(1)
+          
+          subject.clear_rankings
+          expect(grandma.rankings).to be_empty
+
+          expect(subject.get_rank('z')).to eq(0)    
+          expect(subject.get_rank('a')).to eq(1)          
+        end
       end # context
     end # describe
   end # module

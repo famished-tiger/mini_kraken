@@ -39,6 +39,10 @@ module MiniKraken
       context 'Provided services:' do
         let(:ref_q) { Core::VariableRef.new('q') }
         let(:ref_x) { Core::VariableRef.new('x') }
+        let(:ref_y) { Core::VariableRef.new('y') }
+        let(:ref_s) { Core::VariableRef.new('s') }
+        let(:ref_t) { Core::VariableRef.new('t') }
+        let(:ref_u) { Core::VariableRef.new('u') }        
 
         it "should return a null list with the fail goal" do
           # Reasoned S2, frame 1:7
@@ -127,6 +131,9 @@ module MiniKraken
           result = instance.run
           expect(ref_q.fresh?(instance.env)).to be_falsey
           expect(ref_x.fresh?(fresh_env)).to be_truthy
+
+          #  Reasoned S2, frame 1:40
+          expect(ref_q.different_from?(ref_x, fresh_env)).to be_truthy
           expect(result.car).to eq(pea)
         end
 
@@ -166,6 +173,11 @@ module MiniKraken
           result = instance.run
           expect(ref_q.fresh?(instance.env)).to be_truthy
           expect(ref_x.fresh?(fresh_env)).to be_truthy
+
+          # q should be fused with x...
+          expect(ref_q.fused_with?(ref_x, fresh_env)).to be_truthy
+          expect(ref_q.names_fused(fresh_env)).to eq(['x'])
+          expect(ref_x.names_fused(fresh_env)).to eq(['q'])
           expect(result.car).to eq(any_value(0))
         end
 
@@ -225,8 +237,8 @@ module MiniKraken
         end
 
         it 'should unify complex equality expressions (II)' do
-          # # Reasoned S2, frame 1:36
-          # # (run* q (fresh (x) (==  '(((,q)) (,x)) `(((,x)) pod)))) ;; => ('pod)
+          # Reasoned S2, frame 1:36
+          # (run* q (fresh (x) (==  '(((,q)) (,x)) `(((,x)) pod)))) ;; => ('pod)
           expr1 = cons(cons(cons(ref_q)), ref_x)
           expr2 = cons(cons(cons(ref_x)), pod)
           goal = equals_goal(expr1, expr2)
@@ -241,6 +253,104 @@ module MiniKraken
           expect(ref_x.fresh?(fresh_env)).to be_falsey
           expect(result.car).to eq(pod)
         end
+
+        it 'should unify with repeated fresh variable' do
+          # Reasoned S2, frame 1:37
+          # (run* q (fresh (x) (==  '( ,x ,x) q))) ;; => (_0 _0)
+          expr1 = cons(ref_x, cons(ref_x))
+          goal = equals_goal(expr1, ref_q)
+          fresh_env = FreshEnv.new(['x'], goal)
+          instance = RunStarExpression.new('q', fresh_env)
+
+          result = instance.run
+          expect(ref_q.fresh?(instance.env)).to be_truthy # x isn't defined here
+          expect(ref_q.fresh?(fresh_env)).to be_truthy
+          expect(ref_x.fresh?(fresh_env)).to be_truthy
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(0))))
+        end
+
+        it 'should unify multiple times' do
+          # Reasoned S2, frame 1:38
+          # (run* q (fresh (x) (fresh (y) (==  '( ,q ,y) '((,x ,y) ,x))))) ;; => (_0 _0)
+          expr1 = cons(ref_q, cons(ref_y))
+          expr2 = cons(cons(ref_x, cons(ref_y)), cons(ref_x))
+          goal = equals_goal(expr1, expr2)
+          fresh_env_y = FreshEnv.new(['y'], goal)
+          fresh_env_x = FreshEnv.new(['x'], fresh_env_y)
+          instance = RunStarExpression.new('q', fresh_env_x)
+
+          result = instance.run
+          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_q.bound?(fresh_env_y)).to be_truthy
+          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_x.bound?(fresh_env_y)).to be_truthy
+          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_y.bound?(fresh_env_y)).to be_truthy
+
+          # y should be fused with x...
+          expect(ref_y.fused_with?(ref_x, fresh_env_y)).to be_truthy
+          expect(ref_x.names_fused(fresh_env_y)).to eq(['y'])
+          expect(ref_y.names_fused(fresh_env_y)).to eq(['x'])
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(0))))
+        end
+
+        it 'should support multiple fresh variables' do
+          # Reasoned S2, frame 1:41
+          # (run* q (fresh (x) (fresh (y) (==  '( ,x ,y) q)))) ;; => (_0 _1)
+          expr1 = cons(ref_x, cons(ref_y))
+          goal = equals_goal(expr1, ref_q)
+          fresh_env_y = FreshEnv.new(['y'], goal)
+          fresh_env_x = FreshEnv.new(['x'], fresh_env_y)
+          instance = RunStarExpression.new('q', fresh_env_x)
+
+          result = instance.run
+          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
+          # q should be bound to '(,x ,y)
+          expect(ref_q.bound?(fresh_env_y)).to be_truthy
+          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_x.bound?(fresh_env_y)).to be_falsey
+          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_y.bound?(fresh_env_y)).to be_falsey
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
+        end
+        
+        it 'should work with variable names' do
+          # Reasoned S2, frame 1:42
+          # (run* s (fresh (t) (fresh (u) (==  '( ,t ,u) s)))) ;; => (_0 _1)
+          expr1 = cons(ref_t, cons(ref_u))
+          goal = equals_goal(expr1, ref_s)
+          fresh_env_u = FreshEnv.new(['u'], goal)
+          fresh_env_t = FreshEnv.new(['t'], fresh_env_u)
+          instance = RunStarExpression.new('s', fresh_env_t)
+
+          result = instance.run
+          expect(ref_s.fresh?(fresh_env_u)).to be_truthy
+          # s should be bound to '(,t ,u)
+          expect(ref_s.bound?(fresh_env_u)).to be_truthy
+          expect(ref_t.fresh?(fresh_env_u)).to be_truthy
+          expect(ref_t.bound?(fresh_env_u)).to be_falsey
+          expect(ref_u.fresh?(fresh_env_u)).to be_truthy
+          expect(ref_u.bound?(fresh_env_u)).to be_falsey
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
+        end  
+
+        it 'should support repeated variables' do
+          # Reasoned S2, frame 1:43
+          # (run* q (fresh (x) (fresh (y) (==  '( ,x ,y ,x) q)))) ;; => (_0 _1 _0)
+          expr1 = cons(ref_x, cons(ref_y, cons(ref_x)))
+          goal = equals_goal(expr1, ref_q)
+          fresh_env_y = FreshEnv.new(['y'], goal)
+          fresh_env_x = FreshEnv.new(['x'], fresh_env_y)
+          instance = RunStarExpression.new('q', fresh_env_x)
+
+          result = instance.run
+          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
+          # q should be bound to '(,x ,y, ,x)
+          expect(ref_q.bound?(fresh_env_y)).to be_truthy
+          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
+          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(1), cons(any_value(0)))))
+        end        
       end # context
     end # describe
   end # module

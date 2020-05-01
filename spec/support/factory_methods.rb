@@ -11,42 +11,44 @@ module MiniKraken
     # @param rank [Integer]
     # @return [Core::AnyValue]
     def any_value(rank)
-      Core::AnyValue.new(rank)
+      any_val = Core::AnyValue.allocate
+      any_val.instance_variable_set(:@rank, rank)
+      any_val
     end
 
     # Factory method for constructing a ConsCell
     # @param obj1 [Term]
-    # @param obj2 [Term]    
-    # @return [Core::ConsCell]    
+    # @param obj2 [Term]
+    # @return [Core::ConsCell]
     def cons(obj1, obj2 = nil)
       Core::ConsCell.new(obj1, obj2)
     end
 
     # Factory method for constructing a goal using the Equals relation.
     # @param arg1 [Term]
-    # @param arg2 [Term]    
-    # @return [Core::Goal]     
+    # @param arg2 [Term]
+    # @return [Core::Goal]
     def equals_goal(arg1, arg2)
       Core::Goal.new(Core::Equals.instance, [arg1, arg2])
     end
 
     # Factory method for constructing a KSymbol instance
     # @param aSymbol [Symbol]
-    # @return [Core::KSymbol]    
+    # @return [Core::KSymbol]
     def k_symbol(aSymbol)
       Core::KSymbol.new(aSymbol)
     end
-    
+
     # Factory method for constructing a Variable
     # @param var_name [String]
-    # @return [Core::Variable]    
+    # @return [Core::Variable]
     def var_ref(var_name)
       Core::Variable.new(var_name)
     end
-    
+
     # Factory method for constructing a VariableRef
     # @param var_name [String]
-    # @return [Core::VariableRef]    
+    # @return [Core::VariableRef]
     def var_ref(var_name)
       Core::VariableRef.new(var_name)
     end

@@ -29,14 +29,10 @@ module MiniKraken
       end
 
       def quote(anEnvironment)
-        # raise StandardError, "class #{anEnvironment}" unless anEnvironment.kind_of?(Vocabulary)
-        # freshness = anEnvironment.freshness_ref(self)
-        # raise StandardError, "class #{freshness}" unless freshness.kind_of?(Freshness)
-        # raise StandardError, "class #{freshness.associated}" if freshness.associated.kind_of?(Freshness)
-        # freshness.fresh? ? AnyValue.new(0) : freshness.associated.quote(anEnvironment)
+        raise StandardError, "class #{anEnvironment}" unless anEnvironment.kind_of?(Vocabulary)
 
         val = anEnvironment.quote_ref(self)
-        val.nil? ? AnyValue.new(0) : val
+        val.nil? ? AnyValue.new(name, anEnvironment) : val
       end
 
       private

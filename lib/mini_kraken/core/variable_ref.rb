@@ -23,6 +23,13 @@ module MiniKraken
 
       # @param env [Environment]
       # @return [Boolean]
+      def bound?(env)
+        freshness = env.freshness_ref(self)
+        freshness.degree == :bound
+      end
+
+      # @param env [Environment]
+      # @return [Boolean]
       def ground?(env)
         !fresh?(env)
       end
@@ -46,18 +53,59 @@ module MiniKraken
         freshness = env.freshness_ref(self)
         freshness.associated
       end
-      
+
       # @param env [Environment]
       # @return [Freshness]
       def freshness(env)
         freshness = env.freshness_ref(self)
-      end      
-      
+      end
+
 
       # @param env [Environment]
       def quote(env)
         val = env.quote_ref(self)
-        val.nil? ? AnyValue.new(0) : val
+        val.nil? ? AnyValue.new(var_name, env, names_fused(env)) : val
+      end
+
+      # param another [VariableRef]
+      # @param env [Environment]
+      # @return [Boolean]
+      def fused_with?(another, env)
+        # I should point to 'another'...
+        other_name = another.var_name
+        to_another = values(env).find do |val|
+          val.kind_of?(VariableRef) && val.var_name == other_name
+        end
+        return false unless to_another
+
+        # 'another' should point to me
+        to_me = another.values(env).find do |val|
+          val.kind_of?(VariableRef) && val.var_name == var_name
+        end
+        !to_me.nil?
+      end
+
+      def names_fused(env)
+        to_others = values(env).select do |val|
+          val.kind_of?(VariableRef)
+        end
+        return [] if to_others.empty?
+
+        # 'others' should point to me
+        to_me = to_others.select do |other|
+          other.values(env).find do |val|
+            val.kind_of?(VariableRef) && val.var_name == var_name
+          end
+        end
+
+        to_me.map { |other| other.var_name }
+      end
+
+      # param another [VariableRef]
+      # @param env [Environment]
+      # @return [Boolean]
+      def different_from?(another, env)
+        !fused_with?(another, env)
       end
 
       private

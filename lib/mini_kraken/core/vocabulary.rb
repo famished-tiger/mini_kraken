@@ -9,10 +9,14 @@ module MiniKraken
       # @return [Hash] Pairs of the kind {String => Array[Association]}
       attr_reader :associations
 
+      # @return [Hash] Pairs of the kind {String => Integer}
+      attr_reader :rankings
+
       # @param aParent [Environment, NilClass] Parent environment to this one.
       def init_vocabulary(aParent = nil)
         @parent = validated_parent(aParent)
         @associations = {}
+        @rankings = {} unless aParent
       end
 
       # Return a Fiber object that can iterate over this vocabulary and
@@ -27,6 +31,47 @@ module MiniKraken
           end
 
           Fiber.yield nil # nil marks end of iteration...
+        end
+      end
+
+      def clear_rankings
+        walker = ancestor_walker
+        orphan = nil
+        loop do
+          orphan_temp = walker.resume
+          break unless orphan_temp
+          orphan = orphan_temp
+        end
+
+        orphan.rankings.clear if orphan.rankings
+      end
+
+      # @param aName [String]
+      # @param alternate_names [Array<String>]
+      def get_rank(aName, alternate_names = [])
+        walker = ancestor_walker
+        orphan = nil
+        loop do
+          orphan_temp = walker.resume
+          break unless orphan_temp
+          orphan = orphan_temp
+        end
+
+        raise StandardError unless orphan
+
+        if orphan.rankings.include?(aName)
+          orphan.rankings[aName]
+        else
+          other = alternate_names.find do |a_name| 
+            orphan.rankings.include?(a_name) 
+          end
+          if other
+            get_rank(other)
+          else
+            rank = orphan.rankings.keys.size
+            orphan.rankings[aName] = rank
+            rank
+          end
         end
       end
 
@@ -89,13 +134,13 @@ module MiniKraken
         ground_term = walker.walk_value(val, self)
         ground_term.nil? ? true : false
       end
-      
+
       # A composite term is fresh when all its members are nil or all non-nil members
       # are all fresh
-      # A composite term is bound when it is not fresh and not ground      
+      # A composite term is bound when it is not fresh and not ground
       # A composite term is a ground term when all its non-nil members are ground.
       # @param aComposite [CompositeTerm]
-      # @return [Freshness]      
+      # @return [Freshness]
       def freshness_composite(aComposite)
         walker = AssociationWalker.new
         walker.freshness_composite(aComposite)
@@ -110,10 +155,10 @@ module MiniKraken
       end
 
       # @param aVariableRef [VariableRef]
-      # @return [Term, NilClass]      
+      # @return [Term, NilClass]
       def quote_ref(aVariableRef)
         walker = AssociationWalker.new
-        walker.quote_term(aVariableRef, self)      
+        walker.quote_term(aVariableRef, self)
       end
 
       # @param aName [String]

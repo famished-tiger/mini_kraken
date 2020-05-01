@@ -1,3 +1,3 @@
 module MiniKraken
-  VERSION = '0.1.02'.freeze
+  VERSION = '0.1.03'.freeze
 end

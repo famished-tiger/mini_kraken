@@ -44,7 +44,7 @@ module MiniKraken
 
         let(:pea) { KSymbol.new(:pea) }
         let(:pod) { KSymbol.new(:pod) }
-        let(:sample_cons) { ConsCell.new(pea, nil) }
+        let(:sample_cons) { ConsCell.new(pea) }
         let(:a_composite) { ConsCell.new(pod) }
         let(:env) { Environment.new }
         let(:var_q) { build_var('q') }
@@ -94,6 +94,8 @@ module MiniKraken
         end
 
         it 'should fail for one right literal and one composite arguments' do
+          # Reasoned S2, frame 1:44
+          # (== '(pea) 'pea) ;; => #u
           result = solve_for(sample_cons, pea)
 
           expect(result.resultant).to eq(:"#u")
@@ -283,6 +285,19 @@ module MiniKraken
           expect(ref_x.fresh?(env)).to be_falsey
           expect(ref_q.fresh?(env)).to be_falsey
         end
+        
+        it 'should fail for one right literal and one composite arguments' do
+          # Reasoned S2, frame 1:46
+          # x associated to ('pea 'pod)
+          # (== '(,x) x) ;; => #u
+          expr1 = cons(pea, cons(pod))
+          ref_x.associate(expr1, env)
+          expr2 = cons(ref_x)
+          result = solve_for(expr2, ref_x)
+
+          expect(result.resultant).to eq(:"#u")
+          expect(result.associations).to be_empty
+        end        
       end # context
     end # describe
   end # module

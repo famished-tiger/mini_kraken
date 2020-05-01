@@ -3,8 +3,10 @@ module MiniKraken
     class AnyValue
       attr_reader :rank
       
-      def initialize(aRank)
-        @rank = aRank
+      # @param aName [String]
+      # @param anEnv [Vocabulary]
+      def initialize(aName, anEnv, alternate_names = [])
+        @rank = anEnv.get_rank(aName, alternate_names)
       end
       
       def ==(other)
