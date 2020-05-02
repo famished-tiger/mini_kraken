@@ -108,7 +108,7 @@ module MiniKraken
           expect(result.car).to eq(any_value(0))
         end
 
-        it 'should keep variable fresh when no unification occurs (III)' do
+        it 'should keep variable fresh when no unification occurs (II)' do
           ref1_q = Core::VariableRef.new('q')
           ref2_q = Core::VariableRef.new('q')
           goal = equals_goal(ref1_q, ref2_q)
@@ -221,7 +221,7 @@ module MiniKraken
           expect(result.car).to eq(pea)
         end
 
-        it 'should unify complex equality expressions (II)' do
+        it 'should unify complex equality expressions (III)' do
           expr1 = cons(cons(cons(ref_q)), pod)
           expr2 = cons(cons(cons(ref_x)), pod)
           goal = equals_goal(expr1, expr2)
@@ -236,7 +236,7 @@ module MiniKraken
           expect(result.car).to eq(any_value(0))
         end
 
-        it 'should unify complex equality expressions (II)' do
+        it 'should unify complex equality expressions (IV)' do
           # Reasoned S2, frame 1:36
           # (run* q (fresh (x) (==  '(((,q)) (,x)) `(((,x)) pod)))) ;; => ('pod)
           expr1 = cons(cons(cons(ref_q)), ref_x)
