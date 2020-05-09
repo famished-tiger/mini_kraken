@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../lib/mini_kraken/core/any_value'
 require_relative '../../lib/mini_kraken/core/cons_cell'
 require_relative '../../lib/mini_kraken/core/k_symbol'
@@ -42,7 +44,7 @@ module MiniKraken
     # Factory method for constructing a Variable
     # @param var_name [String]
     # @return [Core::Variable]
-    def var_ref(var_name)
+    def variable(var_name)
       Core::Variable.new(var_name)
     end
 

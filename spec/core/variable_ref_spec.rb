@@ -18,10 +18,6 @@ module MiniKraken
         it 'should know the name of a variable' do
           expect(subject.var_name).to eq('q')
         end
-
-        # it 'should be fresh by default' do
-          # expect(subject).to be_fresh
-        # end
       end # context
 
       context 'Provided services:' do

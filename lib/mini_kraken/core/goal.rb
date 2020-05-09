@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'environment'
 
 module MiniKraken
@@ -31,7 +33,7 @@ module MiniKraken
           raise StandardError, err_msg
         end
 
-        prefix = "Invalid goal argument "
+        prefix = 'Invalid goal argument '
         args.each do |actl|
           raise StandardError, prefix + actl.to_s unless actl.kind_of?(Term)
         end

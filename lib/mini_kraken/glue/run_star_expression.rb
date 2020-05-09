@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../core/any_value'
 require_relative '../core/cons_cell'
 require_relative 'fresh_env'
@@ -20,20 +22,19 @@ module MiniKraken
       def run
         result = nil
         solver = env.goal.attain(env)
-        # require 'debug'        
+        # require 'debug'
         loop do
           outcome = solver.resume
           break if outcome.nil?
+
           env.clear
           if result # ... more than one result...
+          elsif outcome.successful?
+            env.propagate(outcome)
+            # require 'debug'
+            result = Core::ConsCell.new(var.quote(outcome))
           else
-            if outcome.successful?
-              env.propagate(outcome)
-              # require 'debug'
-              result = Core::ConsCell.new(var.quote(outcome))
-            else
-              result = Core::NullList
-            end
+            result = Core::NullList
           end
         end
 

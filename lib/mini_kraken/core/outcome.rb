@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'vocabulary'
 
 module MiniKraken
@@ -14,14 +16,14 @@ module MiniKraken
       end
 
       def successful?
-        self.resultant == :"#s"
+        resultant == :"#s"
       end
 
       def ==(other)
         are_equal = false
 
         if resultant == other.resultant && parent == other.parent &&
-          associations == other.associations
+           associations == other.associations
           are_equal = true
         end
 

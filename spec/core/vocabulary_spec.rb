@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/association'
 require_relative '../../lib/mini_kraken/core/k_symbol'
+require_relative '../../lib/mini_kraken/core/variable'
 require_relative '../../lib/mini_kraken/core/variable_ref'
 require_relative '../support/factory_methods'
 
 # Load the class under test
-require_relative '../../lib/mini_kraken/core/vocabulary'
+# frozen_string_literal: true
 
+require_relative '../../lib/mini_kraken/core/vocabulary'
 
 module MiniKraken
   module Core
-
     class TestVocabulary
       include Vocabulary
 
@@ -21,16 +21,20 @@ module MiniKraken
       end
     end # class
 
+    # Helper module that simulates an environment-like object.
     module VariableBearer
       attr_reader :vars
+      attr_accessor :ivars
 
       def init_var_bearer
         @vars = {}
+        @ivars = {}
         self
       end
 
       def add_var(aVarName)
-        vars[aVarName] = aVarName.hash # Just for testing purposes
+        vars[aVarName] = Variable.new(aVarName)
+        ivars[aVarName] = Set.new([aVarName])
       end
     end # module
 
@@ -99,11 +103,12 @@ module MiniKraken
         it 'should allow the addition of associations' do
           grandma.add_var('q')
           expect(subject['q']).to be_empty
-          mother.add_assoc(Association.new('q', pea))
+          res_add = mother.add_assoc('q', pea)
+          expect(res_add).to be_kind_of(Association)
           expect(subject['q'].size).to eq(1)
           expect(subject['q'].first.value).to eq(pea)
 
-          subject.add_assoc(Association.new('q', ref_x))
+          subject.add_assoc('q', ref_x)
           expect(subject['q'].size).to eq(2)
           expect(subject['q'].first.value).to eq(ref_x)
           expect(subject['q'].last.value).to eq(pea)
@@ -111,8 +116,8 @@ module MiniKraken
 
         it 'should allow the deletion of associations' do
           grandma.add_var('q')
-          mother.add_assoc(Association.new('q', pea))
-          subject.add_assoc(Association.new('q', ref_x))
+          mother.add_assoc('q', pea)
+          subject.add_assoc('q', ref_x)
           expect(mother.associations.size).to eq(1)
           expect(subject.associations.size).to eq(1)
 
@@ -127,18 +132,18 @@ module MiniKraken
           grandma.add_var('q')
           grandma.add_var('x')
           expect(subject.fresh?(ref_q)).to be_truthy
-          subject.add_assoc(Association.new('q', ref_x)) # Dependency: q --> x
+          subject.add_assoc('q', ref_x) # Dependency: q --> x
           expect(subject.fresh?(ref_x)).to be_truthy
         end
 
         it 'should say not fresh when variable --> atomic value' do
           grandma.add_var('q')
           grandma.add_var('x')
-          subject.add_assoc(Association.new('q', ref_x)) # Dependency: q --> x
+          subject.add_assoc('q', ref_x) # Dependency: q --> x
           expect(subject.fresh?(ref_q)).to be_truthy
 
           # Associate with an atomic term
-          subject.add_assoc(Association.new('q', pea))
+          subject.add_assoc('q', pea)
           expect(subject.fresh?(ref_q)).to be_falsey
         end
 
@@ -147,16 +152,16 @@ module MiniKraken
 
           # Composite having only atomic terms as leaf elements
           expr = cons(pea, cons(pod))
-          subject.add_assoc(Association.new('q', expr))
+          subject.add_assoc('q', expr)
           expect(subject.fresh?(ref_q)).to be_falsey
         end
 
         it 'say not fresh when variable --> composite of atomics & bound var' do
           grandma.add_var('q')
           grandma.add_var('x')
-          subject.add_assoc(Association.new('x', pea)) # Dependency: x --> pea
+          subject.add_assoc('x', pea) # Dependency: x --> pea
           expr = cons(pea, cons(pod, cons(ref_x)))
-          subject.add_assoc(Association.new('q', expr))
+          subject.add_assoc('q', expr)
           expect(subject.fresh?(ref_q)).to be_falsey
         end
 
@@ -164,7 +169,7 @@ module MiniKraken
           grandma.add_var('q')
           grandma.add_var('x')
           expr = cons(pea, cons(pod, cons(ref_x)))
-          subject.add_assoc(Association.new('q', expr))
+          subject.add_assoc('q', expr)
           expect(subject.fresh?(ref_q)).to be_truthy
         end
 
@@ -173,13 +178,14 @@ module MiniKraken
           grandma.add_var('x')
 
           # Beware of cyclic structure
-          subject.add_assoc(Association.new('q', ref_x)) # Dependency: q --> x
-          subject.add_assoc(Association.new('x', ref_q)) # Dependency: x --> q
+          subject.add_assoc('q', ref_x) # Dependency: q --> x
+          subject.add_assoc('x', ref_q) # Dependency: x --> q
           expect(subject.fresh?(ref_x)).to be_truthy
           expect(subject.fresh?(ref_q)).to be_truthy
+          expect(subject.associations).to be_empty
 
           # Associate with an atomic term
-          subject.add_assoc(Association.new('x', pea))
+          subject.add_assoc('x', pea)
           expect(subject.fresh?(ref_q)).to be_falsey
         end
 
@@ -190,16 +196,16 @@ module MiniKraken
             expect(subject.get_rank('c')).to eq(2)
           end
         end
-        
+
         it 'should clear the rankings' do
           expect(subject.get_rank('a')).to eq(0)
           expect(subject.get_rank('z')).to eq(1)
-          
+
           subject.clear_rankings
           expect(grandma.rankings).to be_empty
 
-          expect(subject.get_rank('z')).to eq(0)    
-          expect(subject.get_rank('a')).to eq(1)          
+          expect(subject.get_rank('z')).to eq(0)
+          expect(subject.get_rank('a')).to eq(1)
         end
       end # context
     end # describe

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require_relative 'term'
 require_relative 'any_value'
-require_relative 'association'
 
 module MiniKraken
   module Core
@@ -37,8 +38,7 @@ module MiniKraken
       # @param aValue [Term]
       # @param env [Environment]
       def associate(aValue, env)
-        assoc = Association.new(var_name, aValue)
-        env.add_assoc(assoc)
+        env.add_assoc(var_name, aValue)
       end
 
       # @param env [Environment]
@@ -57,9 +57,8 @@ module MiniKraken
       # @param env [Environment]
       # @return [Freshness]
       def freshness(env)
-        freshness = env.freshness_ref(self)
+        env.freshness_ref(self)
       end
-
 
       # @param env [Environment]
       def quote(env)
@@ -71,34 +70,15 @@ module MiniKraken
       # @param env [Environment]
       # @return [Boolean]
       def fused_with?(another, env)
-        # I should point to 'another'...
-        other_name = another.var_name
-        to_another = values(env).find do |val|
-          val.kind_of?(VariableRef) && val.var_name == other_name
-        end
-        return false unless to_another
+        my_var = env.name2var(var_name)
+        return false unless my_var.fused?
 
-        # 'another' should point to me
-        to_me = another.values(env).find do |val|
-          val.kind_of?(VariableRef) && val.var_name == var_name
-        end
-        !to_me.nil?
+        other_var = env.name2var(another.var_name)
+        return my_var.i_name == other_var.i_name
       end
 
       def names_fused(env)
-        to_others = values(env).select do |val|
-          val.kind_of?(VariableRef)
-        end
-        return [] if to_others.empty?
-
-        # 'others' should point to me
-        to_me = to_others.select do |other|
-          other.values(env).find do |val|
-            val.kind_of?(VariableRef) && val.var_name == var_name
-          end
-        end
-
-        to_me.map { |other| other.var_name }
+        env.names_fused(var_name)
       end
 
       # param another [VariableRef]
@@ -112,13 +92,11 @@ module MiniKraken
 
       def valid_name(aName)
         if aName.empty?
-          raise StandardError, "Variable name may not be empty."
+          raise StandardError, 'Variable name may not be empty.'
         end
 
         aName
       end
-
-
     end # class
   end # module
 end # module

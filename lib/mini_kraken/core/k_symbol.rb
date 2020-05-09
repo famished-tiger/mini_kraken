@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 require_relative 'atomic_term'
 
 module MiniKraken
   module Core
     # A specialized atomic term that represents a symbolic value.
-    # in MiniKraken   
+    # in MiniKraken
     class KSymbol < AtomicTerm
-    
       # @param aValue [Symbol] Ruby representation of symbol value
       def initialize(aValue)
         super(aValue)

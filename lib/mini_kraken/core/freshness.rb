@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MiniKraken
   module Core
     # Freshness: fresh, bound, ground
@@ -12,29 +14,30 @@ module MiniKraken
       def initialize(aDegree, anAssociated)
         super(aDegree, valid_associated(anAssociated))
       end
-      
+
       def fresh?
-        self.degree == :fresh
+        degree == :fresh
       end
 
       def bound?
-        self.degree == :bound
+        degree == :bound
       end
 
       def ground?
-        self.degree == :ground
+        degree == :ground
       end
 
       # Does this instance represent something fresh according to
       # "Reasoned Schemer" book ?
       def rs_fresh?
-        self.degree != ground
+        degree != ground
       end
-      
+
       private
-      
+
       def valid_associated(anAssociated)
         raise StandardError, 'Wrong argument' if anAssociated.kind_of?(self.class)
+
         anAssociated
       end
     end # struct

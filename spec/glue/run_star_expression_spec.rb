@@ -42,9 +42,9 @@ module MiniKraken
         let(:ref_y) { Core::VariableRef.new('y') }
         let(:ref_s) { Core::VariableRef.new('s') }
         let(:ref_t) { Core::VariableRef.new('t') }
-        let(:ref_u) { Core::VariableRef.new('u') }        
+        let(:ref_u) { Core::VariableRef.new('u') }
 
-        it "should return a null list with the fail goal" do
+        it 'should return a null list with the fail goal' do
           # Reasoned S2, frame 1:7
           # (run* q #u) ;; => ()
           failing = Core::Goal.new(Core::Fail.instance, [])
@@ -54,7 +54,7 @@ module MiniKraken
           expect(ref_q.fresh?(instance.env)).to be_truthy
         end
 
-        it "should return a null list when a goal fails" do
+        it 'should return a null list when a goal fails' do
           # Reasoned S2, frame 1:10
           # (run* q (== 'pea 'pod) ;; => ()
 
@@ -283,14 +283,19 @@ module MiniKraken
           expect(ref_q.fresh?(fresh_env_y)).to be_truthy
           expect(ref_q.bound?(fresh_env_y)).to be_truthy
           expect(ref_x.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_x.bound?(fresh_env_y)).to be_truthy
+          expect(ref_x.bound?(fresh_env_y)).to be_falsy
           expect(ref_y.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_y.bound?(fresh_env_y)).to be_truthy
+          expect(ref_y.bound?(fresh_env_y)).to be_falsy
 
           # y should be fused with x...
+          var_x = fresh_env_y.name2var('x')
+          var_y = fresh_env_y.name2var('y')
+          expect(var_x.i_name).to eq(var_y.i_name)
           expect(ref_y.fused_with?(ref_x, fresh_env_y)).to be_truthy
           expect(ref_x.names_fused(fresh_env_y)).to eq(['y'])
           expect(ref_y.names_fused(fresh_env_y)).to eq(['x'])
+
+          # q should be bound to '(,x ,x)
           expect(result.car).to eq(cons(any_value(0), cons(any_value(0))))
         end
 
@@ -313,7 +318,7 @@ module MiniKraken
           expect(ref_y.bound?(fresh_env_y)).to be_falsey
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
         end
-        
+
         it 'should work with variable names' do
           # Reasoned S2, frame 1:42
           # (run* s (fresh (t) (fresh (u) (==  '( ,t ,u) s)))) ;; => (_0 _1)
@@ -332,7 +337,7 @@ module MiniKraken
           expect(ref_u.fresh?(fresh_env_u)).to be_truthy
           expect(ref_u.bound?(fresh_env_u)).to be_falsey
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
-        end  
+        end
 
         it 'should support repeated variables' do
           # Reasoned S2, frame 1:43
@@ -350,7 +355,7 @@ module MiniKraken
           expect(ref_x.fresh?(fresh_env_y)).to be_truthy
           expect(ref_y.fresh?(fresh_env_y)).to be_truthy
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1), cons(any_value(0)))))
-        end        
+        end
       end # context
     end # describe
   end # module

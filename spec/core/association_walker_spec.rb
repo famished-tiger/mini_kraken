@@ -58,14 +58,14 @@ module MiniKraken
 
         it 'should return composite when it has ground composite term(s)' do
           env.add_var(var_q)
-          env.add_assoc(Association.new('q', pea))
+          env.add_assoc('q', pea)
           expr1 = cons(pea, cons(pod, cons(ref_q)))
           expect(subject.walk_value(expr1, env)).to eq(expr1)
         end
 
         it 'should return nil when no assocation exists' do
           env.add_var(var_q)
-          env.add_assoc(Association.new('q', pea))
+          env.add_assoc('q', pea)
           env.add_var(var_x)
 
           expect(subject.find_ground(var_x.name, env)).to be_nil
@@ -73,7 +73,7 @@ module MiniKraken
 
         it 'should find an atomic term directly associated' do
           env.add_var(var_q)
-          env.add_assoc(Association.new('q', pea))
+          env.add_assoc('q', pea)
 
           result = subject.find_ground(var_q.name, env)
           expect(result).to eq(pea)
@@ -82,8 +82,8 @@ module MiniKraken
         it 'should find an atomic term directly associated' do
           env.add_var(var_q)
           env.add_var(var_x)
-          env.add_assoc(Association.new('q', ref_x))
-          env.add_assoc(Association.new('x', pea))
+          env.add_assoc('q', ref_x)
+          env.add_assoc('x', pea)
           expect(env['x']).not_to be_nil
 
           result = subject.find_ground(var_q.name, env)
@@ -93,9 +93,9 @@ module MiniKraken
         it 'should cope with cyclic structures' do
           env.add_var(var_q)
           env.add_var(var_x)
-          env.add_assoc(Association.new('q', ref_x))
-          env.add_assoc(Association.new('x', pea))
-          env.add_assoc(Association.new('x', ref_q))
+          env.add_assoc('q', ref_x)
+          env.add_assoc('x', pea)
+          env.add_assoc('x', ref_q)
 
           result = subject.find_ground(var_q.name, env)
           expect(result).to eq(pea)
@@ -107,7 +107,7 @@ module MiniKraken
         it 'should cope with a composite with atomic terms only' do
           env.add_var(var_q)
           expr = cons(pea, cons(pod, cons(pea)))
-          env.add_assoc(Association.new('q', expr))
+          env.add_assoc('q', expr)
 
           result = subject.find_ground(var_q.name, env)
           expect(result).to eq(expr)
@@ -117,7 +117,7 @@ module MiniKraken
           env.add_var(var_q)
           env.add_var(var_x)
           expr = cons(pea, cons(pod, cons(ref_x)))
-          env.add_assoc(Association.new('q', expr))
+          env.add_assoc('q', expr)
 
           result = subject.find_ground(var_q.name, env)
           expect(result).to be_nil
@@ -127,14 +127,13 @@ module MiniKraken
           env.add_var(var_q)
           env.add_var(var_x)
           expr = cons(pea, cons(pod, cons(ref_x)))
-          env.add_assoc(Association.new('q', expr))
-          env.add_assoc(Association.new('x', pod))
+          env.add_assoc('q', expr)
+          env.add_assoc('x', pod)
 
           result = subject.find_ground(var_q.name, env)
           expect(result).to eq(expr)
         end
-=begin
-=end
+
         it 'should categorize a variable without association as free' do
           env.add_var(var_q)
           result = subject.determine_freshness(ref_q, env)
@@ -145,22 +144,24 @@ module MiniKraken
         it 'should categorize a variable related to fresh variable as bound' do
           env.add_var(var_q)
           env.add_var(var_x)
-          env.add_assoc(Association.new('q', ref_x))
+          env.add_assoc('q', ref_x)
 
           result = subject.determine_freshness(ref_q, env)
           expect(result).to be_bound
           expect(result.associated).to eq(ref_x)
         end
 
-        it 'should categorize a variable even in presence of cycle(s)' do
+        it 'should categorize a variable even in presence of fused var(s)' do
           env.add_var(var_q)
           env.add_var(var_x)
-          env.add_assoc(Association.new('q', ref_x))
-          env.add_assoc(Association.new('x', ref_q))
+          env.add_assoc('q', ref_x)
+          env.add_assoc('x', ref_q)
+          # q and x are fused...
 
           result = subject.determine_freshness(ref_q, env)
-          expect(result).to be_bound
-          expect(result.associated).to eq(ref_x)
+          expect(result).to be_fresh
+          expect(var_q.i_name).to eq(var_x.i_name)
+          expect(env.associations).to be_empty
         end
 
         it 'should categorize an atomic term as ground term' do
@@ -176,15 +177,15 @@ module MiniKraken
           expect(result).to be_ground
           expect(result.associated).to eq(composite)
         end
-        
+
         it 'should categorize a composite term as bound term' do
-          # Bound composite: a composite where at least one member is fresh        
-          env.add_var(var_q)       
+          # Bound composite: a composite where at least one member is fresh
+          env.add_var(var_q)
           composite = cons(pea, cons(ref_q))
           result = subject.determine_freshness(composite, env)
           expect(result).to be_bound
           expect(result.associated).to eq(composite)
-        end        
+        end
       end # context
     end # describe
   end # module

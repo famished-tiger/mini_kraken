@@ -20,12 +20,11 @@ module MiniKraken
         it 'should know its value' do
           expect(subject.value).to eq(a_value)
         end
-        
+
         it 'should know that it is a ground term' do
           env = double('mock-env')
-          visitees = double('fake-visitees')
           expect(subject.ground?(env)).to be_truthy
-        end        
+        end
       end # context
 
       context 'Provided services:' do
@@ -39,7 +38,7 @@ module MiniKraken
           expect(subject).not_to be_eql(another)
 
           # Different type, same value
-          yet_another = OpenStruct.new(:value => :pea)
+          yet_another = OpenStruct.new(value: :pea)
           expect(subject).not_to be_eql(yet_another)
         end
 
@@ -53,11 +52,11 @@ module MiniKraken
           expect(subject == another).to be_falsy
 
           # Same duck type, same value
-          yet_another = OpenStruct.new(:value => :pea)
+          yet_another = OpenStruct.new(value: :pea)
           expect(subject == yet_another).to be_truthy
 
           # Different duck type, different value
-          still_another = OpenStruct.new(:value => :pod)
+          still_another = OpenStruct.new(value: :pod)
           expect(subject == still_another).to be_falsy
 
           # Default Ruby representation, same value

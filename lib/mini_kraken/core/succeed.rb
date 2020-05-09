@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'singleton'
 require_relative 'duck_fiber'
 require_relative 'nullary_relation'
@@ -11,10 +13,10 @@ module MiniKraken
       def initialize
         super('succeed', '#s')
       end
-      
+
       def solver_for(_actuals, _env)
         DuckFiber.new(:success)
-      end      
+      end
     end # class
   end # module
 end # module

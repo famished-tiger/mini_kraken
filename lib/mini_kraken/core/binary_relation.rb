@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'relation'
 require_relative 'composite_term'
 
@@ -5,20 +7,20 @@ module MiniKraken
   module Core
     class BinaryRelation < Relation
       # @param aName [String] Name of the relation.
-      # @param alternateName [String, NilClass] Alternative name (optional).    
+      # @param alternateName [String, NilClass] Alternative name (optional).
       def initialize(aName, alternateName = nil)
         super(aName, alternateName)
         freeze
       end
-      
+
       # Number of arguments for the relation.
       # @return [Integer]
       def arity
         2
       end
-      
+
       protected
-      
+
       # table: Commute
       # |arg1                | arg2               | arg2.ground? || Commute |
       # | isa? Atomic        | isa? Atomic        | dont_care    || Yes     |
@@ -55,7 +57,7 @@ module MiniKraken
         else
           [arg1, arg2]
         end
-      end      
+      end
     end # class
   end # module
 end # module

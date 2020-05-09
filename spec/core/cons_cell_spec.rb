@@ -9,8 +9,8 @@ require_relative '../../lib/mini_kraken/core/cons_cell'
 module MiniKraken
   module Core
     describe ConsCell do
-      let(:pea) {KSymbol.new(:pea) }
-      let(:pod) {KSymbol.new(:pod) }
+      let(:pea) { KSymbol.new(:pea) }
+      let(:pod) { KSymbol.new(:pod) }
       subject { ConsCell.new(pea, pod) }
 
       context 'Initialization:' do
@@ -44,7 +44,8 @@ module MiniKraken
       context 'Provided services:' do
         it 'should compare to itself' do
           expect(subject.eql?(subject)).to be_truthy
-          expect(subject == subject).to be_truthy
+          synonym = subject
+          expect(subject == synonym).to be_truthy
         end
 
         it 'should compare to another instance' do

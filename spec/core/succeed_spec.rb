@@ -24,18 +24,18 @@ module MiniKraken
         it 'should unconditionally return a success result' do
           args = double('fake-args')
           env = double('fake-env')
-          
+
           solver = nil
           expect { solver = subject.solver_for(args, env) }.not_to raise_error
-          
+
           # Solver should quack like a Fiber
           dummy_arg = double('dummy-stuff')
           result = solver.resume(dummy_arg)
           expect(result).to eq(BasicSuccess)
-          
+
           # Only one "solution", next 'resume' call should return nil
           result = solver.resume(dummy_arg)
-          expect(result).to be_nil          
+          expect(result).to be_nil
         end
       end # context
     end # describe

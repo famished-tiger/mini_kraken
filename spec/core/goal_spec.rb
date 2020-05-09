@@ -22,15 +22,15 @@ module MiniKraken
         it 'should accept one nullary relation and empty argument array' do
           expect { Goal.new(nullary_relation, []) }.not_to raise_error
         end
-        
+
         it 'should accept one binary relation and 2-elements array' do
           expect { Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pod)]) }.not_to raise_error
-        end        
+        end
 
         it 'should know its relation' do
           expect(subject.relation).to eq(binary_relation)
         end
-        
+
         it 'should know its actual arguments' do
           expectations = [KSymbol.new(:pea), KSymbol.new(:pod)]
           expect(subject.actuals).to eq(expectations)
@@ -41,20 +41,20 @@ module MiniKraken
         it 'should fail if relation does not succeed' do
           solver = subject.attain(env)
           expect(solver.resume).not_to be_successful
-          
+
           # No more solution...
           expect(solver.resume).to be_nil
         end
-        
+
         it 'should succeed if relation succeeds' do
-          instance = Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pea)]) 
-          
+          instance = Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pea)])
+
           solver = instance.attain(env)
           expect(solver.resume).to be_successful
-          
+
           # No more solution...
           expect(solver.resume).to be_nil
-        end      
+        end
       end # context
     end # describe
   end # module

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'term'
 require_relative 'freshness'
 
@@ -22,14 +24,14 @@ module MiniKraken
       def freshness(_env)
         Freshness.new(:ground, self)
       end
-      
+
       # An atomic term is a ground term: by definition it doesn't contain
       # any fresh variable.
       # @param _env [Vocabulary]
       # @return [FalseClass]
       def fresh?(_env)
         false
-      end      
+      end
 
       # An atomic term is a ground term: by definition it doesn't contain
       # any fresh variable.

@@ -49,21 +49,21 @@ module MiniKraken
         let(:env) { Environment.new }
         let(:var_q) { build_var('q') }
         let(:ref_q) do
-          dummy = var_q # Force dependency
+          var_q # Force dependency
           build_var_ref('q')
         end
         let(:ref_q_bis) do
-          dummy = var_q # Force dependency
+          var_q # Force dependency
           build_var_ref('q')
         end
         let(:var_x) { build_var('x') }
         let(:ref_x) do
-          dummy = var_x  # Force dependency
+          var_x  # Force dependency
           build_var_ref('x')
         end
         let(:var_y) { build_var('y') }
         let(:ref_y) do
-          dummy = var_y  # Force dependency
+          var_y  # Force dependency
           build_var_ref('y')
         end
 
@@ -246,7 +246,7 @@ module MiniKraken
           result = solve_for(ref_x, ref_y)
 
           expect(result).to be_successful
-          expect(env.associations.size).to eq(2) # Symmetric association
+          expect(env.associations).to be_empty # Symmetric association
           expect(ref_x.fresh?(result)).to be_truthy
           expect(ref_y.fresh?(result)).to be_truthy
         end
@@ -285,7 +285,7 @@ module MiniKraken
           expect(ref_x.fresh?(env)).to be_falsey
           expect(ref_q.fresh?(env)).to be_falsey
         end
-        
+
         it 'should fail for one right literal and one composite arguments' do
           # Reasoned S2, frame 1:46
           # x associated to ('pea 'pod)
@@ -297,7 +297,7 @@ module MiniKraken
 
           expect(result.resultant).to eq(:"#u")
           expect(result.associations).to be_empty
-        end        
+        end
       end # context
     end # describe
   end # module

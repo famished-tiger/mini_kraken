@@ -1,17 +1,26 @@
+# frozen_string_literal: true
+
+require 'set'
 require_relative 'vocabulary'
 
 module MiniKraken
   module Core
     class Environment
-      include Vocabulary  # Use mix-in module
+      include Vocabulary # Use mix-in module
 
+      # Mapping from user-defined name to Variable instance
       # @return [Hash] Pairs of the kind {String => Variable}
       attr_reader :vars
+
+      # Mapping from internal name to user-defined name(s)
+      # @return [Hash] Pairs of the kind {String => Set<String>}
+      attr_reader :ivars
 
       # @param aParent [Environment, NilClass] Parent environment to this one.
       def initialize(aParent = nil)
         init_vocabulary(aParent)
         @vars = {}
+        @ivars = {}
       end
 
       # @param aVariable [Variable]
@@ -22,6 +31,13 @@ module MiniKraken
           raise StandardError, err_msg
         end
         vars[name] = aVariable
+        i_name = aVariable.i_name
+        if ivars.include?(i_name)
+          set = ivars[i_name]
+          set.add(name)
+        else
+          ivars[i_name] = Set.new([i_name])
+        end
       end
 
       # Handler for the event: an outcome has been produced.
@@ -33,21 +49,19 @@ module MiniKraken
         begin
           env = walker.resume
           break if env.nil?
-          env.do_propagate(descendent) if env.kind_of?(Environment) 
+
+          env.do_propagate(descendent) if env.kind_of?(Environment)
         end until env.equal?(self)
       end
 
-      # Move associations from descendent outcome object
+      # Roll up associations from descendent outcome object
+      # @param descendent [Outcome]
       def do_propagate(descendent)
-        return unless descendent.successful? 
+        return unless descendent.successful?
 
         vars.each_key do |var_name|
           assocs = descendent[var_name]
-          assocs.each do |assoc|
-            own = self[var_name]
-            add_assoc(assoc) unless assoc.equal?(own)
-          end
-          descendent.associations.delete(var_name) unless assocs.empty?
+          move_assocs(var_name, descendent)
         end
       end
 

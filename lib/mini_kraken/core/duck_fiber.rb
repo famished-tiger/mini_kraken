@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'outcome'
 
 module MiniKraken
@@ -28,7 +30,7 @@ module MiniKraken
           return nil
         end
       end
-      
+
       def valid_outcome(outcomeKind)
         case outcomeKind
           when :failure

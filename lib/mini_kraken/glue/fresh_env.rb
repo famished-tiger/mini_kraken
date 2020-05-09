@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../core/environment'
 require_relative '../core/variable'
 
@@ -20,8 +22,8 @@ module MiniKraken
       end
 
       # Attempt to achieve the goal given this environment
-      # @param aParent [Environment] 
-      # @return [Fiber<Outcome>] A Fiber object that will generate the results.      
+      # @param aParent [Environment]
+      # @return [Fiber<Outcome>] A Fiber object that will generate the results.
       def attain(aParent)
         self.parent = aParent
         goal.attain(self)

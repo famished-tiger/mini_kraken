@@ -15,7 +15,7 @@ module MiniKraken
       let(:pea) { Core::KSymbol.new(:pea) }
       let(:pod) { Core::KSymbol.new(:pod) }
       let(:sample_goal) do
-        Core::Goal.new(Core::Equals.instance, [pea, pod]) 
+        Core::Goal.new(Core::Equals.instance, [pea, pod])
       end
       subject { FreshEnv.new(['q'], sample_goal) }
 

@@ -1,3 +1,12 @@
+## [0.1.05] - 2020-05-09
+- Changed implementation of fused variables  
+- Magic comments for frozen string literal
+- Code re-styling to please Rubocop 0.82
+
+### Changed
+- File `README.md` Added "What is mini_kraken" text.
+- File `README.md` Added badges (CI Travis build status, Gem version, license)
+
 ## [0.1.04] - 2020-05-02
 ### Changed
 - File `README.md` Added "What is mini_kraken" text.

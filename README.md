@@ -1,24 +1,24 @@
-# mini_kraken
+# MiniKraken
 [![Build Status](https://travis-ci.org/famished-tiger/mini_kraken.svg?branch=master)](https://travis-ci.org/famished-tiger/mini_kraken)
 [![Gem Version](https://badge.fury.io/rb/mini_kraken.svg)](https://badge.fury.io/rb/mini_kraken)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/famished-tiger/mini_kraken/blob/master/LICENSE.txt)
 
 ### What is __mini_kraken__ ?   
-An implemention of the [miniKanren](http://minikanren.org/) relational programming in Ruby.
-*miniKanren* is a small language for relational (logic) programming.
+An implemention of the [miniKanren](http://minikanren.org/) relational programming language in Ruby.
+*miniKanren* is a small language for relational (logic) programming.  
 Based on the reference implementation, in Scheme from the "The Reasoned Schemer" book.  
 Daniel P. Friedman, William E. Byrd, Oleg Kiselyov, and Jason Hemann: "The Reasoned Schemer", Second Edition,
 ISBN: 9780262535519, (2018), MIT Press.
 
 ### Features
-[X] ==  
-[X] run\*  
-[X] fresh  
+- [X] ==  
+- [X] run\*  
+- [X] fresh  
 
 ### TODO
-[-] disj2  
-[-] conj2  
-[-] conde  
+- [ ] disj2  
+- [ ] conj2  
+- [ ] conde  
 
 ## Installation
 

@@ -10,20 +10,20 @@ require_relative '../../lib/mini_kraken/core/association'
 module MiniKraken
   module Core
     describe Association do
-      let(:pea) {KSymbol.new(:pea) }
+      let(:pea) { KSymbol.new(:pea) }
       subject { Association.new('q', pea) }
 
       context 'Initialization:' do
         it 'should be initialized with a name and a value' do
           expect { Association.new('q', pea) }.not_to raise_error
         end
-        
+
         it 'should be initialized with a variable and a value' do
           expect { Association.new(Variable.new('p'), pea) }.not_to raise_error
-        end        
+        end
 
         it 'should know the variable name' do
-          expect(subject.var_name).to eq('q')
+          expect(subject.i_name).to eq('q')
         end
 
         it 'should know the associated value' do

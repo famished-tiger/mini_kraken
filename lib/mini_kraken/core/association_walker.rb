@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'set'
 require_relative 'atomic_term'
 require_relative 'composite_term'
@@ -23,6 +25,7 @@ module MiniKraken
       def walk_assocs(assocs, anEnv)
         # Treat easy cases first...
         return nil if assocs.empty?
+
         assoc_atomic = assocs.find { |assc| assc.value.kind_of?(AtomicTerm) }
         return assoc_atomic.value if assoc_atomic
 
@@ -43,6 +46,7 @@ module MiniKraken
 
       def walk_value(aTerm, anEnv)
         return aTerm if aTerm.kind_of?(AtomicTerm) || aTerm.kind_of?(AnyValue)
+
         result = nil
 
         if aTerm.kind_of?(CompositeTerm)

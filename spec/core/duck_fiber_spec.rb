@@ -25,37 +25,36 @@ module MiniKraken
 
       context 'Provided services:' do
         let(:parent) { Environment.new }
-      
+
         it 'should behave like a Fiber yielding a failure' do
           failing = DuckFiber.new(:failure)
           outcome = nil
           expect { outcome = failing.resume }.not_to raise_error
           expect(outcome).to eq(Failure)
-          
+
           # Only one result should be yielded
-          expect(failing.resume).to be_nil          
+          expect(failing.resume).to be_nil
         end
-        
+
         it 'should behave like a Fiber yielding a basic success' do
           succeeding = DuckFiber.new(:success)
           outcome = nil
           expect { outcome = succeeding.resume }.not_to raise_error
           expect(outcome).to eq(BasicSuccess)
-          
+
           # Only one result should be yielded
           expect(succeeding.resume).to be_nil
-        end 
+        end
 
         it 'should behave like a Fiber yielding a custom outcome' do
-          
-          tailored = DuckFiber.new(:custom) { Outcome.new(:"#s", parent) } 
+          tailored = DuckFiber.new(:custom) { Outcome.new(:"#s", parent) }
           outcome = nil
           expect { outcome = tailored.resume }.not_to raise_error
           expect(outcome).to eq(Outcome.new(:"#s", parent))
-          
+
           # Only one result should be yielded
-          expect(tailored.resume).to be_nil          
-        end         
+          expect(tailored.resume).to be_nil
+        end
       end # context
     end # describe
   end # module

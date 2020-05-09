@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'composite_term'
 
 module MiniKraken
@@ -23,17 +25,19 @@ module MiniKraken
 
       def ==(other)
         return false unless other.respond_to?(:car)
+
         (car == other.car) && (cdr == other.cdr)
       end
 
       def eql?(other)
         (self.class == other.class) && car.eql?(other.car) && cdr.eql?(other.cdr)
       end
-      
+
       def quote(anEnv)
         return self if null?
+
         new_car = car.nil? ? nil : car.quote(anEnv)
-        new_cdr = cdr.nil? ? nil : cdr.quote(anEnv)        
+        new_cdr = cdr.nil? ? nil : cdr.quote(anEnv)
         ConsCell.new(new_car, new_cdr)
       end
     end # class
