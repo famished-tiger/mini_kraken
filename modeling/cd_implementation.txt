@@ -1,0 +1,104 @@
+@startuml
+  title Implementation model of MiniKraken (as of 2020/10/05)
+  ' This file uses the syntax of PlantUML diagramming tool
+  '   Plantuml documentation: https://plantuml.com/
+  ' The diagrams can be rendered online with the PlantText web application
+  '   PlantText website: https://www.planttext.com/
+
+  ' **** CLASSES ****
+  abstract class Term
+  abstract class AtomicTerm {
+    value
+  }
+  class KInteger
+  class KSymbol
+  abstract class CompositeTerm
+  class ConsCell {
+    car : Term
+    cdr : Term
+  }
+  class Variable {
+    name : String
+    i_name : String
+  }
+  class VariableRef {
+    name : String
+  }
+  class Association {
+    i_name : String
+  }
+  abstract class Relation {
+    name : String
+    alt_name : String
+    solver_for(Array<Term>, Vocabulary) : Fiber<Outcome>
+  }
+  abstract class NullaryRelation {
+    arity() : Integer  
+  }
+  class Fail <<(S,#FF7700) singleton>>
+  class Succeed <<(S,#FF7700) singleton>>
+  abstract class BinaryRelation {
+    arity() : Integer
+  }
+  class Equals <<(S,#FF7700) singleton>> 
+  class Vocabulary <<(M,orchid) module>> {
+    rankings : Hash
+    add_assoc(String, Term)
+  } 
+  class Environment {
+    ivars : Hash
+    add_var(Variable)
+  } 
+  class Outcome {
+    resultant : Symbol
+  }
+  class Glue::FreshEnv {
+    attain(Vocabulary) : Fiber<Outcome>
+  }
+  class Goal {
+    attain(Vocabulary) : Fiber<Outcome>
+  }
+  class AnyValue {
+    rank : Integer
+  }
+  class AssociationWalker {
+    visitees
+  }
+  class CompositeGoal
+  class DuckFiber {
+    outcome : Outcome
+    resume() : OutCome
+  }
+  class Freshness {
+    degree : Symbol
+  }
+  class Glue::RunStarExpression {
+    run() : ConsCell
+  }
+
+  ' **** RELATIONS ****
+  Term <|-- AtomicTerm
+  Term <|-- CompositeTerm
+  Term <|-- VariableRef
+  Term "value" <-- Association
+  AtomicTerm <|-- KInteger
+  AtomicTerm <|-- KSymbol
+  CompositeTerm <|-- ConsCell
+  Term "* children" --o CompositeTerm
+  Relation <|-- NullaryRelation
+  NullaryRelation <|-- Fail
+  NullaryRelation <|-- Succeed
+  Relation <|-- BinaryRelation
+  BinaryRelation <|-- Equals
+  Vocabulary --> "0,1 parent" Vocabulary
+  Vocabulary <|..  Environment : <<mixin>>
+  Vocabulary o-- "* associations" Association
+  AssociationWalker <.. Vocabulary : <<create>>
+  Environment o-- "* vars" Variable
+  Vocabulary <|..  Outcome : <<mixin>>
+  AssociationWalker ..> Freshness : <<create>>
+  Goal -- "1" Relation
+  Goal O-- "* actuals" Term
+  Environment <|-- Glue::FreshEnv
+  Environment "1 env"--o Glue::RunStarExpression
+@enduml
