@@ -1,3 +1,19 @@
+## [0.1.06] - 2020-05-20
+- Implementation of `conj2` (two arguments conjunction)
+
+### New
+- Class `CompositeGoal`
+- Class `Conj2` as subclass of `GoalRelation` that implements the conjunction of two subgoals
+- Mixin module `Designation` to factor out the common methods in `Variable` and `VariableRef` classes
+- Class `GoalArg` abstract class, that is a generalization for anything that be be argument of a goal.
+- Class `GoalRelation` as subclass of `Relation`. A goal that is linked to a such relation may have goals as its arguments only.
+
+### Changed
+- Class `Goal` is new subclass of class `GoalArg`. Therefore a goal can be an argument to another goal.
+- Class `Term` is new subclass of class `GoalArg`. Therefore a term can be an argument of a goal.
+- Classes `Variable`, `VariableRef` now include mix-in module `Designation`
+- File `cd_implementation.txt` Updated with changes of class relationship
+
 ## [0.1.05] - 2020-05-09
 - Changed implementation of fused variables  
 - Magic comments for frozen string literal

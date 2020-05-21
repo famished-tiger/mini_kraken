@@ -1,12 +1,17 @@
 @startuml
-  title Implementation model of MiniKraken (as of 2020/10/05)
+  title Implementation model of MiniKraken
   ' This file uses the syntax of PlantUML diagramming tool
   '   Plantuml documentation: https://plantuml.com/
   ' The diagrams can be rendered online with the PlantText web application
   '   PlantText website: https://www.planttext.com/
 
   ' **** CLASSES ****
-  abstract class Term
+  abstract class GoalArg
+
+  abstract class Term {
+    fresh?(Vocabulary) : Boolean
+    ground?(Vocabulary) : Boolean
+  }
   abstract class AtomicTerm {
     value
   }
@@ -17,13 +22,14 @@
     car : Term
     cdr : Term
   }
-  class Variable {
+  class Designation <<(M,orchid) module>> {
     name : String
+    add_assoc(String, Term)
+  }
+  class Variable {
     i_name : String
   }
-  class VariableRef {
-    name : String
-  }
+  class VariableRef
   class Association {
     i_name : String
   }
@@ -32,23 +38,25 @@
     alt_name : String
     solver_for(Array<Term>, Vocabulary) : Fiber<Outcome>
   }
+  abstract class GoalRelation
   abstract class NullaryRelation {
-    arity() : Integer  
+    arity() : Integer
   }
   class Fail <<(S,#FF7700) singleton>>
   class Succeed <<(S,#FF7700) singleton>>
   abstract class BinaryRelation {
     arity() : Integer
   }
-  class Equals <<(S,#FF7700) singleton>> 
+  class Equals <<(S,#FF7700) singleton>>
   class Vocabulary <<(M,orchid) module>> {
     rankings : Hash
     add_assoc(String, Term)
-  } 
+  }
+  class Conj2 <<(S,#FF7700) singleton>>
   class Environment {
     ivars : Hash
     add_var(Variable)
-  } 
+  }
   class Outcome {
     resultant : Symbol
   }
@@ -77,6 +85,8 @@
   }
 
   ' **** RELATIONS ****
+  GoalArg <|-- Term
+  GoalArg <|-- Goal
   Term <|-- AtomicTerm
   Term <|-- CompositeTerm
   Term <|-- VariableRef
@@ -85,20 +95,24 @@
   AtomicTerm <|-- KSymbol
   CompositeTerm <|-- ConsCell
   Term "* children" --o CompositeTerm
+  Designation <|.. Variable : <<mixin>>
+  Designation <|.. VariableRef : <<mixin>>
+  Relation <|-- GoalRelation  
   Relation <|-- NullaryRelation
   NullaryRelation <|-- Fail
   NullaryRelation <|-- Succeed
   Relation <|-- BinaryRelation
   BinaryRelation <|-- Equals
+  GoalRelation <|-- Conj2
   Vocabulary --> "0,1 parent" Vocabulary
   Vocabulary <|..  Environment : <<mixin>>
   Vocabulary o-- "* associations" Association
   AssociationWalker <.. Vocabulary : <<create>>
   Environment o-- "* vars" Variable
   Vocabulary <|..  Outcome : <<mixin>>
-  AssociationWalker ..> Freshness : <<create>>
+  Freshness <. AssociationWalker : <<create>>
   Goal -- "1" Relation
-  Goal O-- "* actuals" Term
+  Goal O-- "* actuals" GoalArg
   Environment <|-- Glue::FreshEnv
   Environment "1 env"--o Glue::RunStarExpression
 @enduml

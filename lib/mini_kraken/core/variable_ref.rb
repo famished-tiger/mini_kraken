@@ -8,31 +8,12 @@ module MiniKraken
     # A variable reference represents the occurrence of a variable (name) in a
     # MiniKraken term.
     class VariableRef < Term
-      # @return [String] Name of the variable
-      attr_reader :var_name
+      include Designation # Mixin: Acquire name attribute
+      alias var_name name
 
       # @param aName [String] The name of the variable
       def initialize(aName)
-        @var_name = valid_name(aName)
-      end
-
-      # @param env [Environment]
-      # @return [Boolean]
-      def fresh?(env)
-        env.fresh?(self)
-      end
-
-      # @param env [Environment]
-      # @return [Boolean]
-      def bound?(env)
-        freshness = env.freshness_ref(self)
-        freshness.degree == :bound
-      end
-
-      # @param env [Environment]
-      # @return [Boolean]
-      def ground?(env)
-        !fresh?(env)
+        init_designation(aName)
       end
 
       # @param aValue [Term]
@@ -52,12 +33,6 @@ module MiniKraken
       def value(env)
         freshness = env.freshness_ref(self)
         freshness.associated
-      end
-
-      # @param env [Environment]
-      # @return [Freshness]
-      def freshness(env)
-        env.freshness_ref(self)
       end
 
       # @param env [Environment]

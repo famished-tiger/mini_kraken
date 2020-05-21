@@ -31,10 +31,10 @@ module MiniKraken
           if result # ... more than one result...
           elsif outcome.successful?
             env.propagate(outcome)
-            # require 'debug'
             result = Core::ConsCell.new(var.quote(outcome))
           else
             result = Core::NullList
+            env.associations.freeze
           end
         end
 

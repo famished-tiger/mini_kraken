@@ -236,7 +236,7 @@ module MiniKraken
         walker.find_ground(name, self)
       end
 
-      # @param var [CompositeTerm] the composite term to check.
+      # @param val [CompositeTerm] the composite term to check.
       # @return [Boolean]
       def fresh_value?(val)
         walker = AssociationWalker.new
@@ -291,7 +291,7 @@ module MiniKraken
       end
 
       # Return the variable with given internal variable name.
-      # @param aName [String] internal variable name
+      # @param i_name [String] internal variable name
       # @return [Variable]
       def i_name2var(i_name)
         var = nil

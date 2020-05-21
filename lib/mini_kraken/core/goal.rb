@@ -3,8 +3,10 @@
 require_relative 'environment'
 
 module MiniKraken
+  require_relative 'goal_arg'
+
   module Core
-    class Goal
+    class Goal < GoalArg
       # @return [Relation] The relation corresponding to this goal
       attr_reader :relation
 
@@ -35,7 +37,7 @@ module MiniKraken
 
         prefix = 'Invalid goal argument '
         args.each do |actl|
-          raise StandardError, prefix + actl.to_s unless actl.kind_of?(Term)
+          raise StandardError, prefix + actl.to_s unless actl.kind_of?(GoalArg)
         end
 
         args.dup

@@ -2,6 +2,7 @@
 
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/goal'
+require_relative '../../lib/mini_kraken/core/conj2'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/fail'
 require_relative '../../lib/mini_kraken/core/succeed'
@@ -37,12 +38,16 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
+        let(:corn) { k_symbol(:corn) }
+        let(:meal) { k_symbol(:meal) }
         let(:ref_q) { Core::VariableRef.new('q') }
         let(:ref_x) { Core::VariableRef.new('x') }
         let(:ref_y) { Core::VariableRef.new('y') }
         let(:ref_s) { Core::VariableRef.new('s') }
         let(:ref_t) { Core::VariableRef.new('t') }
         let(:ref_u) { Core::VariableRef.new('u') }
+        let(:fails) { Core::Goal.new(Core::Fail.instance, []) }
+        let(:succeeds) { Core::Goal.new(Core::Succeed.instance, []) }
 
         it 'should return a null list with the fail goal' do
           # Reasoned S2, frame 1:7
@@ -355,6 +360,66 @@ module MiniKraken
           expect(ref_x.fresh?(fresh_env_y)).to be_truthy
           expect(ref_y.fresh?(fresh_env_y)).to be_truthy
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1), cons(any_value(0)))))
+        end
+
+        it 'should support conjunction of two succeed' do
+          goal = conj2_goal(succeeds, succeeds)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:50
+          # (run* q (conj2 succeed succeed)) ;; => (_0)
+          result = instance.run
+          expect(ref_q.fresh?(instance.env)).to be_truthy
+          expect(result.car).to eq(any_value(0))
+        end
+
+        # TODO: fix erratic RSpec failure
+        # it 'should support conjunction of one succeed and a successful goal' do
+          # subgoal = equals_goal(corn, ref_q)
+          # goal = conj2_goal(succeeds, subgoal)
+          # instance = RunStarExpression.new('q', goal)
+
+          # # Reasoned S2, frame 1:51
+          # # (run* q (conj2 succeed (== 'corn q)) ;; => ('corn)
+          # result = instance.run
+          # expect(ref_q.fresh?(instance.env)).to be_falsy
+          # expect(result.car).to eq(corn)
+        # end
+
+        it 'should support conjunction of one fail and a successful goal' do
+          subgoal = equals_goal(corn, ref_q)
+          goal = conj2_goal(fails, subgoal)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:52
+          # (run* q (conj2 fail (== 'corn q)) ;; => ()
+          expect(instance.run).to be_null
+          expect(ref_q.fresh?(instance.env)).to be_truthy
+        end
+
+        it 'should support conjunction of two contradictory goals' do
+          subgoal1 = equals_goal(corn, ref_q)
+          subgoal2 = equals_goal(meal, ref_q)
+          goal = conj2_goal(subgoal1, subgoal2)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:53
+          # (run* q (conj2 (== 'corn q)(== 'meal q)) ;; => ()
+          expect(instance.run).to be_null
+          expect(ref_q.fresh?(instance.env)).to be_truthy
+        end
+
+        it 'should succeed the conjunction of two identical goals' do
+          subgoal1 = equals_goal(corn, ref_q)
+          subgoal2 = equals_goal(corn, ref_q)
+          goal = conj2_goal(subgoal1, subgoal2)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:54
+          # (run* q (conj2 (== 'corn q)(== 'corn q)) ;; => ('corn)
+          result = instance.run
+          expect(ref_q.fresh?(instance.env)).to be_falsy
+          expect(result.car).to eq(corn)
         end
       end # context
     end # describe

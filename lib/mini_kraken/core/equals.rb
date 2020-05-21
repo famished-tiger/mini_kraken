@@ -17,15 +17,9 @@ module MiniKraken
         super('equals', '==')
       end
 
-=begin
-    double data flow:
-      A goal has actual arguments
-      When its corresponding relation is invoked
-      this one will return two things: (a success, the bindings/constraints
-      resulting from the relation)
-      the bindings/constraints can be undone if enclosing fails, otherwise
-      the bindings/constraints are rolled up.
-=end
+      # @param actuals [Array<Term>] A two-elements array
+      # @param anEnv [Vocabulary] A vocabulary object
+      # @return [Fiber<Outcome>] A Fiber(-like) instance that yields Outcomes
       def solver_for(actuals, anEnv)
         arg1, arg2 = *actuals
         DuckFiber.new(:custom) { unification(arg1, arg2, anEnv) }

@@ -13,12 +13,14 @@ ISBN: 9780262535519, (2018), MIT Press.
 ### Features
 - [X] ==  
 - [X] run\*  
-- [X] fresh  
+- [X] fresh 
+- [X] conj2  
 
 ### TODO
 - [ ] disj2  
-- [ ] conj2  
+- [ ] defrel 
 - [ ] conde  
+- [ ] Occurs check
 
 ## Installation
 

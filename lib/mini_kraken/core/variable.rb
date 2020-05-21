@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'designation'
 require_relative 'any_value'
 require_relative 'vocabulary'
 
@@ -8,30 +9,15 @@ module MiniKraken
     # Representation of a MiniKraken variable.
     # It is a named slot that can be associated with one value.
     class Variable
-      # @return [String] User-defined name of the variable
-      attr_reader :name
+      include Designation # Mixin: Acquire name attribute
 
       # @return [String] Internal variable name used by MiniKraken
       attr_accessor :i_name
 
       # @param aName [String] The name of the variable
       def initialize(aName)
-        @name = valid_name(aName)
+        init_designation(aName)
         @i_name = name.dup
-      end
-
-      def fresh?(anEnvironment)
-        anEnvironment.fresh?(self)
-      end
-
-      # @param env [Environment]
-      # @return [Freshness]
-      def freshness(env)
-        env.freshness_ref(self)
-      end
-
-      def ground?(anEnvironment)
-        !fresh?(anEnvironment)
       end
 
       def fused?
@@ -43,16 +29,6 @@ module MiniKraken
 
         val = anEnvironment.quote_ref(self)
         val.nil? ? AnyValue.new(name, anEnvironment) : val
-      end
-
-      private
-
-      def valid_name(aName)
-        if aName.empty?
-          raise StandardError, 'Variable name may not be empty.'
-        end
-
-        aName
       end
     end # class
   end # module

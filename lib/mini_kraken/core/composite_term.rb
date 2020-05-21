@@ -8,6 +8,8 @@ module MiniKraken
     # An composite term is an Minikraken term that can be
     # decomposed into simpler MiniKraken data value(s).
     class CompositeTerm < Term
+      # Abstract method (to override). Return the child terms.
+      # @return [Array<Term>]
       def children
         raise NotImplementedError, 'This method must re-defined in subclass(es).'
       end
