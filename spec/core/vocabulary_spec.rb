@@ -79,11 +79,11 @@ module MiniKraken
 
         it 'should provide a walker over ancestors' do
           walker = subject.ancestor_walker
-          expect(walker).to be_kind_of(Fiber)
-          expect(walker.resume).to eq(subject)
-          expect(walker.resume).to eq(mother)
-          expect(walker.resume).to eq(grandma)
-          expect(walker.resume).to be_nil
+          expect(walker).to be_kind_of(Enumerator)
+          expect(walker.next).to eq(subject)
+          expect(walker.next).to eq(mother)
+          expect(walker.next).to eq(grandma)
+          expect(walker.next).to be_nil
         end
 
         it 'should know if a variable is defined' do

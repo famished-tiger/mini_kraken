@@ -3,6 +3,7 @@
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/goal'
 require_relative '../../lib/mini_kraken/core/conj2'
+require_relative '../../lib/mini_kraken/core/disj2'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/fail'
 require_relative '../../lib/mini_kraken/core/succeed'
@@ -40,6 +41,8 @@ module MiniKraken
       context 'Provided services:' do
         let(:corn) { k_symbol(:corn) }
         let(:meal) { k_symbol(:meal) }
+        let(:oil) { k_symbol(:oil) }
+        let(:olive) { k_symbol(:olive) }
         let(:ref_q) { Core::VariableRef.new('q') }
         let(:ref_x) { Core::VariableRef.new('x') }
         let(:ref_y) { Core::VariableRef.new('y') }
@@ -56,7 +59,6 @@ module MiniKraken
           instance = RunStarExpression.new('q', failing)
 
           expect(instance.run).to be_null
-          expect(ref_q.fresh?(instance.env)).to be_truthy
         end
 
         it 'should return a null list when a goal fails' do
@@ -74,7 +76,6 @@ module MiniKraken
           # Reasoned S2, frame 1:11
           # (run* q (== q 'pea) ;; => (pea)
           expect(instance.run.car).to eq(pea)
-          expect(ref_q.fresh?(instance.env)).to be_falsey
         end
 
         it 'should unify the righthand variable(s)' do
@@ -84,9 +85,6 @@ module MiniKraken
           # Reasoned S2, frame 1:12
           # (run* q (== 'pea q) ;; => (pea)
           expect(instance.run.car).to eq(pea)
-
-          # Reasoned S2, frame 1:15
-          expect(ref_q.fresh?(instance.env)).to be_falsey
         end
 
         it 'should return a null list with the succeed goal' do
@@ -96,7 +94,6 @@ module MiniKraken
           # (display (run* q succeed)) ;; => (_0)
           # Reasoned S2, frame 1:16
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
 
           # Reasoned S2, frame 1:17
           expect(result.car).to eq(any_value(0))
@@ -109,7 +106,6 @@ module MiniKraken
           # (display (run* q (== 'pea 'pea))) ;; => (_0)
           # Reasoned S2, frame 1:19
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
           expect(result.car).to eq(any_value(0))
         end
 
@@ -122,7 +118,6 @@ module MiniKraken
           # (display (run* q (== q q))) ;; => (_0)
           # Reasoned S2, frame 1:20
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
           expect(result.car).to eq(any_value(0))
         end
 
@@ -134,8 +129,6 @@ module MiniKraken
           # Reasoned S2, frame 1:21..23
           # (run* q (fresh (x) (== 'pea q))) ;; => (pea)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_falsey
-          expect(ref_x.fresh?(fresh_env)).to be_truthy
 
           #  Reasoned S2, frame 1:40
           expect(ref_q.different_from?(ref_x, fresh_env)).to be_truthy
@@ -150,8 +143,6 @@ module MiniKraken
           # Reasoned S2, frame 1:24
           # (run* q (fresh (x) (== 'pea x))) ;; => (_0)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
-          expect(ref_x.fresh?(fresh_env)).to be_falsey
           expect(result.car).to eq(any_value(0))
         end
 
@@ -163,8 +154,6 @@ module MiniKraken
           # Reasoned S2, frame 1:25
           # (run* q (fresh (x) (== (cons x '()) q))) ;; => ((_0))
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
-          expect(ref_x.fresh?(fresh_env)).to be_truthy
           expect(result.car).to eq(cons(any_value(0)))
         end
 
@@ -195,7 +184,6 @@ module MiniKraken
           # Reasoned S2, frame 1:32
           # (run* q (==  '(((pea)) pod) '(((pea)) pod))) ;; => (_0)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
           expect(result.car).to eq(any_value(0))
         end
 
@@ -209,7 +197,6 @@ module MiniKraken
           # Reasoned S2, frame 1:33
           # (run* q (==  '(((pea)) pod) `(((pea)) ,q))) ;; => ('pod)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_falsey
           expect(result.car).to eq(pod)
         end
 
@@ -222,7 +209,6 @@ module MiniKraken
           # Reasoned S2, frame 1:34
           # (run* q (==  '(((,q)) pod) `(((pea)) pod))) ;; => ('pod)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_falsey
           expect(result.car).to eq(pea)
         end
 
@@ -236,8 +222,6 @@ module MiniKraken
           # Reasoned S2, frame 1:35
           # (run* q (fresh (x) (==  '(((,q)) pod) `(((,x)) pod)))) ;; => (_0)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
-          expect(ref_x.fresh?(fresh_env)).to be_truthy
           expect(result.car).to eq(any_value(0))
         end
 
@@ -251,11 +235,6 @@ module MiniKraken
           instance = RunStarExpression.new('q', fresh_env)
 
           result = instance.run
-
-          # Does propagate work correctly?
-          expect(ref_q.fresh?(instance.env)).to be_truthy # x isn't defined here
-          expect(ref_q.fresh?(fresh_env)).to be_falsey
-          expect(ref_x.fresh?(fresh_env)).to be_falsey
           expect(result.car).to eq(pod)
         end
 
@@ -268,9 +247,6 @@ module MiniKraken
           instance = RunStarExpression.new('q', fresh_env)
 
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy # x isn't defined here
-          expect(ref_q.fresh?(fresh_env)).to be_truthy
-          expect(ref_x.fresh?(fresh_env)).to be_truthy
           expect(result.car).to eq(cons(any_value(0), cons(any_value(0))))
         end
 
@@ -285,12 +261,6 @@ module MiniKraken
           instance = RunStarExpression.new('q', fresh_env_x)
 
           result = instance.run
-          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_q.bound?(fresh_env_y)).to be_truthy
-          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_x.bound?(fresh_env_y)).to be_falsy
-          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_y.bound?(fresh_env_y)).to be_falsy
 
           # y should be fused with x...
           var_x = fresh_env_y.name2var('x')
@@ -314,13 +284,7 @@ module MiniKraken
           instance = RunStarExpression.new('q', fresh_env_x)
 
           result = instance.run
-          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
           # q should be bound to '(,x ,y)
-          expect(ref_q.bound?(fresh_env_y)).to be_truthy
-          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_x.bound?(fresh_env_y)).to be_falsey
-          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_y.bound?(fresh_env_y)).to be_falsey
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
         end
 
@@ -334,13 +298,7 @@ module MiniKraken
           instance = RunStarExpression.new('s', fresh_env_t)
 
           result = instance.run
-          expect(ref_s.fresh?(fresh_env_u)).to be_truthy
           # s should be bound to '(,t ,u)
-          expect(ref_s.bound?(fresh_env_u)).to be_truthy
-          expect(ref_t.fresh?(fresh_env_u)).to be_truthy
-          expect(ref_t.bound?(fresh_env_u)).to be_falsey
-          expect(ref_u.fresh?(fresh_env_u)).to be_truthy
-          expect(ref_u.bound?(fresh_env_u)).to be_falsey
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
         end
 
@@ -354,11 +312,7 @@ module MiniKraken
           instance = RunStarExpression.new('q', fresh_env_x)
 
           result = instance.run
-          expect(ref_q.fresh?(fresh_env_y)).to be_truthy
           # q should be bound to '(,x ,y, ,x)
-          expect(ref_q.bound?(fresh_env_y)).to be_truthy
-          expect(ref_x.fresh?(fresh_env_y)).to be_truthy
-          expect(ref_y.fresh?(fresh_env_y)).to be_truthy
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1), cons(any_value(0)))))
         end
 
@@ -369,7 +323,6 @@ module MiniKraken
           # Reasoned S2, frame 1:50
           # (run* q (conj2 succeed succeed)) ;; => (_0)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_truthy
           expect(result.car).to eq(any_value(0))
         end
 
@@ -382,7 +335,6 @@ module MiniKraken
           # # Reasoned S2, frame 1:51
           # # (run* q (conj2 succeed (== 'corn q)) ;; => ('corn)
           # result = instance.run
-          # expect(ref_q.fresh?(instance.env)).to be_falsy
           # expect(result.car).to eq(corn)
         # end
 
@@ -394,7 +346,6 @@ module MiniKraken
           # Reasoned S2, frame 1:52
           # (run* q (conj2 fail (== 'corn q)) ;; => ()
           expect(instance.run).to be_null
-          expect(ref_q.fresh?(instance.env)).to be_truthy
         end
 
         it 'should support conjunction of two contradictory goals' do
@@ -406,7 +357,6 @@ module MiniKraken
           # Reasoned S2, frame 1:53
           # (run* q (conj2 (== 'corn q)(== 'meal q)) ;; => ()
           expect(instance.run).to be_null
-          expect(ref_q.fresh?(instance.env)).to be_truthy
         end
 
         it 'should succeed the conjunction of two identical goals' do
@@ -418,8 +368,117 @@ module MiniKraken
           # Reasoned S2, frame 1:54
           # (run* q (conj2 (== 'corn q)(== 'corn q)) ;; => ('corn)
           result = instance.run
-          expect(ref_q.fresh?(instance.env)).to be_falsy
           expect(result.car).to eq(corn)
+        end
+
+        it 'should not yield solution when both disjunction arguments fail' do
+          goal = disj2_goal(fails, fails)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:55
+          # (run* q (disj2 fail fail)) ;; => ()
+          expect(instance.run).to be_null
+        end
+
+        it 'should yield solution when first argument succeed' do
+          subgoal = Core::Goal.new(Core::Equals.instance, [olive, ref_q])
+          goal = disj2_goal(subgoal, fails)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:56
+          # (run* q (disj2 (equals 'olive q) fail)) ;; => ('olive)
+          result = instance.run
+          expect(result.car).to eq(olive)
+        end
+
+        it 'should yield solution when second argument succeed' do
+          subgoal = Core::Goal.new(Core::Equals.instance, [oil, ref_q])
+          goal = disj2_goal(fails, subgoal)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:57
+          # (run* q (disj2 fail (equals 'oil q)) ;; => (oil)
+          result = instance.run
+          expect(result.car).to eq(oil)
+        end
+
+        it 'should yield solutions when both arguments succeed' do
+          subgoal1 = Core::Goal.new(Core::Equals.instance, [olive, ref_q])
+          subgoal2 = Core::Goal.new(Core::Equals.instance, [oil, ref_q])
+          goal = disj2_goal(subgoal1, subgoal2)
+          instance = RunStarExpression.new('q', goal)
+
+          # Reasoned S2, frame 1:58
+          # (run* q (disj2 (equals 'olive q) (equals 'oil q)) ;; => (olive oil)
+          result = instance.run
+          expect(result.car).to eq(olive)
+          expect(result.cdr.car).to eq(oil)
+        end
+
+        it 'should support the nesting of variables and disjunction' do
+          # Reasoned S2, frame 1:59
+          # (run* q (fresh (x) (fresh (y) (disj2  (== '( ,x ,y ) q) (== '( ,x ,y ) q)))))
+          # ;; => ((_0 _1) (_0 _1))
+          expr1 = cons(ref_x, cons(ref_y))
+          subgoal1 = equals_goal(expr1, ref_q)
+          expr2 = cons(ref_y, cons(ref_x))
+          subgoal2 = equals_goal(expr2, ref_q)
+          goal = disj2_goal(subgoal1, subgoal2)
+          fresh_env_y = FreshEnv.new(['y'], goal)
+          fresh_env_x = FreshEnv.new(['x'], fresh_env_y)
+          instance = RunStarExpression.new('q', fresh_env_x)
+
+          result = instance.run
+          # q should be bound to '(,x ,y), then to '(,y ,x)
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
+          expect(result.cdr.car).to eq(cons(any_value(0), cons(any_value(1))))
+        end
+
+        it 'should accept nesting of disj2 and conj2 (I)' do
+          conj_subgoal = Core::Goal.new(Core::Equals.instance, [olive, ref_x])
+          conjunction = conj2_goal(conj_subgoal, fails)
+          subgoal = Core::Goal.new(Core::Equals.instance, [oil, ref_x])
+          goal = disj2_goal(conjunction, subgoal)
+          instance = RunStarExpression.new('x', goal)
+
+          # Reasoned S2, frame 1:62
+          # (run* x (disj2
+          #           (conj2 (== 'olive x) fail)
+          #           ('oil x))) ;; => (oil)
+          result = instance.run
+          expect(result.car).to eq(oil)
+        end
+
+        it 'should accept nesting of disj2 and conj2 (II)' do
+          conj_subgoal = Core::Goal.new(Core::Equals.instance, [olive, ref_x])
+          conjunction = conj2_goal(conj_subgoal, succeeds)
+          subgoal = Core::Goal.new(Core::Equals.instance, [oil, ref_x])
+          goal = disj2_goal(conjunction, subgoal)
+          instance = RunStarExpression.new('x', goal)
+
+          # Reasoned S2, frame 1:63
+          # (run* x (disj2
+          #           (conj2 (== 'olive x) succeed)
+          #           ('oil x))) ;; => (olive oil)
+          result = instance.run
+          expect(result.car).to eq(olive)
+          expect(result.cdr.car).to eq(oil)
+        end
+
+        it 'should accept nesting of disj2 and conj2 (III)' do
+          conj_subgoal = Core::Goal.new(Core::Equals.instance, [olive, ref_x])
+          conjunction = conj2_goal(conj_subgoal, succeeds)
+          subgoal = Core::Goal.new(Core::Equals.instance, [oil, ref_x])
+          goal = disj2_goal(subgoal, conjunction)
+          instance = RunStarExpression.new('x', goal)
+
+          # Reasoned S2, frame 1:64
+          # (run* x (disj2
+          #           ('oil x)
+          #           (conj2 (== 'olive x) succeed))) ;; => (oil olive)
+          result = instance.run
+          expect(result.car).to eq(oil)
+          expect(result.cdr.car).to eq(olive)
         end
       end # context
     end # describe

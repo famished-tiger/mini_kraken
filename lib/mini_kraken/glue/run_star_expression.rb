@@ -21,20 +21,29 @@ module MiniKraken
 
       def run
         result = nil
+        next_result = nil
         solver = env.goal.attain(env)
         # require 'debug'
         loop do
+          env.clear
+          env.clear_rankings
           outcome = solver.resume
           break if outcome.nil?
 
-          env.clear
           if result # ... more than one result...
+            if outcome.successful?
+              next_result.append(Core::ConsCell.new(var.quote(outcome)))
+            else
+              next_result.append(Core::NullList)
+            end
+            next_result = next_result.cdr
           elsif outcome.successful?
             env.propagate(outcome)
             result = Core::ConsCell.new(var.quote(outcome))
+            next_result = result
           else
             result = Core::NullList
-            env.associations.freeze
+            next_result = result
           end
         end
 

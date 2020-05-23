@@ -34,12 +34,20 @@ module MiniKraken
       Core::Goal.new(Core::Equals.instance, [arg1, arg2])
     end
 
-    # Factory method for constructing a goal using the Equals relation.
+    # Factory method for constructing a goal using the conjunction relation.
     # @param g1 [Core::Goal]
     # @param g2 [Core::Goal]
     # @return [Core::Goal]
     def conj2_goal(g1, g2)
       Core::Goal.new(Core::Conj2.instance, [g1, g2])
+    end
+
+    # Factory method for constructing a goal using the disjunction relation.
+    # @param g1 [Core::Goal]
+    # @param g2 [Core::Goal]
+    # @return [Core::Goal]
+    def disj2_goal(g1, g2)
+      Core::Goal.new(Core::Disj2.instance, [g1, g2])
     end
 
     # Factory method for constructing a KSymbol instance

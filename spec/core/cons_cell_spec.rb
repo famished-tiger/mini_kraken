@@ -58,6 +58,14 @@ module MiniKraken
           different = ConsCell.new(pea)
           expect(subject.eql?(different)).to be_falsey
         end
+
+        it 'should append another cons cell' do
+          instance = ConsCell.new(pea)
+          trail = ConsCell.new(pod)
+          instance.append(trail)
+          expect(instance.car).to eq(pea)
+          expect(instance.cdr).to eq(trail)
+        end
       end # context
     end # describe
   end # module

@@ -15,9 +15,9 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [X] run\*  
 - [X] fresh 
 - [X] conj2  
+- [X] disj2  
 
 ### TODO
-- [ ] disj2  
 - [ ] defrel 
 - [ ] conde  
 - [ ] Occurs check

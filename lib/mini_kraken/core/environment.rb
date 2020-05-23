@@ -47,7 +47,7 @@ module MiniKraken
         # Rollout associations from hierarchy
         walker = descendent.ancestor_walker
         begin
-          env = walker.resume
+          env = walker.next
           break if env.nil?
 
           env.do_propagate(descendent) if env.kind_of?(Environment)

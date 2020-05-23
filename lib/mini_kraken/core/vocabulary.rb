@@ -23,26 +23,28 @@ module MiniKraken
         @rankings = {} unless aParent
       end
 
-      # Return a Fiber object that can iterate over this vocabulary and
+      # Return a Enumerator object that can iterate over this vocabulary and
       # all its direct and indirect parent(s).
-      # @return [Fiber<Vocabulary, NilClass>]
+      # @return [Enumerator<Vocabulary, NilClass>]
       def ancestor_walker
-        Fiber.new do
+        unless @ancestors # Not yet in cache?...
+          @ancestors = []
           relative = self
           while relative
-            Fiber.yield relative
+            @ancestors << relative
             relative = relative.parent
           end
-
-          Fiber.yield nil # nil marks end of iteration...
+          @ancestors << nil # nil marks end of iteration...
         end
+
+        @ancestors.to_enum
       end
 
       def clear_rankings
         walker = ancestor_walker
         orphan = nil
         loop do
-          orphan_temp = walker.resume
+          orphan_temp = walker.next
           break unless orphan_temp
 
           orphan = orphan_temp
@@ -57,7 +59,7 @@ module MiniKraken
         walker = ancestor_walker
         orphan = nil
         loop do
-          orphan_temp = walker.resume
+          orphan_temp = walker.next
           break unless orphan_temp
 
           orphan = orphan_temp
@@ -182,7 +184,7 @@ module MiniKraken
           walker = ancestor_walker
 
           loop do
-            voc = walker.resume
+            voc = walker.next
             break unless voc
 
             if voc.associations.include?(old_i_name)
@@ -277,7 +279,7 @@ module MiniKraken
         walker = ancestor_walker
 
         loop do
-          voc = walker.resume
+          voc = walker.next
           if voc
             next unless voc.respond_to?(:vars) && voc.vars.include?(aName)
 
@@ -299,7 +301,7 @@ module MiniKraken
         walker = ancestor_walker
 
         loop do
-          voc = walker.resume
+          voc = walker.next
           if voc
             next unless voc.respond_to?(:ivars) && voc.ivars.include?(i_name)
 
@@ -335,7 +337,7 @@ module MiniKraken
         walker = ancestor_walker
 
         loop do
-          voc = walker.resume
+          voc = walker.next
           break unless voc
           next unless voc.respond_to?(:ivars)
 
@@ -358,7 +360,7 @@ module MiniKraken
         walker = ancestor_walker
 
         loop do
-          voc = walker.resume
+          voc = walker.next
           break unless voc
           next unless voc.associations.include?(i_name)
 

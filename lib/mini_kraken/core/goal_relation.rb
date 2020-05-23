@@ -10,6 +10,19 @@ module MiniKraken
       def arity
         2
       end
+
+      protected
+
+      def validated_args(actuals)
+        actuals.each do |arg|
+          unless arg.kind_of?(Goal)
+            prefix = "#{name} expects goal as argument, found a "
+            raise StandardError, prefix + "'#{arg.class}'"
+          end
+        end
+
+        actuals
+      end
     end # class
   end # module
 end # module

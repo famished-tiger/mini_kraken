@@ -1,5 +1,20 @@
+## [0.1.07] - 2020-05-23
+- Implementation of `disj2` (two arguments disjunction - or -)
+
+### New
+- Class `Disj2` as subclass of `GoalRelation` that implements the disjunction of two subgoals
+
+### CHANGED
+- Class `Disj2`: common code with `Conj2` class factored out to superclass `GoalRelation`
+- File `cons_cell.rb`: prevent multiple inclusions via different requires
+- Method `Vocabulary#ancestor_walker` now returns an `Enumerator` instead of a `Fiber`.
+
+### FIXED
+- Method `RunStarExpression#run` clear associations and rankings for second and consecutive solmutions
+
+
 ## [0.1.06] - 2020-05-20
-- Implementation of `conj2` (two arguments conjunction)
+- Implementation of `conj2` (two arguments conjunction - and -)
 
 ### New
 - Class `CompositeGoal`
