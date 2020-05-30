@@ -1,3 +1,9 @@
+## [0.1.08] - 2020-05-30
+- Fix of nasty bug (object aliasing) that caused flaky failures in specs.
+
+### FIXED
+- `DuckFiber#resume` each call returns a distinct `Outcome` instance when successful.
+
 ## [0.1.07] - 2020-05-23
 - Implementation of `disj2` (two arguments disjunction - or -)
 
