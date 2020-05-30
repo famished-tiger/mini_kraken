@@ -7,145 +7,149 @@ require_relative 'duck_fiber'
 require_relative 'variable'
 require_relative 'variable_ref'
 
-module MiniKraken
-  module Core
-    # equals tries to unify two terms
-    class Equals < BinaryRelation
-      include Singleton
+unless MiniKraken::Core.constants(false).include? :Equals
+  module MiniKraken
+    module Core
+      # equals tries to unify two terms
+      class Equals < BinaryRelation
+        include Singleton
 
-      def initialize
-        super('equals', '==')
-      end
-
-      # @param actuals [Array<Term>] A two-elements array
-      # @param anEnv [Vocabulary] A vocabulary object
-      # @return [Fiber<Outcome>] A Fiber(-like) instance that yields Outcomes
-      def solver_for(actuals, anEnv)
-        arg1, arg2 = *actuals
-        DuckFiber.new(:custom) { unification(arg1, arg2, anEnv) }
-      end
-
-      def unification(arg1, arg2, anEnv)
-        arg1_nil = arg1.nil?
-        arg2_nil = arg2.nil?
-        if arg1_nil || arg2_nil
-          if arg1_nil && arg2_nil
-            result = Outcome.new(:"#s", anEnv)
-          else
-            result = Failure
-          end
-          return result
+        def initialize
+          super('equals', '==')
         end
-        new_arg1, new_arg2 = commute_cond(arg1, arg2, anEnv)
-        result = do_unification(new_arg1, new_arg2, anEnv)
-        # anEnv.merge(result) if result.successful? && !result.association.empty?
 
-        result
-      end
+        # @param actuals [Array<Term>] A two-elements array
+        # @param anEnv [Vocabulary] A vocabulary object
+        # @return [Fiber<Outcome>] A Fiber(-like) instance that yields Outcomes
+        def solver_for(actuals, anEnv)
+          arg1, arg2 = *actuals
+          DuckFiber.new(:custom) { unification(arg1, arg2, anEnv) }
+        end
 
-      private
-
-      # table: Unification
-      # | arg1               | arg2               | Criterion                                 || Unification              |
-      # | isa? Atomic        | isa? Atomic        | arg1.eq? arg2 is true                     || { "s", [] }              |
-      # | isa? Atomic        | isa? Atomic        | arg1.eq? arg2 is false                    || { "u", [] }              |
-      # | isa? CompositeTerm | isa? Atomic        | dont_care                                 || { "u", [] }              |
-      # | isa? CompositeTerm | isa? CompositeTerm | unification(arg1.car, arg2.car) => "s"    || { "s", [bindings*] }     |
-      # | isa? CompositeTerm | isa? CompositeTerm | unification(arg1.cdr, arg2.cdr) => "u"    || { "u", [] )              |             |
-      # | isa? VariableRef   | isa? Atomic        | arg1.fresh? is true                       || { "s", [arg2] }          |
-      # | isa? VariableRef   | isa? Atomic        | arg1.fresh? is false                      ||                          |
-      # |                                         |   unification(arg1.value, arg2) => "s"    || { "s", [bindings*] }     |
-      # |                                         |   unification(arg1.value, arg2) => "u"    || { "u", [] }              |
-      # | isa? VariableRef   | isa? CompositeTerm | arg1.fresh? is true                       || { "s", [arg2] }          |  # What if arg1 occurs in arg2?
-      # | isa? VariableRef   | isa? CompositeTerm | arg1.fresh? is false                      ||                          |
-      # |                                         |   unification(arg1.value, arg2) => "s"    || { "s", [bindings*] }     |
-      # |                                         |   unification(arg1.value, arg2) => "u"    || { "u", [] }              |
-      # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [true, true]  || { "s", [arg1 <=> arg2] } |
-      # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [true, false] ||                          |
-      # |                                         |   unification(arg1, arg2.value) => "s"    || { "s", [bindings*] }     |
-      # |                                         |   unification(arg1, arg2.value) => "u"    || { "u", [] }              |
-      # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [false, false]||                          |
-      # |                                         |   unification(arg1, arg2.value) => "s"    || { "s", [bindings*] }     |
-      # |                                         |   unification(arg1, arg2.value) => "u"    || { "u", [] }
-      def do_unification(arg1, arg2, anEnv)
-        # require 'debug'
-        return Outcome.new(:"#s", anEnv) if arg1.equal?(arg2)
-
-        result = Outcome.new(:"#u", anEnv) # default case
-
-        if arg1.kind_of?(AtomicTerm)
-          result = BasicSuccess if arg1.eql?(arg2)
-        elsif arg1.kind_of?(CompositeTerm)
-          if arg2.kind_of?(CompositeTerm) # AtomicTerm is default case => fail
-            result = unify_composite_terms(arg1, arg2, anEnv)
+        def unification(arg1, arg2, anEnv)
+          arg1_nil = arg1.nil?
+          arg2_nil = arg2.nil?
+          if arg1_nil || arg2_nil
+            if arg1_nil && arg2_nil
+              result = Outcome.new(:"#s", anEnv)
+            else
+              result = Failure
+            end
+            return result
           end
-        elsif arg1.kind_of?(VariableRef)
-          arg1_freshness = arg1.freshness(anEnv)
-          if arg2.kind_of?(AtomicTerm)
-            if arg1_freshness.degree == :fresh
-              result = Outcome.new(:"#s", anEnv)
-              arg1.associate(arg2, result)
-            else
-              result = Outcome.new(:"#s", anEnv) if arg1.value(anEnv).eql?(arg2)
+          new_arg1, new_arg2 = commute_cond(arg1, arg2, anEnv)
+          result = do_unification(new_arg1, new_arg2, anEnv)
+          # anEnv.merge(result) if result.successful? && !result.association.empty?
+
+          result
+        end
+
+        private
+
+        # table: Unification
+        # | arg1               | arg2               | Criterion                                 || Unification              |
+        # | isa? Atomic        | isa? Atomic        | arg1.eq? arg2 is true                     || { "s", [] }              |
+        # | isa? Atomic        | isa? Atomic        | arg1.eq? arg2 is false                    || { "u", [] }              |
+        # | isa? CompositeTerm | isa? Atomic        | dont_care                                 || { "u", [] }              |
+        # | isa? CompositeTerm | isa? CompositeTerm | unification(arg1.car, arg2.car) => "s"    || { "s", [bindings*] }     |
+        # | isa? CompositeTerm | isa? CompositeTerm | unification(arg1.cdr, arg2.cdr) => "u"    || { "u", [] )              |             |
+        # | isa? VariableRef   | isa? Atomic        | arg1.fresh? is true                       || { "s", [arg2] }          |
+        # | isa? VariableRef   | isa? Atomic        | arg1.fresh? is false                      ||                          |
+        # |                                         |   unification(arg1.value, arg2) => "s"    || { "s", [bindings*] }     |
+        # |                                         |   unification(arg1.value, arg2) => "u"    || { "u", [] }              |
+        # | isa? VariableRef   | isa? CompositeTerm | arg1.fresh? is true                       || { "s", [arg2] }          |  # What if arg1 occurs in arg2?
+        # | isa? VariableRef   | isa? CompositeTerm | arg1.fresh? is false                      ||                          |
+        # |                                         |   unification(arg1.value, arg2) => "s"    || { "s", [bindings*] }     |
+        # |                                         |   unification(arg1.value, arg2) => "u"    || { "u", [] }              |
+        # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [true, true]  || { "s", [arg1 <=> arg2] } |
+        # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [true, false] ||                          |
+        # |                                         |   unification(arg1, arg2.value) => "s"    || { "s", [bindings*] }     |
+        # |                                         |   unification(arg1, arg2.value) => "u"    || { "u", [] }              |
+        # | isa? VariableRef   | isa? VariableRef   | arg1.fresh?, arg2.fresh? => [false, false]||                          |
+        # |                                         |   unification(arg1, arg2.value) => "s"    || { "s", [bindings*] }     |
+        # |                                         |   unification(arg1, arg2.value) => "u"    || { "u", [] }
+        def do_unification(arg1, arg2, anEnv)
+          # require 'debug'
+          return Outcome.new(:"#s", anEnv) if arg1.equal?(arg2)
+
+          result = Outcome.new(:"#u", anEnv) # default case
+
+          if arg1.kind_of?(AtomicTerm)
+            result = BasicSuccess if arg1.eql?(arg2)
+          elsif arg1.kind_of?(CompositeTerm)
+            if arg2.kind_of?(CompositeTerm) # AtomicTerm is default case => fail
+              result = unify_composite_terms(arg1, arg2, anEnv)
             end
-          elsif arg2.kind_of?(CompositeTerm)
-            if arg1_freshness.degree == :fresh
-              result = Outcome.new(:"#s", anEnv)
-              arg1.associate(arg2, result)
-            else
-              # Ground case...
-              result = unify_composite_terms(arg1_freshness.associated, arg2, anEnv)
-            end
-          elsif arg2.kind_of?(VariableRef)
-            freshness = [arg1.fresh?(anEnv), arg2.fresh?(anEnv)]
-            case freshness
-            when [false, false] # TODO: confirm this...
-              result = unification(arg1.value(anEnv), arg2.value(anEnv), anEnv)
-            when [true, true]
-              result = Outcome.new(:"#s", anEnv)
-              if arg1.var_name != arg2.var_name
+          elsif arg1.kind_of?(VariableRef)
+            arg1_freshness = arg1.freshness(anEnv)
+            if arg2.kind_of?(AtomicTerm)
+              if arg1_freshness.degree == :fresh
+                result = Outcome.new(:"#s", anEnv)
                 arg1.associate(arg2, result)
-                arg2.associate(arg1, result)
+              else
+                result = Outcome.new(:"#s", anEnv) if arg1.value(anEnv).eql?(arg2)
+              end
+            elsif arg2.kind_of?(CompositeTerm)
+              if arg1_freshness.degree == :fresh
+                result = Outcome.new(:"#s", anEnv)
+                arg1.associate(arg2, result)
+              else
+                # Ground case...
+                result = unify_composite_terms(arg1_freshness.associated, arg2, anEnv)
+              end
+            elsif arg2.kind_of?(VariableRef)
+              freshness = [arg1.fresh?(anEnv), arg2.fresh?(anEnv)]
+              case freshness
+              when [false, false] # TODO: confirm this...
+                result = unification(arg1.value(anEnv), arg2.value(anEnv), anEnv)
+              when [true, true]
+                result = Outcome.new(:"#s", anEnv)
+                if arg1.var_name != arg2.var_name
+                  arg1.associate(arg2, result)
+                  arg2.associate(arg1, result)
+                end
+              else
+                raise StandardError, "Unsupported freshness combination #{freshness}"
               end
             else
-              raise StandardError, "Unsupported freshness combination #{freshness}"
+              arg_kinds = [arg1.class, arg2.class]
+              raise StandardError, "Unsupported combination #{arg_kinds}"
             end
-          else
-            arg_kinds = [arg1.class, arg2.class]
-            raise StandardError, "Unsupported combination #{arg_kinds}"
           end
+
+          result
         end
 
-        result
-      end
+        # @return [Freshness]
+        def unify_composite_terms(arg1, arg2, anEnv)
+          # require 'debug'
+          result = Outcome.new(:"#u", anEnv)
+          children1 = arg1.children
+          children2 = arg2.children
 
-      # @return [Freshness]
-      def unify_composite_terms(arg1, arg2, anEnv)
-        # require 'debug'
-        result = Outcome.new(:"#u", anEnv)
-        children1 = arg1.children
-        children2 = arg2.children
-
-        if children1.size == children2.size
-          i = 0
-          subresults = children1.map do |child1|
-            child2 = children2[i]
-            i += 1
-            unification(child1, child2, anEnv)
-          end
-          total_success = subresults.all?(&:successful?)
-          if total_success
-            memo = Outcome.new(:"#s", anEnv)
-            associations = subresults.reduce(memo) do |sub_total, outcome|
-              sub_total.merge(outcome)
-              sub_total
+          if children1.size == children2.size
+            i = 0
+            subresults = children1.map do |child1|
+              child2 = children2[i]
+              i += 1
+              unification(child1, child2, anEnv)
             end
-            result = memo
+            total_success = subresults.all?(&:successful?)
+            if total_success
+              memo = Outcome.new(:"#s", anEnv)
+              associations = subresults.reduce(memo) do |sub_total, outcome|
+                sub_total.merge(outcome)
+                sub_total
+              end
+              result = memo
+            end
           end
-        end
 
-        result
-      end
-    end # class
+          result
+        end
+      end # class
+      
+      Equals.instance.freeze
+    end # module
   end # module
-end # module
+end # unless

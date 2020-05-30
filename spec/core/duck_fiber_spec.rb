@@ -40,10 +40,21 @@ module MiniKraken
           succeeding = DuckFiber.new(:success)
           outcome = nil
           expect { outcome = succeeding.resume }.not_to raise_error
-          expect(outcome).to eq(BasicSuccess)
+          expect(outcome).to be_successful
+          expect(outcome.parent).to be_nil
 
           # Only one result should be yielded
           expect(succeeding.resume).to be_nil
+        end
+
+        it 'should yield a distinct success object' do
+          instance1 = DuckFiber.new(:success)
+          outcome1 = instance1.resume
+
+          instance2 = DuckFiber.new(:success)
+          outcome2 = instance1.resume
+
+          expect(outcome1).not_to be_equal(outcome2)
         end
 
         it 'should behave like a Fiber yielding a custom outcome' do

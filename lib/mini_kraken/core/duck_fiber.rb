@@ -36,7 +36,7 @@ module MiniKraken
           when :failure
             Failure
           when :success
-            BasicSuccess
+            Outcome.new(:"#s")
           else
             raise StandardError, "Unknonw outcome kind #{outcomeKind}"
         end

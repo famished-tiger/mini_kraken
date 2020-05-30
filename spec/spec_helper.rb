@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'bundler/setup'
 require 'rspec' # Use the RSpec framework
 
 RSpec.configure do |config|

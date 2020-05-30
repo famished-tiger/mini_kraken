@@ -43,6 +43,7 @@ module MiniKraken
         let(:meal) { k_symbol(:meal) }
         let(:oil) { k_symbol(:oil) }
         let(:olive) { k_symbol(:olive) }
+        let(:virgin) { k_symbol(:virgin) }
         let(:ref_q) { Core::VariableRef.new('q') }
         let(:ref_x) { Core::VariableRef.new('x') }
         let(:ref_y) { Core::VariableRef.new('y') }
@@ -88,8 +89,7 @@ module MiniKraken
         end
 
         it 'should return a null list with the succeed goal' do
-          success = Core::Goal.new(Core::Succeed.instance, [])
-          instance = RunStarExpression.new('q', success)
+          instance = RunStarExpression.new('q', succeeds)
 
           # (display (run* q succeed)) ;; => (_0)
           # Reasoned S2, frame 1:16
@@ -327,16 +327,16 @@ module MiniKraken
         end
 
         # TODO: fix erratic RSpec failure
-        # it 'should support conjunction of one succeed and a successful goal' do
-          # subgoal = equals_goal(corn, ref_q)
-          # goal = conj2_goal(succeeds, subgoal)
-          # instance = RunStarExpression.new('q', goal)
+        it 'should support conjunction of one succeed and a successful goal' do
+          subgoal = equals_goal(corn, ref_q)
+          goal = conj2_goal(succeeds, subgoal)
+          instance = RunStarExpression.new('q', goal)
 
-          # # Reasoned S2, frame 1:51
-          # # (run* q (conj2 succeed (== 'corn q)) ;; => ('corn)
-          # result = instance.run
-          # expect(result.car).to eq(corn)
-        # end
+          # Reasoned S2, frame 1:51
+          # (run* q (conj2 succeed (== 'corn q)) ;; => ('corn)
+          result = instance.run
+          expect(result.car).to eq(corn)
+        end
 
         it 'should support conjunction of one fail and a successful goal' do
           subgoal = equals_goal(corn, ref_q)
@@ -479,6 +479,30 @@ module MiniKraken
           result = instance.run
           expect(result.car).to eq(oil)
           expect(result.cdr.car).to eq(olive)
+        end
+
+        it 'should accept nesting of disj2 and conj2 (IV)' do
+          oil_goal = Core::Goal.new(Core::Equals.instance, [oil, ref_x])
+          disja = disj2_goal(succeeds, oil_goal)
+          olive_goal = Core::Goal.new(Core::Equals.instance, [olive, ref_x])
+          disjb = disj2_goal(olive_goal, disja)
+          virgin_goal = Core::Goal.new(Core::Equals.instance, [virgin, ref_x])
+          conjunction = conj2_goal(virgin_goal, fails)
+          goal = disj2_goal(conjunction, disjb)
+          instance = RunStarExpression.new('x', goal)
+
+          # Reasoned S2, frame 1:65
+          # (run* x (disj2
+          #           (conj2(== 'virgin x) fails)
+          #           (disj2
+          #             (== 'olive x)
+          #             (dis2
+          #               succeeds
+          #               (== 'oil x))))) ;; => (olive _0 oil)
+          result = instance.run
+          expect(result.car).to eq(olive)
+          expect(result.cdr.car).to eq(any_value(0))
+          expect(result.cdr.cdr.car).to eq(oil)
         end
       end # context
     end # describe

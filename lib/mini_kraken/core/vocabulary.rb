@@ -67,20 +67,22 @@ module MiniKraken
 
         raise StandardError unless orphan
 
+        rank = nil
         if orphan.rankings.include?(aName)
-          orphan.rankings[aName]
+          rank = orphan.rankings[aName]
         else
           other = alternate_names.find do |a_name|
-            orphan.rankings.include?(a_name)
+            rank = orphan.rankings.include?(a_name)
           end
           if other
-            get_rank(other)
+            rank = get_rank(other)
           else
             rank = orphan.rankings.keys.size
             orphan.rankings[aName] = rank
-            rank
           end
         end
+
+        rank
       end
 
       # Record an association between a variable with given user-defined name

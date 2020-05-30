@@ -93,51 +93,6 @@ module MiniKraken
           expect(outcome2.associations['q'].first.value).to eq(oil)
           expect(solver.resume).to be_nil
         end
-
-        it 'should yield success and set associations' do
-          # # Weird: this example succeeds if run alone...
-          # # Covers frame 1-51
-          # env.add_var(var_q)
-          # sub_goal = Goal.new(Equals.instance, [corn, ref_q])
-          # solver = subject.solver_for([succeeds, sub_goal], env)
-          # outcome = solver.resume
-          # expect(outcome).to be_successful
-          # expect(outcome.associations).not_to be_empty
-          # expect(outcome.associations['q'].first.value).to eq(corn)
-        end
-
-        # it 'should yield fails and set no associations' do
-          # # Covers frame 1-52
-          # env.add_var(var_q)
-          # sub_goal = Goal.new(Equals.instance, [corn, ref_q])
-          # solver = subject.solver_for([fails, sub_goal], env)
-          # outcome = solver.resume
-          # expect(outcome).not_to be_successful
-          # expect(outcome.associations).to be_empty
-        # end
-
-        # it 'should yield fails when sub-goals are incompatible' do
-          # # Covers frame 1-53
-          # env.add_var(var_q)
-          # sub_goal1 = Goal.new(Equals.instance, [corn, ref_q])
-          # sub_goal2 = Goal.new(Equals.instance, [meal, ref_q])
-          # solver = subject.solver_for([sub_goal1, sub_goal2], env)
-          # outcome = solver.resume
-          # expect(outcome).not_to be_successful
-          # expect(outcome.associations).to be_empty
-        # end
-
-        # it 'should yield success when sub-goals are same and successful' do
-          # # Covers frame 1-54
-          # env.add_var(var_q)
-          # sub_goal1 = Goal.new(Equals.instance, [corn, ref_q])
-          # sub_goal2 = Goal.new(Equals.instance, [corn, ref_q])
-          # solver = subject.solver_for([sub_goal1, sub_goal2], env)
-          # outcome = solver.resume
-          # expect(outcome).to be_successful
-          # expect(outcome.associations).not_to be_empty
-          # expect(outcome.associations['q'].first.value).to eq(corn)
-        # end
       end # context
     end # describe
   end # module

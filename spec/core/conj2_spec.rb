@@ -66,15 +66,14 @@ module MiniKraken
         end
 
         it 'should yield success and set associations' do
-          # # Weird: this example succeeds if run alone...
-          # # Covers frame 1-51
-          # env.add_var(var_q)
-          # sub_goal = Goal.new(Equals.instance, [corn, ref_q])
-          # solver = subject.solver_for([succeeds, sub_goal], env)
-          # outcome = solver.resume
-          # expect(outcome).to be_successful
-          # expect(outcome.associations).not_to be_empty
-          # expect(outcome.associations['q'].first.value).to eq(corn)
+          # Covers frame 1-51
+          env.add_var(var_q)
+          sub_goal = Goal.new(Equals.instance, [corn, ref_q])
+          solver = subject.solver_for([succeeds, sub_goal], env)
+          outcome = solver.resume
+          expect(outcome).to be_successful
+          expect(outcome.associations).not_to be_empty
+          expect(outcome.associations['q'].first.value).to eq(corn)
         end
 
         it 'should yield fails and set no associations' do
