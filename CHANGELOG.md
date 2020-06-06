@@ -1,3 +1,11 @@
+## [0.1.09] - 2020-06-06
+- Supports frames from "The Reasoned Scheme" book up to frame [1:76]
+
+### CHANGED
+- Method `FreshEnv#initialize`accepts an array of goals as second argument. This array is transformed into a conjunction of goals.
+- Method `RunStarExpression#initialize` accepts multiple multiple variable names and goals.
+- Method `RunStarExpression#run` can handle solutions with multiple variables.
+
 ## [0.1.08] - 2020-05-30
 - Fix of nasty bug (object aliasing) that caused flaky failures in specs.
 

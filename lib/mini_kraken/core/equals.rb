@@ -148,7 +148,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
           result
         end
       end # class
-      
+
       Equals.instance.freeze
     end # module
   end # module

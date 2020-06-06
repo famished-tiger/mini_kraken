@@ -31,12 +31,11 @@ unless MiniKraken::Core.constants(false).include? :Conj2
         # @param g2 [Goal] Second goal argument
         # @param voc [Vocabulary] A vocabulary object
         def conjunction(g1, g2, voc)
-          # require 'debug'
-          outcome1 = nil
-          outcome2 = nil
           if g1.relation.kind_of?(Fail) || g2.relation.kind_of?(Fail)
             Fiber.yield Outcome.new(:"#u", voc)
           else
+            outcome1 = nil
+            outcome2 = nil
             f1 = g1.attain(voc)
             loop do
               outcome1 = f1.resume
