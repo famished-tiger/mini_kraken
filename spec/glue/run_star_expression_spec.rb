@@ -65,6 +65,7 @@ module MiniKraken
         let(:ref_s) { Core::VariableRef.new('s') }
         let(:ref_t) { Core::VariableRef.new('t') }
         let(:ref_u) { Core::VariableRef.new('u') }
+        let(:ref_z) { Core::VariableRef.new('z') }
 
         it 'should return a null list with the fail goal' do
           # Reasoned S2, frame 1:7
@@ -661,6 +662,124 @@ module MiniKraken
           expect(result.car.cdr.car).to eq(pea)
           expect(result.cdr.car.car).to eq(red)
           expect(result.cdr.car.cdr.car).to eq(bean)
+        end
+
+        it 'should allow nesting a disjunction inside of conjunction' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(red, ref_x)
+          subgoal1 = disj2_goal(expr1, expr2)
+          subgoal2 = equals_goal(ref_x, ref_y)
+          goal = conj2_goal(subgoal1, subgoal2)
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          # (display (run* (x y)
+          #   (conj2
+          #     (disj2
+          #       (== 'split x)
+          #       (== 'red x))
+          #     (== x y)))) ;; => ((split split) (red red))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(split)
+          expect(result.cdr.car.cdr.car).to eq(red)
+        end
+
+        it 'should accept fresh with multiple variables' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          subgoal1 = conj2_goal(expr1, expr2)
+          expr3 = equals_goal(red, ref_x)
+          expr4 = equals_goal(bean, ref_y)
+          subgoal2 = conj2_goal(expr3, expr4)
+          subgoal3 = disj2_goal(subgoal1, subgoal2)
+          subgoal4 = equals_goal(cons(ref_x, cons(ref_y, cons(soup))), ref_r)
+          goal = conj2_goal(subgoal3, subgoal4)
+          fresh_env = FreshEnv.new(%w[x y], goal)
+          instance = RunStarExpression.new('r', fresh_env)
+
+          # Reasoned S2, frame 1:77
+          # (run* r
+          #   (fresh (x y)
+          #     (conj2
+          #       (disj2
+          #         (conj2 (== 'split x) (== 'pea y))
+          #         (conj2 (== 'red x) (== 'bean y)))
+          #       (== '(,x ,y soup) r)))) ;; => ((split pea soup) (red bean soup))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(pea)
+          expect(result.car.cdr.cdr.car).to eq(soup)
+          expect(result.cdr.car.car).to eq(red)
+          expect(result.cdr.car.cdr.car).to eq(bean)
+          expect(result.cdr.car.cdr.cdr.car).to eq(soup)
+        end
+
+        it 'should allow fresh with multiple goals' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          subgoal1 = conj2_goal(expr1, expr2)
+          expr3 = equals_goal(red, ref_x)
+          expr4 = equals_goal(bean, ref_y)
+          subgoal2 = conj2_goal(expr3, expr4)
+          goal1 = disj2_goal(subgoal1, subgoal2)
+          goal2 = equals_goal(cons(ref_x, cons(ref_y, cons(soup))), ref_r)
+          fresh_env = FreshEnv.new(%w[x y], [goal1, goal2])
+          instance = RunStarExpression.new('r', fresh_env)
+
+          # Reasoned S2, frame 1:78
+          # (run* r
+          #   (fresh (x y)
+          #     (disj2
+          #       (conj2 (== 'split x) (== 'pea y))
+          #       (conj2 (== 'red x) (== 'bean y)))
+          #     (== '(,x ,y soup) r))) ;; => ((split pea soup) (red bean soup))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(pea)
+          expect(result.car.cdr.cdr.car).to eq(soup)
+          expect(result.cdr.car.car).to eq(red)
+          expect(result.cdr.car.cdr.car).to eq(bean)
+          expect(result.cdr.car.cdr.cdr.car).to eq(soup)
+        end
+
+        it 'should allow run* with multiple goals' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          subgoal1 = conj2_goal(expr1, expr2)
+          expr3 = equals_goal(red, ref_x)
+          expr4 = equals_goal(bean, ref_y)
+          subgoal2 = conj2_goal(expr3, expr4)
+          goal1 = disj2_goal(subgoal1, subgoal2)
+          goal2 = equals_goal(soup, ref_z)
+          instance = RunStarExpression.new(%w[x y z], [goal1, goal2])
+
+          # Reasoned S2, frame 1:80
+          # (run* (x y z)
+          #   (disj2
+          #     (conj2 (== 'split x) (== 'pea y))
+          #     (conj2 (== 'red x) (== 'bean y)))
+          #   (== 'soup z)) ;; => ((split pea soup) (red bean soup))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(pea)
+          expect(result.car.cdr.cdr.car).to eq(soup)
+          expect(result.cdr.car.car).to eq(red)
+          expect(result.cdr.car.cdr.car).to eq(bean)
+          expect(result.cdr.car.cdr.cdr.car).to eq(soup)
+        end
+
+        it 'should allow simplified expressions with multiple goals' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          instance = RunStarExpression.new(%w[x y], [expr1, expr2])
+
+          # Reasoned S2, frame 1:81
+          # (run* (x y)
+          #   (== 'split x)
+          #   (== 'pea y)) ;; => ((split pea))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(pea)
         end
       end # context
     end # describe

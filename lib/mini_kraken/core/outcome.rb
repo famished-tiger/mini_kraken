@@ -16,6 +16,14 @@ unless MiniKraken::Core.constants(false).include? :Outcome
           @resultant = aResult
         end
 
+        def self.failure(aParent = nil)
+          new(:"#u", aParent)
+        end
+
+        def self.success(aParent = nil)
+          new(:"#s", aParent)
+        end
+
         def successful?
           resultant == :"#s"
         end
@@ -29,6 +37,12 @@ unless MiniKraken::Core.constants(false).include? :Outcome
           end
 
           are_equal
+        end
+
+        protected
+
+        def introspect
+          ", @resultant=#{resultant}"
         end
       end # class
 

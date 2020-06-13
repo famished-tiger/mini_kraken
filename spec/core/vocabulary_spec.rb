@@ -207,6 +207,12 @@ module MiniKraken
           expect(subject.get_rank('z')).to eq(0)
           expect(subject.get_rank('a')).to eq(1)
         end
+
+        it 'should provide a String representation of itself' do
+          expectation = +"#<#{subject.class}:#{subject.object_id.to_s(16)} @parent="
+          expectation << "#<#{subject.parent.class}:#{subject.parent.object_id.to_s(16)}>>"
+          expect(subject.inspect).to eq(expectation)
+        end
       end # context
     end # describe
   end # module

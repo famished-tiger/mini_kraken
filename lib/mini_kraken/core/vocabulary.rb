@@ -394,6 +394,18 @@ module MiniKraken
         name2var(aVarName) ? true : false
       end
 
+      def inspect
+        result = +"#<#{self.class.name}:#{object_id.to_s(16)} @parent="
+        if parent
+          result << "#<#{parent.class.name}:#{parent.object_id.to_s(16)}>"
+        else
+          result << nil
+        end
+        result << introspect
+        result << '>'
+        result
+      end
+
       protected
 
       def validated_parent(aParent)
@@ -419,6 +431,10 @@ module MiniKraken
 
           assc
         end
+      end
+
+      def introspect
+        ''
       end
     end # class
   end # module

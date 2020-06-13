@@ -33,6 +33,12 @@ module MiniKraken
         goal.attain(self)
       end
 
+      protected
+
+      def introspect
+        +", @vars=[#{vars.keys.join(', ')}]"
+      end
+
       private
 
       def valid_goal(aGoal)

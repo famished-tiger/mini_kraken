@@ -1,3 +1,14 @@
+## [0.1.10] - 2020-06-10
+- Supports frames from "The Reasoned Scheme" book up to frame [1:81]
+
+### New
+- Factory methods `Outcome#failure`, `Outcome#success`
+- Method `Vocabulary#inspect`
+- File `outcome_spec.rb`
+
+### FIXED
+- `Conj2#conjunction` vocabulary wasn't cleared when outcome2 was nil.
+
 ## [0.1.09] - 2020-06-06
 - Supports frames from "The Reasoned Scheme" book up to frame [1:76]
 

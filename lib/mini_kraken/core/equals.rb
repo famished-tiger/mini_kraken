@@ -31,9 +31,9 @@ unless MiniKraken::Core.constants(false).include? :Equals
           arg2_nil = arg2.nil?
           if arg1_nil || arg2_nil
             if arg1_nil && arg2_nil
-              result = Outcome.new(:"#s", anEnv)
+              result = Outcome.success(anEnv)
             else
-              result = Failure
+              result = Outcome.failure(anEnv)
             end
             return result
           end
@@ -45,6 +45,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
         end
 
         private
+
 
         # table: Unification
         # | arg1               | arg2               | Criterion                                 || Unification              |
@@ -70,12 +71,12 @@ unless MiniKraken::Core.constants(false).include? :Equals
         # |                                         |   unification(arg1, arg2.value) => "u"    || { "u", [] }
         def do_unification(arg1, arg2, anEnv)
           # require 'debug'
-          return Outcome.new(:"#s", anEnv) if arg1.equal?(arg2)
+          return Outcome.success(anEnv) if arg1.equal?(arg2)
 
-          result = Outcome.new(:"#u", anEnv) # default case
+          result = Outcome.failure(anEnv) # default case
 
           if arg1.kind_of?(AtomicTerm)
-            result = BasicSuccess if arg1.eql?(arg2)
+            result = Outcome.success(anEnv) if arg1.eql?(arg2)
           elsif arg1.kind_of?(CompositeTerm)
             if arg2.kind_of?(CompositeTerm) # AtomicTerm is default case => fail
               result = unify_composite_terms(arg1, arg2, anEnv)
@@ -84,14 +85,14 @@ unless MiniKraken::Core.constants(false).include? :Equals
             arg1_freshness = arg1.freshness(anEnv)
             if arg2.kind_of?(AtomicTerm)
               if arg1_freshness.degree == :fresh
-                result = Outcome.new(:"#s", anEnv)
+                result = Outcome.success(anEnv)
                 arg1.associate(arg2, result)
               else
-                result = Outcome.new(:"#s", anEnv) if arg1.value(anEnv).eql?(arg2)
+                result = Outcome.success(anEnv) if arg1.value(anEnv).eql?(arg2)
               end
             elsif arg2.kind_of?(CompositeTerm)
               if arg1_freshness.degree == :fresh
-                result = Outcome.new(:"#s", anEnv)
+                result = Outcome.success(anEnv)
                 arg1.associate(arg2, result)
               else
                 # Ground case...
@@ -103,11 +104,14 @@ unless MiniKraken::Core.constants(false).include? :Equals
               when [false, false] # TODO: confirm this...
                 result = unification(arg1.value(anEnv), arg2.value(anEnv), anEnv)
               when [true, true]
-                result = Outcome.new(:"#s", anEnv)
+                result = Outcome.success(anEnv)
                 if arg1.var_name != arg2.var_name
                   arg1.associate(arg2, result)
                   arg2.associate(arg1, result)
                 end
+              when [true, false]
+                result = Outcome.success(anEnv)
+                arg1.associate(arg2, result)
               else
                 raise StandardError, "Unsupported freshness combination #{freshness}"
               end
@@ -123,7 +127,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
         # @return [Freshness]
         def unify_composite_terms(arg1, arg2, anEnv)
           # require 'debug'
-          result = Outcome.new(:"#u", anEnv)
+          result = Outcome.failure(anEnv)
           children1 = arg1.children
           children2 = arg2.children
 
@@ -136,7 +140,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
             end
             total_success = subresults.all?(&:successful?)
             if total_success
-              memo = Outcome.new(:"#s", anEnv)
+              memo = Outcome.success(anEnv)
               associations = subresults.reduce(memo) do |sub_total, outcome|
                 sub_total.merge(outcome)
                 sub_total

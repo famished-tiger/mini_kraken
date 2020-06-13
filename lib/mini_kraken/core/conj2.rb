@@ -31,6 +31,7 @@ unless MiniKraken::Core.constants(false).include? :Conj2
         # @param g2 [Goal] Second goal argument
         # @param voc [Vocabulary] A vocabulary object
         def conjunction(g1, g2, voc)
+          # require 'debug'
           if g1.relation.kind_of?(Fail) || g2.relation.kind_of?(Fail)
             Fiber.yield Outcome.new(:"#u", voc)
           else
@@ -62,7 +63,9 @@ unless MiniKraken::Core.constants(false).include? :Conj2
               else
                 Fiber.yield outcome1
               end
-              voc.clear if outcome1&.successful? && outcome2&.successful?
+              if outcome1.successful? && (outcome2&.successful? || outcome2.nil?)
+                voc.clear
+              end
             end
           end
 

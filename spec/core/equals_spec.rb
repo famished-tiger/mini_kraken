@@ -275,9 +275,9 @@ module MiniKraken
 
         it 'should unify composite terms with variables' do
           # Reasoned S2, frame 1:36
-          # (run* q (fresh (x) (==  '(((,q)) (,x)) `(((,x)) pod)))) ;; => ('pod)
-          expr1 = cons(cons(ref_q), ref_x)
-          expr2 = cons(cons(ref_x), pod)
+          # (run* q (fresh (x) (==  '(((,q)) ,x) `(((,x)) pod)))) ;; => ('pod)
+          expr1 = cons(cons(cons(ref_q)), ref_x)
+          expr2 = cons(cons(cons(ref_x)), pod)
 
           result = solve_for(expr1, expr2)
           # require 'debug'
