@@ -2,6 +2,7 @@
 
 require 'singleton'
 require_relative 'duck_fiber'
+require_relative 'fail'
 require_relative 'goal'
 require_relative 'goal_relation'
 require_relative 'outcome'

@@ -2,7 +2,7 @@
 
 require 'set'
 require_relative 'atomic_term'
-require_relative 'composite_term'
+require_relative 'cons_cell'
 
 module MiniKraken
   module Core

@@ -7,6 +7,7 @@ require_relative 'fresh_env'
 module MiniKraken
   module Glue
     class RunStarExpression
+      # @return [FreshEnv] The environment in which run* variables will reside.
       attr_reader :env
 
       # @param var_names [String, Array<String>] One variable name or an array of names

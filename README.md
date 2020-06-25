@@ -6,7 +6,7 @@
 ### What is __mini_kraken__ ?   
 An implemention of the [miniKanren](http://minikanren.org/) relational programming language in Ruby.
 *miniKanren* is a small language for relational (logic) programming.  
-Based on the reference implementation, in Scheme from the "The Reasoned Schemer" book.  
+Based on the reference implementation, in Scheme from the "The Reasoned Schemer" book.   
 Daniel P. Friedman, William E. Byrd, Oleg Kiselyov, and Jason Hemann: "The Reasoned Schemer", Second Edition,
 ISBN: 9780262535519, (2018), MIT Press.
 
@@ -15,12 +15,20 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [X] run\*  
 - [X] fresh 
 - [X] conj2  
-- [X] disj2  
+- [X] disj2
+- [X] defrel   
 
 ### TODO
-- [ ] defrel 
 - [ ] conde  
 - [ ] Occurs check
+
+List-centric relations from Chapter 2
+- [ ] caro
+- [ ] cdro
+- [ ] conso
+- [ ] nullo
+- [ ] pairo
+- [ ] singletono
 
 ## Installation
 

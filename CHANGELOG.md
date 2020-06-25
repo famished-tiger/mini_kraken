@@ -1,3 +1,18 @@
+## [0.1.11] - 2020-06-10
+- Supports `defrel`, taht is, the capability to define new relations by combining other relations.
+- Covers frames from "The Reasoned Scheme" book up to frame [1:87]
+
+### New
+- Class `BaseArg` a generalization of goal or goal template argument.
+- Class `DefRelation` A specialization of `Relation` class aimed for user-defined relation.
+- Class `FormalArg` to represent goal template argument(s).
+- Class `FormalRef` an allusion to a formal argument in a goal template.
+- Class `GoalTemplate` a representation of a goal parametrized with formal arguments.
+- Class `KBoolean` a MiniKraken representation of a boolean value.
+
+### CHANGED
+- File `README.md` minor change: added more TODO's.
+
 ## [0.1.10] - 2020-06-10
 - Supports frames from "The Reasoned Scheme" book up to frame [1:81]
 

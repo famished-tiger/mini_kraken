@@ -3,9 +3,13 @@
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/goal'
 require_relative '../../lib/mini_kraken/core/conj2'
+require_relative '../../lib/mini_kraken/core/def_relation'
 require_relative '../../lib/mini_kraken/core/disj2'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/fail'
+require_relative '../../lib/mini_kraken/core/formal_arg'
+require_relative '../../lib/mini_kraken/core/formal_ref'
+require_relative '../../lib/mini_kraken/core/goal_template'
 require_relative '../../lib/mini_kraken/core/succeed'
 
 require_relative '../support/factory_methods'
@@ -49,14 +53,18 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
+        let(:k_false) { k_boolean(false) }
+        let(:k_true) { k_boolean(true) }
         let(:bean) { k_symbol(:bean) }
         let(:corn) { k_symbol(:corn) }
+        let(:cup) { k_symbol(:cup) }
         let(:meal) { k_symbol(:meal) }
         let(:oil) { k_symbol(:oil) }
         let(:olive) { k_symbol(:olive) }
         let(:red) { k_symbol(:red) }
         let(:soup) { k_symbol(:soup) }
         let(:split) { k_symbol(:split) }
+        let(:tea) { k_symbol(:tea) }
         let(:virgin) { k_symbol(:virgin) }
         let(:ref_q) { Core::VariableRef.new('q') }
         let(:ref_r) { Core::VariableRef.new('r') }
@@ -66,6 +74,16 @@ module MiniKraken
         let(:ref_t) { Core::VariableRef.new('t') }
         let(:ref_u) { Core::VariableRef.new('u') }
         let(:ref_z) { Core::VariableRef.new('z') }
+        let(:t_ref) { Core::FormalRef.new('t') }
+        let(:equals_tea) { Core::GoalTemplate.new(Core::Equals.instance, [tea, t_ref]) }
+        let(:equals_cup) { Core::GoalTemplate.new(Core::Equals.instance, [cup, t_ref]) }
+        let(:g_template) { Core::GoalTemplate.new(Core::Disj2.instance, [equals_tea, equals_cup]) }
+        let(:formal_t) { Core::FormalArg.new('t') }
+
+        # Reasoned S2, frame 1:82
+        # (defrel (teacupo t)
+        #   (disj2 (== 'tea t) (== 'cup t)))
+        let(:teacupo_rel) { Core::DefRelation.new('teacupo', g_template, [formal_t]) }
 
         it 'should return a null list with the fail goal' do
           # Reasoned S2, frame 1:7
@@ -780,6 +798,96 @@ module MiniKraken
           result = instance.run
           expect(result.car.car).to eq(split)
           expect(result.car.cdr.car).to eq(pea)
+        end
+
+        it 'should solve expression with defrel' do
+          teacupo_goal = Core::Goal.new(teacupo_rel, [ref_x])
+
+          # Reasoned S2, frame 1:83
+          # (run* x
+          #   (teacupo x)) ;; => ((tea cup))
+          instance = RunStarExpression.new('x', teacupo_goal)
+
+          result = instance.run
+          expect(result.car).to eq(tea)
+          expect(result.cdr.car).to eq(cup)
+        end
+
+        it 'should solve expression with defrel and booleans' do
+          teacupo_goal = Core::Goal.new(teacupo_rel, [ref_x])
+          expr2 = equals_goal(k_true, ref_y)
+          subgoal1 = conj2_goal(teacupo_goal, expr2)
+          expr3 = equals_goal(k_false, ref_x)
+          expr4 = equals_goal(k_true, ref_y)
+          subgoal2 = conj2_goal(expr3, expr4)
+          goal = disj2_goal(subgoal1, subgoal2)
+          # Reasoned S2, frame 1:84
+          # (run* (x y)
+          #   (disj2
+          #     (conj2 (teacupo x) (== #t y))
+          #     (conj2 (== #f x) (== #t y))) ;; => ((#f #t)(tea #t) (cup #t))
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          result = instance.run
+          # Order of solutions differs from RS book
+          expect(result.car).to eq(cons(tea, cons(true)))
+          expect(result.cdr.car).to eq(cons(cup, cons(true)))
+          expect(result.cdr.cdr.car).to eq(cons(false, cons(true)))
+        end
+
+        it 'should solve expression with two variable and defrel' do
+          teacupo_goal1 = Core::Goal.new(teacupo_rel, [ref_x])
+          teacupo_goal2 = Core::Goal.new(teacupo_rel, [ref_y])
+
+          # Reasoned S2, frame 1:85
+          # (run* (x y)
+          #   (teacupo x)
+          #   (teacupo y)) ;; => ((tea tea)(tea cup)(cup tea)(cup c))
+          instance = RunStarExpression.new(%w[x y], [teacupo_goal1, teacupo_goal2])
+
+          result = instance.run
+          expect(result.car).to eq(cons(tea, cons(tea)))
+          expect(result.cdr.car).to eq(cons(tea, cons(cup)))
+          expect(result.cdr.cdr.car).to eq(cons(cup, cons(tea)))
+          expect(result.cdr.cdr.cdr.car).to eq(cons(cup, cons(cup)))
+        end
+
+        it 'should solve expression with two variable and defrel' do
+          teacupo_goal1 = Core::Goal.new(teacupo_rel, [ref_x])
+          teacupo_goal2 = Core::Goal.new(teacupo_rel, [ref_x])
+
+          # Reasoned S2, frame 1:86
+          # (run* (x y)
+          #   (teacupo x)
+          #   (teacupo x)) ;; => ((tea _0)(cup _0))
+          instance = RunStarExpression.new(%w[x y], [teacupo_goal1, teacupo_goal2])
+
+          result = instance.run
+          expect(result.car).to eq(cons(tea, cons(any_value(0))))
+          expect(result.cdr.car).to eq(cons(cup, cons(any_value(0))))
+        end
+
+        it 'should solve expression with defrel and booleans' do
+          teacupo_goal1 = Core::Goal.new(teacupo_rel, [ref_x])
+          teacupo_goal2 = Core::Goal.new(teacupo_rel, [ref_x])
+          subgoal1 = conj2_goal(teacupo_goal1, teacupo_goal2)
+          expr3 = equals_goal(k_false, ref_x)
+          expr4 = Core::Goal.new(teacupo_rel, [ref_y])
+          subgoal2 = conj2_goal(expr3, expr4)
+          goal = disj2_goal(subgoal1, subgoal2)
+          # Reasoned S2, frame 1:87
+          # (run* (x y)
+          #   (disj2
+          #     (conj2 (teacupo x) (teacupo x))
+          #     (conj2 (== #f x) (teacupo y)))) ;; => ((#f tea)(#f cup)(tea _0)(cup _0))
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          result = instance.run
+          # Order of solutions differs from RS book
+          expect(result.car).to eq(cons(tea, cons(any_value(0))))
+          expect(result.cdr.car).to eq(cons(cup, cons(any_value(0))))
+          expect(result.cdr.cdr.car).to eq(cons(false, cons(tea)))
+          expect(result.cdr.cdr.cdr.car).to eq(cons(false, cons(cup)))
         end
       end # context
     end # describe

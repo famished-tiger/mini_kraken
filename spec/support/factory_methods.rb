@@ -2,6 +2,7 @@
 
 require_relative '../../lib/mini_kraken/core/any_value'
 require_relative '../../lib/mini_kraken/core/cons_cell'
+require_relative '../../lib/mini_kraken/core/k_boolean'
 require_relative '../../lib/mini_kraken/core/k_symbol'
 require_relative '../../lib/mini_kraken/core/variable'
 require_relative '../../lib/mini_kraken/core/variable_ref'
@@ -48,6 +49,13 @@ module MiniKraken
     # @return [Core::Goal]
     def disj2_goal(g1, g2)
       Core::Goal.new(Core::Disj2.instance, [g1, g2])
+    end
+
+    # Factory method for constructing a KBoolean instance
+    # @param aValue [Boolean]
+    # @return [Core::KBoolean]
+    def k_boolean(aValue)
+      Core::KBoolean.new(aValue)
     end
 
     # Factory method for constructing a KSymbol instance
