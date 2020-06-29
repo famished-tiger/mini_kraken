@@ -28,6 +28,13 @@ module MiniKraken
     end
 
     # Factory method for constructing a goal using the Equals relation.
+    # @param args [Array<Core::Goal>]
+    # @return [Core::Goal]
+    def conde_goal(args)
+      Core::Goal.new(Core::Conde.instance, args)
+    end
+
+    # Factory method for constructing a goal using the Equals relation.
     # @param arg1 [Term]
     # @param arg2 [Term]
     # @return [Core::Goal]

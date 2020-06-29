@@ -1,5 +1,15 @@
-## [0.1.11] - 2020-06-10
-- Supports `defrel`, taht is, the capability to define new relations by combining other relations.
+## [0.1.12] - 2020-06-29
+- Supports `conde`, that is, a relation that can take an arbitrary number of arguments.
+- Cover all frames but one from Chapter One of "Reasoned Scheme" book.
+
+### New
+- Class `Conde` a relation that succeeds for each of its successful arguments.
+
+### CHANGED
+- Method `Goal#validated_actuals` add into account polyadic relations (= relations with arbitrary number of arguments)
+
+## [0.1.11] - 2020-06-25
+- Supports `defrel`, that is, the capability to define new relations by combining other relations.
 - Covers frames from "The Reasoned Scheme" book up to frame [1:87]
 
 ### New
@@ -13,7 +23,7 @@
 ### CHANGED
 - File `README.md` minor change: added more TODO's.
 
-## [0.1.10] - 2020-06-10
+## [0.1.10] - 2020-06-13
 - Supports frames from "The Reasoned Scheme" book up to frame [1:81]
 
 ### New

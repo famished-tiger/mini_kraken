@@ -30,14 +30,20 @@ module MiniKraken
       private
 
       def validated_actuals(args)
-        if args.size != relation.arity
+        if !relation.polyadic? && (args.size != relation.arity)
           err_msg = "Goal has #{args.size} arguments, expected #{relation.arity}"
           raise StandardError, err_msg
         end
 
         prefix = 'Invalid goal argument '
-        args.each do |actl|
-          raise StandardError, prefix + actl.to_s unless actl.kind_of?(GoalArg)
+        args.each do |actual|
+          if actual.kind_of?(GoalArg) || actual.kind_of?(Environment)
+            next
+          elsif actual.kind_of?(Array)
+            validated_actuals(actual)
+          else
+            raise StandardError, prefix + actual.to_s
+          end
         end
 
         args.dup

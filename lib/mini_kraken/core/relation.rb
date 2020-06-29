@@ -16,6 +16,13 @@ module MiniKraken
         @alt_name = alternateName
       end
 
+      # A relation is polyadic when it accepts an arbitrary number of arguments.
+      # Most built-in relation takes a fixed number of arguments (= arity).
+      # @return [Boolean]
+      def polyadic?
+        false
+      end
+
       # Number of arguments for the relation.
       # @return [Integer]
       def arity

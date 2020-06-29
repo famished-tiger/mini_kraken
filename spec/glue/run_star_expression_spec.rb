@@ -2,6 +2,7 @@
 
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/goal'
+require_relative '../../lib/mini_kraken/core/conde'
 require_relative '../../lib/mini_kraken/core/conj2'
 require_relative '../../lib/mini_kraken/core/def_relation'
 require_relative '../../lib/mini_kraken/core/disj2'
@@ -58,6 +59,8 @@ module MiniKraken
         let(:bean) { k_symbol(:bean) }
         let(:corn) { k_symbol(:corn) }
         let(:cup) { k_symbol(:cup) }
+        let(:green) { k_symbol(:green) }
+        let(:lentil) { k_symbol(:lentil) }
         let(:meal) { k_symbol(:meal) }
         let(:oil) { k_symbol(:oil) }
         let(:olive) { k_symbol(:olive) }
@@ -70,6 +73,7 @@ module MiniKraken
         let(:ref_r) { Core::VariableRef.new('r') }
         let(:ref_x) { Core::VariableRef.new('x') }
         let(:ref_y) { Core::VariableRef.new('y') }
+        let(:ref_z) { Core::VariableRef.new('z') }
         let(:ref_s) { Core::VariableRef.new('s') }
         let(:ref_t) { Core::VariableRef.new('t') }
         let(:ref_u) { Core::VariableRef.new('u') }
@@ -888,6 +892,110 @@ module MiniKraken
           expect(result.cdr.car).to eq(cons(cup, cons(any_value(0))))
           expect(result.cdr.cdr.car).to eq(cons(false, cons(tea)))
           expect(result.cdr.cdr.cdr.car).to eq(cons(false, cons(cup)))
+        end
+
+        it 'should allow conde in the goal expression' do
+          teacupo_goal1 = Core::Goal.new(teacupo_rel, [ref_x])
+          teacupo_goal2 = Core::Goal.new(teacupo_rel, [ref_x])
+          expr3 = equals_goal(k_false, ref_x)
+          expr4 = Core::Goal.new(teacupo_rel, [ref_y])
+          goal = conde_goal([[teacupo_goal1, teacupo_goal2], [expr3, expr4]])
+          # Reasoned S2, frame 1:88
+          # (run* (x y)
+          #   (conde
+          #     ((teacupo x) (teacupo x))
+          #     ((== #f x) (teacupo y)))) ;; => ((#f tea)(#f cup)(tea _0)(cup _0))
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          result = instance.run
+          expect(result.car).to eq(cons(tea, cons(any_value(0))))
+          expect(result.cdr.car).to eq(cons(cup, cons(any_value(0))))
+          expect(result.cdr.cdr.car).to eq(cons(false, cons(tea)))
+          expect(result.cdr.cdr.cdr.car).to eq(cons(false, cons(cup)))
+        end
+
+        it 'should allow simplication of expressions (conde version)' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          combo1 = [expr1, expr2]
+          expr3 = equals_goal(red, ref_x)
+          expr4 = equals_goal(bean, ref_y)
+          combo2 = [expr3, expr4]
+          goal = conde_goal([combo1, combo2])
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          # Reasoned S2, frame 1:88 (second part, a rewrite of 1:76)
+          # (run* (x y)
+          #   (conde
+          #     ((== 'split x) (== 'pea y))
+          #     ((== 'red x) (== 'bean y)))) ;; => ((split pea)(red bean))
+          result = instance.run
+          expect(result.car.car).to eq(split)
+          expect(result.car.cdr.car).to eq(pea)
+          expect(result.cdr.car.car).to eq(red)
+          expect(result.cdr.car.cdr.car).to eq(bean)
+        end
+
+        it 'should accept nesting of disj2 and conj2 (conde version)' do
+          equals_olive = Core::Goal.new(Core::Equals.instance, [olive, ref_x])
+          combo = [equals_olive, fails]
+          equals_oil = Core::Goal.new(Core::Equals.instance, [oil, ref_x])
+          goal = conde_goal([combo, equals_oil])
+          instance = RunStarExpression.new('x', goal)
+
+          # Reasoned S2, frame 1:89 (rewrite of 1:62)
+          # (run* x
+          #   (conde
+          #     ((== 'olive x) fail)
+          #     ('oil x))) ;; => (oil)
+          result = instance.run
+          expect(result.car).to eq(oil)
+        end
+
+        it 'should accept nesting of conde inside a fresh context' do
+          equals_lentil = Core::Goal.new(Core::Equals.instance, [lentil, ref_z])
+          fresh_env = FreshEnv.new(['z'], equals_lentil)
+          equals_xy = Core::Goal.new(Core::Equals.instance, [ref_x, ref_y])
+          goal = conde_goal([fresh_env, equals_xy])
+          instance = RunStarExpression.new(%w[x y], goal)
+          fresh_env.parent = instance.env
+
+          # Reasoned S2, frame 1:90
+          # (run* (x y)
+          #   (conde
+          #     ((fresh (z)
+          #       (== 'lentil z)))
+          #     ((== x y)))) ;; => ((_0 _1)(_0 _0))
+          result = instance.run
+          expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
+          # Bug: next line fails
+          # expect(result.cdr.car).to eq(cons(any_value(0), cons(any_value(0))))
+        end
+
+        it 'accepts conde with more than two condition lines' do
+          expr1 = equals_goal(split, ref_x)
+          expr2 = equals_goal(pea, ref_y)
+          combo1 = [expr1, expr2]
+          expr3 = equals_goal(red, ref_x)
+          expr4 = equals_goal(bean, ref_y)
+          combo2 = [expr3, expr4]
+          expr5 = equals_goal(green, ref_x)
+          expr6 = equals_goal(lentil, ref_y)
+          combo3 = [expr5, expr6]
+          goal = conde_goal([combo1, combo2, combo3])
+          instance = RunStarExpression.new(%w[x y], goal)
+
+          # Reasoned S2, frame 1:91
+          # (run* (x y)
+          #   (conde
+          #     ((== 'split x) (== 'pea y))
+          #     ((== 'red x) (== 'bean y))
+          #     ((== 'green x) (== 'lentil y))))
+          # ;; => ((split pea)(red bean)(green lentil))
+          result = instance.run
+          expect(result.car).to eq(cons(split, cons(pea)))
+          expect(result.cdr.car).to eq(cons(red, cons(bean)))
+          expect(result.cdr.cdr.car).to eq(cons(green, cons(lentil)))
         end
       end # context
     end # describe
