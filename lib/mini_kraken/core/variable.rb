@@ -24,11 +24,17 @@ module MiniKraken
         name != i_name
       end
 
-      def quote(anEnvironment)
-        raise StandardError, "class #{anEnvironment}" unless anEnvironment.kind_of?(Vocabulary)
+      def quote(env)
+        raise StandardError, "class #{env}" unless env.kind_of?(Vocabulary)
 
-        val = anEnvironment.quote_ref(self)
-        val.nil? ? AnyValue.new(name, anEnvironment) : val
+        val = env.quote_ref(self)
+        unless val
+          result = AnyValue.new(name, env, env.names_fused(name))
+        else
+          result = val
+        end
+
+        result
       end
     end # class
   end # module

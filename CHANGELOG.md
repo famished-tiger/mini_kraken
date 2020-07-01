@@ -1,3 +1,11 @@
+## [0.1.13] - 2020-07-01
+- Cover all frames from Chapter One of "Reasoned Scheme" book.
+- Fix defect for fused variables that remain fresh
+
+### CHANGED
+- Method `Variable#quote` now takes into account of cases when variables are fused.
+- Method `Vocabulary#names_fused`  now copes with cases where no variable with given name can be found.
+
 ## [0.1.12] - 2020-06-29
 - Supports `conde`, that is, a relation that can take an arbitrary number of arguments.
 - Cover all frames but one from Chapter One of "Reasoned Scheme" book.

@@ -331,8 +331,9 @@ module MiniKraken
       #   variable name.
       # @param aName [String] User-defined variable name
       def names_fused(aName)
+        # require 'debug'
         var = name2var(aName)
-        return [] unless var.fused?
+        return [] unless var&.fused?
 
         i_name = var.i_name
         names = []

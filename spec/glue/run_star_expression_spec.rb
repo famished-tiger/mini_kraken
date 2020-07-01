@@ -126,6 +126,7 @@ module MiniKraken
 
         it 'should return a null list with the succeed goal' do
           instance = RunStarExpression.new('q', succeeds)
+          expect(instance.env.vars).to be_include('q')
 
           # (display (run* q succeed)) ;; => (_0)
           # Reasoned S2, frame 1:16
@@ -968,8 +969,7 @@ module MiniKraken
           #     ((== x y)))) ;; => ((_0 _1)(_0 _0))
           result = instance.run
           expect(result.car).to eq(cons(any_value(0), cons(any_value(1))))
-          # Bug: next line fails
-          # expect(result.cdr.car).to eq(cons(any_value(0), cons(any_value(0))))
+          expect(result.cdr.car).to eq(cons(any_value(0), cons(any_value(0))))
         end
 
         it 'accepts conde with more than two condition lines' do
