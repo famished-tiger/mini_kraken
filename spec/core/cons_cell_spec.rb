@@ -11,6 +11,7 @@ module MiniKraken
     describe ConsCell do
       let(:pea) { KSymbol.new(:pea) }
       let(:pod) { KSymbol.new(:pod) }
+      let(:corn) { KSymbol.new(:corn) }
       subject { ConsCell.new(pea, pod) }
 
       context 'Initialization:' do
@@ -39,6 +40,12 @@ module MiniKraken
           expect(ConsCell.new(nil, nil)).to be_null
           expect(NullList).to be_null
         end
+
+        it 'simplifies cdr if its referencing a null list' do
+          instance = ConsCell.new(pea, NullList)
+          expect(instance.car).to eq(pea)
+          expect(instance.cdr).to be_nil
+        end
       end # context
 
       context 'Provided services:' do
@@ -65,6 +72,34 @@ module MiniKraken
           instance.append(trail)
           expect(instance.car).to eq(pea)
           expect(instance.cdr).to eq(trail)
+        end
+
+        it 'should provide a list representation of itself' do
+          # Case of null list
+          expect(NullList.to_s).to eq '()'
+
+          # Case of one element proper list
+          cell = ConsCell.new(pea)
+          expect(cell.to_s).to eq '(:pea)'
+
+          # Case of two elements proper list
+          cell = ConsCell.new(pea, ConsCell.new(pod))
+          expect(cell.to_s).to eq '(:pea :pod)'
+
+          # Case of two elements improper list
+          expect(subject.to_s).to eq '(:pea . :pod)'
+
+          # Case of three elements proper list
+          cell = ConsCell.new(pea, ConsCell.new(pod, ConsCell.new(corn)))
+          expect(cell.to_s).to eq '(:pea :pod :corn)'
+
+          # Case of three elements improper list
+          cell = ConsCell.new(pea, ConsCell.new(pod, corn))
+          expect(cell.to_s).to eq '(:pea :pod . :corn)'
+
+          # Case of a nested list
+          cell = ConsCell.new(ConsCell.new(pea), ConsCell.new(pod))
+          expect(cell.to_s).to eq '((:pea) :pod)'
         end
       end # context
     end # describe

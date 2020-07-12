@@ -35,14 +35,15 @@ module MiniKraken
           raise StandardError, err_msg
         end
 
-        prefix = 'Invalid goal argument '
+        prefix = "Invalid goal argument '"
         args.each do |actual|
           if actual.kind_of?(GoalArg) || actual.kind_of?(Environment)
             next
           elsif actual.kind_of?(Array)
             validated_actuals(actual)
           else
-            raise StandardError, prefix + actual.to_s
+            actual_display = actual.nil? ? 'nil' : actual.to_s
+            raise StandardError, prefix + actual_display + "'"
           end
         end
 

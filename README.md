@@ -4,22 +4,29 @@
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/famished-tiger/mini_kraken/blob/master/LICENSE.txt)
 
 ### What is __mini_kraken__ ?   
-An implemention of the [miniKanren](http://minikanren.org/) relational programming language in Ruby.
+A library containing an implementation of the [miniKanren](http://minikanren.org/)   
+relational programming language in Ruby.
 *miniKanren* is a small language for relational (logic) programming.  
 Based on the reference implementation, in Scheme from the "The Reasoned Schemer" book.   
 Daniel P. Friedman, William E. Byrd, Oleg Kiselyov, and Jason Hemann: "The Reasoned Schemer", Second Edition,
 ISBN: 9780262535519, (2018), MIT Press.
 
 ### Features
+- Pure Ruby implementation, not a port from another language
+- Object-Oriented design
+- No runtime dependencies
+
+### miniKanren Features
 - [X] ==  
 - [X] run\*  
-- [X] fresh 
+- [X] fresh
+- [X] conde
 - [X] conj2  
 - [X] disj2
 - [X] defrel   
 
 ### TODO
-- [ ] conde  
+
 - [ ] Occurs check
 
 List-centric relations from Chapter 2
@@ -46,9 +53,82 @@ Or install it yourself as:
 
     $ gem install mini_kraken
 
-## Usage
+## Examples
 
-TODO: Write usage instructions here
+The following __MiniKraken__ examples use its DSL (Domain Specific Language).
+
+### Example 1
+Let's first begin with a rather simplistic example.   
+
+```ruby
+require 'mini_kraken' # Load MiniKraken library
+
+extend(MiniKraken::Glue::DSL) # Add DSL method to self (object in context)
+
+result = run_star('q', equals(q, :pea))
+puts result # => (:pea)
+```
+
+The two first lines in the above code snippet are pretty standard:  
+- The first line loads the `mini_kraken` library.
+- The second line add the DSL methods to the current object.
+
+The next line constitutes a trivial `miniKanren` program.
+The aim of a `miniKanren` program is to find one or more solutions involving provided variable(s)
+and satisfying one or more goals.
+In our example, the `run_star` method instructs `MiniKraken` to find all solutions,  
+knowing that each successful solution:
+- binds a value to the provided variable `q` and
+- meets the goal `equals(q, :pea)`.
+
+The goal `equals(q, :pea)` succeeds because the logical variable `q` is _fresh_ (that is,
+  not yet bound to a value) and will be bound to the symbol `:pea` as a side effect
+  of the goal `equals`.
+
+So the above program succeeds and the only found solution is obtained by binding
+ the variable `q` to the value :pea. Hence the result of the `puts` method.
+
+### Example 2
+ The next example illustrates the behavior of a failing `miniKanren` program.
+
+ ```ruby
+ require 'mini_kraken' # Load MiniKraken library
+
+ extend(MiniKraken::Glue::DSL) # Add DSL method to self (object in context)
+
+ # Following miniKanren program fails
+ result = run_star('q', [equals(q, :pea), equals(q, :pod)])
+ puts result # => ()
+ ```
+In this example, we learn that `run_star` can take multiple goals placed in an array.
+The program fails to find a solution since it is not possible to satisfy the two `equals` goals simultaneously. In that case, the `run_star` return an empty list represented as `()` in the output.
+
+
+### Example 3
+ The next example shows the use two logical variables.
+
+```ruby
+# In this example and following, one assumes that DSL is loaded as shown in Example 1
+
+result = run_star(['x', 'y'], [equals(:hello, x), equals(y, :world)])
+puts result # => ((:hello :world))
+```
+
+This time, `run_star` takes two logical variables -`x` and `y`- and successfully finds the solution `x = :hello, y = :world`.
+
+### Example 4
+ The next example shows the use of `disj2` goals.
+ ```ruby
+ result = run_star(['x', 'y'],
+                   [
+                     disj2(equals(x, :blue), equals(x, :red)),
+                     disj2(equals(y, :sea), equals(:mountain, y))
+                   ])
+ puts result # => ((:blue :sea) (:blue :mountain) (:red :sea) (:red :mountain))
+ ```
+
+ Here, `run_star` takes two logical variables and two `disj2` goals. A `disj2` succeeds if any of its arguments succeeds.
+ This program finds four distinct solutions for x, y pairs.
 
 ## Development
 

@@ -12,7 +12,11 @@ module MiniKraken
       end
 
       def ==(other)
-        rank == other.rank
+        if other.is_a?(AnyValue)
+          rank == other.rank
+        elsif other.id2name =~ /_\d+/
+          rank == other.id2name.sub(/_/, '').to_i
+        end
       end
 
       # Use same text representation as in Reasoned Schemer.

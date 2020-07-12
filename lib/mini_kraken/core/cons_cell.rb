@@ -11,7 +11,11 @@ unless MiniKraken::Core.constants(false).include? :ConsCell
 
         def initialize(obj1, obj2 = nil)
           @car = obj1
-          @cdr = obj2
+          if obj2.kind_of?(ConsCell) && obj2.null?
+            @cdr = nil
+          else
+            @cdr = obj2
+          end
         end
 
         def children
@@ -42,8 +46,31 @@ unless MiniKraken::Core.constants(false).include? :ConsCell
           ConsCell.new(new_car, new_cdr)
         end
 
+        # Use the list notation from Lisp as a text representation.
+        def to_s
+          return '()' if null?
+
+          "(#{pair_to_s})"
+        end
+
         def append(another)
           @cdr = another
+        end
+
+        protected
+
+        def pair_to_s
+          result = +car.to_s
+          if cdr
+            result << ' '
+            if cdr.kind_of?(ConsCell)
+              result << cdr.pair_to_s
+            else
+              result << ". #{cdr}"
+            end
+          end
+
+          result
         end
       end # class
 

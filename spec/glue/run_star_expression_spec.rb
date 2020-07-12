@@ -244,7 +244,7 @@ module MiniKraken
           instance = RunStarExpression.new('q', goal)
 
           # Reasoned S2, frame 1:34
-          # (run* q (==  '(((,q)) pod) `(((pea)) pod))) ;; => ('pod)
+          # (run* q (==  '(((,q)) pod) `(((pea)) pod))) ;; => ('pea)
           result = instance.run
           expect(result.car).to eq(pea)
         end
@@ -363,7 +363,6 @@ module MiniKraken
           expect(result.car).to eq(any_value(0))
         end
 
-        # TODO: fix erratic RSpec failure
         it 'should support conjunction of one succeed and a successful goal' do
           subgoal = equals_goal(corn, ref_q)
           goal = conj2_goal(succeeds, subgoal)
@@ -481,7 +480,7 @@ module MiniKraken
           # Reasoned S2, frame 1:62
           # (run* x (disj2
           #           (conj2 (== 'olive x) fail)
-          #           ('oil x))) ;; => (oil)
+          #           (== 'oil x))) ;; => (oil)
           result = instance.run
           expect(result.car).to eq(oil)
         end
@@ -511,7 +510,7 @@ module MiniKraken
 
           # Reasoned S2, frame 1:64
           # (run* x (disj2
-          #           ('oil x)
+          #           (== 'oil x)
           #           (conj2 (== 'olive x) succeed))) ;; => (oil olive)
           result = instance.run
           expect(result.car).to eq(oil)
@@ -530,11 +529,11 @@ module MiniKraken
 
           # Reasoned S2, frame 1:65
           # (run* x (disj2
-          #           (conj2(== 'virgin x) fails)
+          #           (conj2(== 'virgin x) fail)
           #           (disj2
           #             (== 'olive x)
           #             (dis2
-          #               succeeds
+          #               succeed
           #               (== 'oil x))))) ;; => (olive _0 oil)
           result = instance.run
           expect(result.car).to eq(olive)
@@ -649,7 +648,7 @@ module MiniKraken
           expect(result.car.cdr.cdr.cdr).to be_nil
         end
 
-        it 'should allow simplication of expressions' do
+        it 'should allow simplification of expressions' do
           expr1 = equals_goal(split, ref_x)
           expr2 = equals_goal(pea, ref_y)
           goal = conj2_goal(expr1, expr2)

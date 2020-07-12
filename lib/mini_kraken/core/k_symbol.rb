@@ -11,6 +11,17 @@ module MiniKraken
       def initialize(aValue)
         super(aValue)
       end
+
+      # Returns the name or string corresponding to value.
+      # @return [String]
+      def id2name
+        value.id2name
+      end
+
+      # Returns a string representing the MiniKraken symbol.
+      def to_s
+        ':' + id2name
+      end
     end # class
   end # module
 end # module

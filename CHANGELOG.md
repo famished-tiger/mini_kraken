@@ -1,3 +1,15 @@
+## [0.2.00] - 2020-07-12
+- First release of DSL (Domain Specific Language)
+- Fix defect for fused variables that remain fresh
+
+### NEW
+- Mix-in module `Glue::DSL` hosting methods for implementing the DSL.
+- Method `ConsCell#to_s` uses the Lisp convention for representing lists.
+
+### CHANGED
+- File `README.md` Added a couple of examples of DSL use.
+- Method `AnyValue#==` can compare with symbols with format '_' + integer literal (e.g. :_0).
+
 ## [0.1.13] - 2020-07-01
 - Cover all frames from Chapter One of "Reasoned Scheme" book.
 - Fix defect for fused variables that remain fresh
