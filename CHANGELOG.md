@@ -1,3 +1,12 @@
+## [0.2.01] - 2020-08-07
+- The DSL (Domain Specific Language) now supports `defrel` and boolean literals.
+
+### CHANGED
+- Constructor `DefRelation#initialize` now freezes any new class instance.  
+- Constructor `GoalTemplate#initialize` now freezes any new class instance.  
+- Mixin module `Core::DSL` new method `defrel` to build custom relations.
+- File `.rubocop.yml` to please Rubocop 0.89
+
 ## [0.2.00] - 2020-07-12
 - First release of DSL (Domain Specific Language)
 - Fix defect for fused variables that remain fresh
