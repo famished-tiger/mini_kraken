@@ -13,6 +13,7 @@ module MiniKraken
 
       # @param aValue [Object] Ruby representation of MiniKraken data value
       def initialize(aValue)
+        super()
         @value = aValue
         @value.freeze
       end

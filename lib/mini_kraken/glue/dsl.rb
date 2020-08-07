@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
+require 'set'
 require_relative '../core/any_value'
 require_relative '../core/conj2'
 require_relative '../core/cons_cell'
+require_relative '../core/def_relation'
 require_relative '../core/disj2'
 require_relative '../core/equals'
 require_relative '../core/fail'
+require_relative '../core/formal_arg'
+require_relative '../core/formal_ref'
+require_relative '../core/goal_template'
+require_relative '../core/k_boolean'
 require_relative '../core/k_symbol'
 require_relative '../core/succeed'
 require_relative '../core/variable_ref'
@@ -15,31 +21,64 @@ require_relative 'run_star_expression'
 
 module MiniKraken
   module Glue
+    # The mixin module that implements the methods for the DSL
+    # (DSL = Domain Specific Langague) that allows MiniKraken
+    # users to embed Minikanren in their Ruby code.
     module DSL
+      # A run* expression tries to find all the solutions
+      # that meet the given goal.
       # @return [Core::ConsCell] A list of solutions
       def run_star(var_names, goal)
         program = RunStarExpression.new(var_names, goal)
         program.run
       end
 
+      # conj2 stands for conjunction of two arguments.
+      # Returns a goal linked to the Core::Conj2 relation.
+      # The rule of that relation succeeds when both arguments succeed.
+      # @param arg1 [Core::Goal]
+      # @param arg2 [Core::Goal]
+      # @return [Core::Failure|Core::Success]
       def conj2(arg1, arg2)
-        Core::Goal.new(Core::Conj2.instance, [convert(arg1), convert(arg2)])
+       goal_class.new(Core::Conj2.instance, [convert(arg1), convert(arg2)])
       end
 
       def cons(car_item, cdr_item = nil)
-        Core::ConsCell.new(convert(car_item), convert(cdr_item))
+        tail = cdr_item.nil? ? cdr_item : convert(cdr_item)
+        Core::ConsCell.new(convert(car_item), tail)
+      end
+
+      def defrel(relationName, theFormals, &aGoalTemplateExpr)
+        start_defrel
+
+        case theFormals
+          when String
+            @defrel_formals << theFormals
+          when Array
+            @defrel_formals.merge(theFormals)
+        end
+
+        formals = @defrel_formals.map { |name| Core::FormalArg.new(name) }
+        g_template = aGoalTemplateExpr.call
+        result = Core::DefRelation.new(relationName, g_template, formals)
+        add_defrel(result)
+
+        end_defrel
+        result
       end
 
       def disj2(arg1, arg2)
-        Core::Goal.new(Core::Disj2.instance, [convert(arg1), convert(arg2)])
+        goal_class.new(Core::Disj2.instance, [convert(arg1), convert(arg2)])
       end
 
+      # @return [Core::Fail] A goal that unconditionally fails.
       def _fail
-        Core::Goal.new(Core::Fail.instance, [])
+        goal_class.new(Core::Fail.instance, [])
       end
 
       def equals(arg1, arg2)
-        Core::Goal.new(Core::Equals.instance, [convert(arg1), convert(arg2)])
+        # require 'debug'
+        goal_class.new(Core::Equals.instance, [convert(arg1), convert(arg2)])
       end
 
       def fresh(var_names, goal)
@@ -47,19 +86,30 @@ module MiniKraken
 
         if var_names.kind_of?(String) || var_names.kind_of?(Core::VariableRef)
           vars = [var_names]
-        elsif
-
+        else
           vars = var_names
         end
+
         FreshEnv.new(vars, goal)
       end
 
+      def list(*members)
+        return null if members.empty?
+
+        head = nil
+        members.reverse_each { |elem| head = Core::ConsCell.new(convert(elem), head) }
+
+        head
+      end
+
+      # @return [ConsCell] Returns an empty list, that is, a pair whose members are nil.
       def null
         Core::ConsCell.new(nil, nil)
       end
 
+      # @return [Core::Succeed] A goal that unconditionally succeeds.
       def succeed
-        Core::Goal.new(Core::Succeed.instance, [])
+        goal_class.new(Core::Succeed.instance, [])
       end
 
       private
@@ -74,18 +124,62 @@ module MiniKraken
               any_val = Core::AnyValue.allocate
               any_val.instance_variable_set(:@rank, rank)
               converted = any_val
+            elsif anArgument.id2name =~ /^"#[ft]"$/
+              converted = Core::KBoolean.new(anArgument)
             else
               converted = Core::KSymbol.new(anArgument)
             end
+          when String
+            if anArgument =~ /^#[ft]$/
+              converted = Core::KBoolean.new(anArgument)
+            else
+              msg = "Internal error: undefined conversion for #{anArgument.class}"
+              raise StandardError, msg
+            end
+          when false, true
+            converted = Core::KBoolean.new(anArgument)
+          when Core::KBoolean
+            converted = anArgument
+          when Core::FormalRef
+            converted = anArgument
           when Core::Goal
+            converted = anArgument
+          when Core::GoalTemplate
             converted = anArgument
           when Core::VariableRef
             converted = anArgument
           when Core::ConsCell
             converted = anArgument
+          else
+            msg = "Internal error: undefined conversion for #{anArgument.class}"
+            raise StandardError, msg
         end
 
         converted
+      end
+
+      def default_mode
+        @dsl_mode = :default
+        @defrel_formals = nil
+      end
+
+      def goal_class
+        default_mode unless instance_variable_defined?(:@dsl_mode)
+        @dsl_mode == :default ? Core::Goal : Core::GoalTemplate
+      end
+
+      def start_defrel
+        @dsl_mode = :defrel
+        @defrel_formals = Set.new
+      end
+
+      def end_defrel
+        default_mode
+      end
+
+      def add_defrel(aDefRelation)
+        @defrels = {} unless instance_variable_defined?(:@defrels)
+        @defrels[aDefRelation.name] = aDefRelation
       end
 
       def method_missing(mth, *args)
@@ -94,7 +188,19 @@ module MiniKraken
         begin
           result = super(mth, *args)
         rescue NameError
-          result = Core::VariableRef.new(mth.id2name)
+          name = mth.id2name
+          @defrels = {} unless instance_variable_defined?(:@defrels)
+          if @defrels.include?(name)
+            def_relation = @defrels[name]
+            result = Core::Goal.new(def_relation, args.map { |el| convert(el) })
+          else
+            default_mode unless instance_variable_defined?(:@dsl_mode)
+            if @dsl_mode == :defrel && @defrel_formals.include?(name)
+              result = Core::FormalRef.new(name)
+            else
+              result = Core::VariableRef.new(name)
+            end
+          end
         end
 
         result

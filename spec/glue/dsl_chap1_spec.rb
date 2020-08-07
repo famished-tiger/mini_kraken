@@ -68,7 +68,7 @@ module MiniKraken
           expect(result.car).to eq(:_0)
         end
 
-        it 'passes frame 1:21' do
+        it "supports 'fresh' and passes frame 1:21" do
           # Reasoned S2, frame 1:21
           # (run* q (fresh (x) (== 'pea q))) ;; => (pea)
 
@@ -176,7 +176,7 @@ module MiniKraken
           expect(result.car).to eq(cons(:_0, cons(:_1, cons(:_0))))
         end
 
-        it 'passes frame 1:50' do
+        it "supports 'conj2' relation and passes frame 1:50" do
           # Reasoned S2, frame 1:50
           # (run* q (conj2 succeed succeed)) ;; => (_0)
 
@@ -216,7 +216,7 @@ module MiniKraken
           expect(result.car).to eq(:corn)
         end
 
-        it 'passes frame 1:55' do
+        it "supports 'disj2' and passes frame 1:55" do
           # Reasoned S2, frame 1:55
           # (run* q (disj2 fail fail)) ;; => ()
 
@@ -301,7 +301,7 @@ module MiniKraken
           #               (== 'oil x))))) ;; => (olive _0 oil)
 
           result = run_star('x', disj2(conj2(equals(:virgin, x), _fail),
-                            disj2(equals(:olive, x), disj2(succeed, equals(:oil, x)))))
+            disj2(equals(:olive, x), disj2(succeed, equals(:oil, x)))))
           expect(result).to eq(cons(:olive, cons(:_0, cons(:oil))))
         end
 
@@ -317,8 +317,8 @@ module MiniKraken
           #             (== '(,x ,y) r)))))) ;; => ((split pea))
 
           result = run_star('r', fresh('x', fresh('y',
-            conj2(equals(:split, x), conj2(
-              equals(:pea, y), equals(cons(x, cons(y)), r))))))
+            conj2(equals(:split, x),
+            conj2(equals(:pea, y), equals(cons(x, cons(y)), r))))))
           expect(result).to eq(cons(cons(:split, cons(:pea))))
         end
 
@@ -396,8 +396,7 @@ module MiniKraken
           #     (== 'pea y))) ;; => ((split pea))
 
           result = run_star(%w[x y], conj2(equals(:split, x), equals(:pea, y)))
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
+          expect(result.car).to eq(list(:split, :pea))
         end
 
         it 'passes frame 1:76' do
@@ -410,10 +409,8 @@ module MiniKraken
           result = run_star(%w[x y], disj2(
             conj2(equals(:split, x), equals(:pea, y)),
             conj2(equals(:red, x), equals(:bean, y))))
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
-          expect(result.cdr.car.car).to eq(:red)
-          expect(result.cdr.car.cdr.car).to eq(:bean)
+          expect(result.car).to eq(list(:split, :pea))
+          expect(result.cdr.car).to eq(list(:red, :bean))
         end
 
         it 'passes frame 1:77' do
@@ -432,12 +429,8 @@ module MiniKraken
                 conj2(equals(:split, x), equals(:pea, y)),
                 conj2(equals(:red, x), equals(:bean, y))),
               equals(cons(x, cons(y, cons(:soup))), r))))
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
-          expect(result.car.cdr.cdr.car).to eq(:soup)
-          expect(result.cdr.car.car).to eq(:red)
-          expect(result.cdr.car.cdr.car).to eq(:bean)
-          expect(result.cdr.car.cdr.cdr.car).to eq(:soup)
+          expect(result.car).to eq(list(:split, :pea, :soup))
+          expect(result.cdr.car).to eq(list(:red, :bean, :soup))
         end
 
         it 'passes frame 1:78' do
@@ -451,15 +444,11 @@ module MiniKraken
 
           result = run_star('r',
             fresh(%w[x y], [disj2(
-                conj2(equals(:split, x), equals(:pea, y)),
-                conj2(equals(:red, x), equals(:bean, y))),
+              conj2(equals(:split, x), equals(:pea, y)),
+              conj2(equals(:red, x), equals(:bean, y))),
               equals(cons(x, cons(y, cons(:soup))), r)]))
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
-          expect(result.car.cdr.cdr.car).to eq(:soup)
-          expect(result.cdr.car.car).to eq(:red)
-          expect(result.cdr.car.cdr.car).to eq(:bean)
-          expect(result.cdr.car.cdr.cdr.car).to eq(:soup)
+          expect(result.car).to eq(list(:split, :pea, :soup))
+          expect(result.cdr.car).to eq(list(:red, :bean, :soup))
         end
 
         it 'passes frame 1:80' do
@@ -471,15 +460,11 @@ module MiniKraken
           #   (== 'soup z)) ;; => ((split pea soup) (red bean soup))
 
           result = run_star(%w[x y z], [disj2(
-                conj2(equals(:split, x), equals(:pea, y)),
-                conj2(equals(:red, x), equals(:bean, y))),
-              equals(:soup, z)])
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
-          expect(result.car.cdr.cdr.car).to eq(:soup)
-          expect(result.cdr.car.car).to eq(:red)
-          expect(result.cdr.car.cdr.car).to eq(:bean)
-          expect(result.cdr.car.cdr.cdr.car).to eq(:soup)
+            conj2(equals(:split, x), equals(:pea, y)),
+            conj2(equals(:red, x), equals(:bean, y))),
+            equals(:soup, z)])
+          expect(result.car).to eq(list(:split, :pea, :soup))
+          expect(result.cdr.car).to eq(list(:red, :bean, :soup))
         end
 
         it 'passes frame 1:81' do
@@ -489,8 +474,119 @@ module MiniKraken
           #   (== 'pea y)) ;; => ((split pea))
 
           result = run_star(%w[x y], [equals(:split, x), equals(:pea, y)])
-          expect(result.car.car).to eq(:split)
-          expect(result.car.cdr.car).to eq(:pea)
+          expect(result.car).to eq(list(:split, :pea))
+        end
+
+        it "supports 'defrel' and passes frame 1:82" do
+          # Reasoned S2, frame 1:82
+          # (defrel (teacupo t)
+          #   (disj2 (== 'tea t) (== 'cup t)))
+
+          result = defrel('teacupo', 't') do
+            disj2(equals(:tea, t), equals(:cup, t))
+          end
+
+          expect(result).to be_kind_of(Core::DefRelation)
+          expect(result.name).to eq('teacupo')
+          expect(result.formals.size).to eq(1)
+          expect(result.formals[0].name).to eq('t')
+          g_template = result.goal_template
+          expect(g_template).to be_kind_of(Core::GoalTemplate)
+          expect(g_template.relation).to eq(Core::Disj2.instance)
+
+          first_arg = g_template.args[0]
+          expect(first_arg).to be_kind_of(Core::GoalTemplate)
+          expect(first_arg.relation).to eq(Core::Equals.instance)
+          expect(first_arg.args[0]).to eq(:tea)
+          expect(first_arg.args[1]).to be_kind_of(Core::FormalRef)
+          expect(first_arg.args[1].name).to eq('t')
+          second_arg = g_template.args[1]
+          expect(second_arg).to be_kind_of(Core::GoalTemplate)
+          expect(second_arg.relation).to eq(Core::Equals.instance)
+          expect(second_arg.args[0]).to eq(:cup)
+          expect(second_arg.args[1]).to be_kind_of(Core::FormalRef)
+          expect(second_arg.args[1].name).to eq('t')
+        end
+
+        def defrel_teacupo
+          defrel('teacupo', 't') { disj2(equals(:tea, t), equals(:cup, t)) }
+        end
+
+        it "supports the invokation of a 'defrel' and passes frame 1:83" do
+          # Reasoned S2, frame 1:83
+          # (run* x
+          #   (teacupo x)) ;; => ((tea cup))
+
+          defrel_teacupo
+          result = run_star('x', teacupo(x))
+
+          expect(result).to eq(cons(:tea, cons(:cup)))
+        end
+
+        it 'supports booleans and passes frame 1:84' do
+          # Reasoned S2, frame 1:84
+          # (run* (x y)
+          #   (disj2
+          #     (conj2 (teacupo x) (== #t y))
+          #     (conj2 (== #f x) (== #t y))) ;; => ((#f #t)(tea #t) (cup #t))
+
+          defrel_teacupo
+          result = run_star(%w[x y],
+            disj2(
+              conj2(teacupo(x), equals('#t', y)),
+              conj2(equals('#f', x), equals('#t', y))))
+
+          # Order of solutions differs from RS book
+          expect(result.car).to eq(cons(:tea, cons(true)))
+          expect(result.cdr.car).to eq(cons(:cup, cons(true)))
+          expect(result.cdr.cdr.car).to eq(cons(false, cons(true)))
+        end
+
+        it 'passes frame 1:85' do
+          # Reasoned S2, frame 1:85
+          # (run* (x y)
+          #   (teacupo x)
+          #   (teacupo y)) ;; => ((tea tea)(tea cup)(cup tea)(cup c))
+
+          defrel_teacupo
+          result = run_star(%w[x y], [teacupo(x), teacupo(y)])
+
+          expect(result.car).to eq(cons(:tea, cons(:tea)))
+          expect(result.cdr.car).to eq(cons(:tea, cons(:cup)))
+          expect(result.cdr.cdr.car).to eq(cons(:cup, cons(:tea)))
+          expect(result.cdr.cdr.cdr.car).to eq(cons(:cup, cons(:cup)))
+        end
+
+        it 'passes frame 1:86' do
+          # Reasoned S2, frame 1:86
+          # (run* (x y)
+          #   (teacupo x)
+          #   (teacupo x)) ;; => ((tea _0)(cup _0))
+
+          defrel_teacupo
+          result = run_star(%w[x y], [teacupo(x), teacupo(x)])
+
+          expect(result.car).to eq(cons(:tea, cons(:_0)))
+          expect(result.cdr.car).to eq(cons(:cup, cons(:_0)))
+        end
+
+        it 'passes frame 1:87' do
+          # Reasoned S2, frame 1:87
+          # (run* (x y)
+          #   (disj2
+          #     (conj2 (teacupo x) (teacupo x))
+          #     (conj2 (== #f x) (teacupo y)))) ;; => ((#f tea)(#f cup)(tea _0)(cup _0))
+
+          defrel_teacupo
+          result = run_star(%w[x y], disj2(
+              conj2(teacupo(x), teacupo(x)),
+              conj2(equals('#f', x), teacupo(y))))
+
+          # Order of solutions differs from RS book
+          expect(result.car).to eq(cons(:tea, cons(:_0)))
+          expect(result.cdr.car).to eq(cons(:cup, cons(:_0)))
+          expect(result.cdr.cdr.car).to eq(cons(false, cons(:tea)))
+          expect(result.cdr.cdr.cdr.car).to eq(cons(false, cons(:cup)))
         end
       end # context
     end # describe

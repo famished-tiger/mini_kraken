@@ -9,6 +9,7 @@ module PkgExtending
   def self.pkg_files(aPackage)
     file_list = Dir[
       '.rspec',
+      '.rubocop.yml',
       '.travis.yml',
       'Gemfile',
       'Rakefile',
@@ -19,7 +20,8 @@ module PkgExtending
       'bin/*.rb',
       'lib/*.*',
       'lib/**/*.rb',
-      'spec/**/*.rb'
+      'spec/**/*.rb',
+      'spec/.rubocop.yml'
     ]
     aPackage.files = file_list
     aPackage.test_files = Dir['spec/**/*_spec.rb']
@@ -38,8 +40,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Dimitri Geshef']
   spec.email         = ['famished.tiger@yahoo.com']
 
-  spec.summary       = %q{Implementation of Minikanren language in Ruby. WIP}
-  spec.description   = %q{Implementation of Minikanren language in Ruby. WIP}
+  spec.summary       = 'Implementation of Minikanren language in Ruby. WIP'
+  spec.description   = 'Implementation of Minikanren language in Ruby. WIP'
   spec.homepage      = 'https://github.com/famished-tiger/mini_kraken'
   spec.license       = 'MIT'
 
@@ -47,6 +49,7 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+  spec.required_ruby_version = '~> 2.4'
 
   PkgExtending.pkg_files(spec)
   PkgExtending.pkg_documentation(spec)

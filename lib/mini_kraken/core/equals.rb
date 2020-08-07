@@ -38,10 +38,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
             return result
           end
           new_arg1, new_arg2 = commute_cond(arg1, arg2, anEnv)
-          result = do_unification(new_arg1, new_arg2, anEnv)
-          # anEnv.merge(result) if result.successful? && !result.association.empty?
-
-          result
+          do_unification(new_arg1, new_arg2, anEnv)
         end
 
         private
@@ -141,7 +138,7 @@ unless MiniKraken::Core.constants(false).include? :Equals
             total_success = subresults.all?(&:successful?)
             if total_success
               memo = Outcome.success(anEnv)
-              associations = subresults.reduce(memo) do |sub_total, outcome|
+              subresults.reduce(memo) do |sub_total, outcome|
                 sub_total.merge(outcome)
                 sub_total
               end

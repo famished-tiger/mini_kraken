@@ -16,6 +16,7 @@ module MiniKraken
       # @param aRelation [Relation] The relation corresponding to this goal
       # @param args [Array<Term>] The actual aguments of the goal
       def initialize(aRelation, args)
+        super()
         @relation = aRelation
         @actuals = validated_actuals(args)
       end
@@ -35,7 +36,7 @@ module MiniKraken
           raise StandardError, err_msg
         end
 
-        prefix = "Invalid goal argument '"
+        prefix = 'Invalid goal argument'
         args.each do |actual|
           if actual.kind_of?(GoalArg) || actual.kind_of?(Environment)
             next
@@ -43,7 +44,7 @@ module MiniKraken
             validated_actuals(actual)
           else
             actual_display = actual.nil? ? 'nil' : actual.to_s
-            raise StandardError, prefix + actual_display + "'"
+            raise StandardError, "#{prefix} '#{actual_display}'"
           end
         end
 

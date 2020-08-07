@@ -19,6 +19,7 @@ module MiniKraken
         super(aName, alternateName)
         @formals = validated_formals(theFormals)
         @goal_template = validated_goal_template(aGoalTemplate)
+        freeze
       end
 
       # Number of arguments for the relation.

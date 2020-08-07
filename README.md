@@ -30,12 +30,12 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [ ] Occurs check
 
 List-centric relations from Chapter 2
-- [ ] caro
-- [ ] cdro
-- [ ] conso
-- [ ] nullo
-- [ ] pairo
-- [ ] singletono
+- [ ] caro  
+- [ ] cdro  
+- [ ] conso  
+- [ ] nullo  
+- [ ] pairo  
+- [ ] singletono  
 
 ## Installation
 
@@ -73,9 +73,9 @@ The two first lines in the above code snippet are pretty standard:
 - The first line loads the `mini_kraken` library.
 - The second line add the DSL methods to the current object.
 
-The next line constitutes a trivial `miniKanren` program.
-The aim of a `miniKanren` program is to find one or more solutions involving provided variable(s)
-and satisfying one or more goals.
+The next line constitutes a trivial `miniKanren` program.  
+The aim of a `miniKanren` program is to find one or more solutions involving the given logical variable(s)
+and satisfying one or more goals to the `run_star method.  
 In our example, the `run_star` method instructs `MiniKraken` to find all solutions,  
 knowing that each successful solution:
 - binds a value to the provided variable `q` and
@@ -101,7 +101,8 @@ So the above program succeeds and the only found solution is obtained by binding
  puts result # => ()
  ```
 In this example, we learn that `run_star` can take multiple goals placed in an array.
-The program fails to find a solution since it is not possible to satisfy the two `equals` goals simultaneously. In that case, the `run_star` return an empty list represented as `()` in the output.
+The program fails to find a solution since it is not possible to satisfy the two `equals` goals simultaneously.  
+In case of failure, the `run_star` returns an empty list represented as `()` in the output.
 
 
 ### Example 3
@@ -127,7 +128,8 @@ This time, `run_star` takes two logical variables -`x` and `y`- and successfully
  puts result # => ((:blue :sea) (:blue :mountain) (:red :sea) (:red :mountain))
  ```
 
- Here, `run_star` takes two logical variables and two `disj2` goals. A `disj2` succeeds if any of its arguments succeeds.
+ Here, `run_star` takes two logical variables and two `disj2` goals.  
+ A `disj2` succeeds if any of its arguments succeeds.  
  This program finds four distinct solutions for x, y pairs.
 
 ## Development

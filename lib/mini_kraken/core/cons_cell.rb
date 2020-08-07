@@ -10,6 +10,7 @@ unless MiniKraken::Core.constants(false).include? :ConsCell
         attr_reader :cdr
 
         def initialize(obj1, obj2 = nil)
+          super()
           @car = obj1
           if obj2.kind_of?(ConsCell) && obj2.null?
             @cdr = nil

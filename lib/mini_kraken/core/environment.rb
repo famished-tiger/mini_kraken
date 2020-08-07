@@ -60,7 +60,7 @@ module MiniKraken
         return unless descendent.successful?
 
         vars.each_key do |var_name|
-          assocs = descendent[var_name]
+          # assocs = descendent[var_name]
           move_assocs(var_name, descendent)
         end
       end

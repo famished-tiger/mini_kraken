@@ -38,11 +38,9 @@ module MiniKraken
 
       # @return [Array] A vector of assignment for each variable
       def build_solution(outcome)
-        sol = env.vars.values.map do |var|
+        env.vars.values.map do |var|
           outcome.successful? ? var.quote(outcome) : nil
         end
-
-        sol
       end
 
       # Transform the solutions into sequence of conscells.

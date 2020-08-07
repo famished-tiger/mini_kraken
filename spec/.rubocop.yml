@@ -1,0 +1,13 @@
+inherit_from: ../.rubocop.yml
+
+# RSpec expectation lines can be very lenghty
+Layout/LineLength:
+  Max: 99
+
+# RSpec contexts can be very lenghty
+Metrics/BlockLength:
+  Max: 1000
+
+# RSpec modules can be very lenghty  
+Metrics/ModuleLength:
+  Max: 1000

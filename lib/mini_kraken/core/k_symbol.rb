@@ -20,7 +20,7 @@ module MiniKraken
 
       # Returns a string representing the MiniKraken symbol.
       def to_s
-        ':' + id2name
+        ":#{id2name}"
       end
     end # class
   end # module

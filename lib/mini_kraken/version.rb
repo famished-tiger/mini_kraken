@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module MiniKraken
-  VERSION = '0.2.00'
+  VERSION = '0.2.01'
 end

@@ -52,7 +52,7 @@ module MiniKraken
           outcome1 = instance1.resume
 
           instance2 = DuckFiber.new(:success)
-          outcome2 = instance1.resume
+          outcome2 = instance2.resume
 
           expect(outcome1).not_to be_equal(outcome2)
         end

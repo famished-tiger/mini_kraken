@@ -11,6 +11,7 @@ module MiniKraken
       attr_reader :name
 
       def initialize(aName)
+        super()
         @name = validated_name(aName)
       end
 

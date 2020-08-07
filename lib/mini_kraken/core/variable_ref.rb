@@ -13,6 +13,7 @@ module MiniKraken
 
       # @param aName [String] The name of the variable
       def initialize(aName)
+        super()
         init_designation(aName)
       end
 

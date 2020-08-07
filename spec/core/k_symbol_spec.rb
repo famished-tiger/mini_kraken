@@ -65,7 +65,7 @@ module MiniKraken
           # Default Ruby representation, different value
           expect(subject == :pod).to be_falsy
         end
-        
+
         it 'should provide a string representation of itself' do
           expect(subject.to_s).to eq(':pea')
         end

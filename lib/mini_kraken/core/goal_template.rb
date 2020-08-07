@@ -8,15 +8,17 @@ module MiniKraken
     # The individual goals are instantiated when the formal arguments
     # are bound to goal arguments
     class GoalTemplate < BaseArg
-      # @return [Array<BaseArg>}] Arguments of goal template.
+      # @return [Array<BaseArg>] Arguments of goal template.
       attr_reader :args
 
       # @return [Relation] Main relation for the goal template
       attr_reader :relation
 
       def initialize(aRelation, theArgs)
+        super()
         @relation = validated_relation(aRelation)
         @args = validated_args(theArgs)
+        freeze
       end
 
       # @param formals [Array<FormalArg>] Array of formal arguments
