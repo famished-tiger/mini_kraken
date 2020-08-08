@@ -101,6 +101,12 @@ module MiniKraken
           # Default Ruby representation, different value
           expect(subject == false).to be_falsy
         end
+
+        it 'provides a text representation of itself' do
+          expect(subject.to_s).to eq('true')
+          other = KBoolean.new('#f')
+          expect(other.to_s).to eq('false')
+        end
       end # context
     end # describe
   end # module

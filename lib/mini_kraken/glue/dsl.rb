@@ -2,6 +2,7 @@
 
 require 'set'
 require_relative '../core/any_value'
+require_relative '../core/conde'
 require_relative '../core/conj2'
 require_relative '../core/cons_cell'
 require_relative '../core/def_relation'
@@ -10,6 +11,7 @@ require_relative '../core/equals'
 require_relative '../core/fail'
 require_relative '../core/formal_arg'
 require_relative '../core/formal_ref'
+require_relative '../glue/fresh_env'
 require_relative '../core/goal_template'
 require_relative '../core/k_boolean'
 require_relative '../core/k_symbol'
@@ -31,6 +33,19 @@ module MiniKraken
       def run_star(var_names, goal)
         program = RunStarExpression.new(var_names, goal)
         program.run
+      end
+
+      def conde(*goals)
+        # require 'debug'
+        args = goals.map do |goal_maybe|
+          if goal_maybe.kind_of?(Array)
+            goal_maybe.map { |g| convert(g)}
+          else
+            convert(goal_maybe)
+          end
+        end
+
+        Core::Goal.new(Core::Conde.instance, args)
       end
 
       # conj2 stands for conjunction of two arguments.
@@ -142,6 +157,8 @@ module MiniKraken
             converted = anArgument
           when Core::FormalRef
             converted = anArgument
+          when FreshEnv
+            converted = anArgument            
           when Core::Goal
             converted = anArgument
           when Core::GoalTemplate

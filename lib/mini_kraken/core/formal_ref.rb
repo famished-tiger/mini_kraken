@@ -7,7 +7,7 @@ module MiniKraken
     # A formal reference represents the occurrence of a formal argument name in a
     # goal template argument list.
     class FormalRef < BaseArg
-      # @return [String]
+      # @return [String] The name of a formal argument.
       attr_reader :name
 
       def initialize(aName)

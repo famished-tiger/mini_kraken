@@ -58,7 +58,7 @@ module MiniKraken
           expect { subject.solver_for([pea, succeeds], env) }.to raise_error(err)
         end
 
-        it 'should fails if when all goals fail' do
+        it 'should fail when all goals fail' do
           solver = subject.solver_for([fails, fails, fails], env)
           expect(solver.resume).not_to be_successful
           expect(solver.resume).to be_nil

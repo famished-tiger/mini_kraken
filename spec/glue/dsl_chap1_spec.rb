@@ -565,9 +565,7 @@ module MiniKraken
 
           defrel_teacupo
           result = run_star(%w[x y], [teacupo(x), teacupo(x)])
-
-          expect(result.car).to eq(cons(:tea, cons(:_0)))
-          expect(result.cdr.car).to eq(cons(:cup, cons(:_0)))
+          expect(result.to_s).to eq('((:tea _0) (:cup _0))')
         end
 
         it 'passes frame 1:87' do
@@ -583,10 +581,89 @@ module MiniKraken
               conj2(equals('#f', x), teacupo(y))))
 
           # Order of solutions differs from RS book
+          expected = '((:tea _0) (:cup _0) (false :tea) (false :cup))'
+          expect(result.to_s).to eq(expected)
           expect(result.car).to eq(cons(:tea, cons(:_0)))
           expect(result.cdr.car).to eq(cons(:cup, cons(:_0)))
           expect(result.cdr.cdr.car).to eq(cons(false, cons(:tea)))
           expect(result.cdr.cdr.cdr.car).to eq(cons(false, cons(:cup)))
+        end
+
+        it 'supports conde and passes frame 1:88 (i)' do
+          # Reasoned S2, frame 1:88
+          # (run* (x y)
+          #   (conde
+          #     ((teacupo x) (teacupo x))
+          #     ((== #f x) (teacupo y)))) ;; => ((#f tea)(#f cup)(tea _0)(cup _0))
+
+          defrel_teacupo
+          result = run_star(%w[x y], conde(
+              [teacupo(x), teacupo(x)],
+              [equals('#f', x), teacupo(y)]))
+
+          # Order of solutions differs from RS book
+          expected = '((:tea _0) (:cup _0) (false :tea) (false :cup))'
+          expect(result.to_s).to eq(expected)
+        end
+
+        it 'supports conde and passes frame 1:88 (ii)' do
+          # Reasoned S2, frame 1:88 (second part, a rewrite of 1:76)
+          # (run* (x y)
+          #   (conde
+          #     ((== 'split x) (== 'pea y))
+          #     ((== 'red x) (== 'bean y)))) ;; => ((split pea)(red bean))
+          result = run_star(%w[x y], conde(
+            [equals(:split, x), equals(:pea, y)],
+            [equals(:red, x), equals(:bean, y)]))
+
+          expected = '((:split :pea) (:red :bean))'
+          expect(result.to_s).to eq(expected)
+        end
+
+        it 'passes frame 1:89' do
+          # Reasoned S2, frame 1:89 (rewrite of 1:62)
+          # (run* x
+          #   (conde
+          #     ((== 'olive x) fail)
+          #     ('oil x))) ;; => (oil)
+
+          result = run_star('x', conde(
+            [equals(:olive, x), _fail],
+            equals(:oil, x)))
+
+          expect(result.to_s).to eq('(:oil)')
+        end
+
+        it 'passes frame 1:90' do
+          # Reasoned S2, frame 1:90
+          # (run* (x y)
+          #   (conde
+          #     ((fresh (z)
+          #       (== 'lentil z)))
+          #     ((== x y)))) ;; => ((_0 _1)(_0 _0))
+
+          result = run_star(%w[x y], conde(
+            [fresh(%w[z], equals(:lentil, z))],
+            [equals(x, y)]))
+
+          expect(result.to_s).to eq('((_0 _1) (_0 _0))')
+        end
+
+        it 'passes frame 1:91' do
+          # Reasoned S2, frame 1:91
+          # (run* (x y)
+          #   (conde
+          #     ((== 'split x) (== 'pea y))
+          #     ((== 'red x) (== 'bean y))
+          #     ((== 'green x) (== 'lentil y))))
+          # ;; => ((split pea)(red bean)(green lentil))
+          result = run_star(%w[x y], conde(
+            [equals(:split, x), equals(:pea, y)],
+            [equals(:red, x), equals(:bean, y)],
+            [equals(:green, x), equals(:lentil, y)]))
+
+          expected = '((:split :pea) (:red :bean) (:green :lentil))'
+          expect(result.to_s).to eq(expected)
         end
       end # context
     end # describe

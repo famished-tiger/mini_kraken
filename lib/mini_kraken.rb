@@ -6,10 +6,10 @@
 require_relative './mini_kraken/version'
 require_relative './mini_kraken/glue/dsl'
 
-
-# End of file
-
 module MiniKraken
   class Error < StandardError; end
   # Your code goes here...
 end
+
+# End of file
+

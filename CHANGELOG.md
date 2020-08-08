@@ -1,10 +1,17 @@
+## [0.2.02] - 2020-08-08
+- The DSL (Domain Specific Language) now supports `conde` and passes all examples from Chapter 1.
+
+### NEW
+- Method`Glue::DSL#conde` to implement conde goals.
+- Method `KBoolean#to_s` returns a text representation of a boolean value.
+
 ## [0.2.01] - 2020-08-07
 - The DSL (Domain Specific Language) now supports `defrel` and boolean literals.
 
 ### CHANGED
 - Constructor `DefRelation#initialize` now freezes any new class instance.  
 - Constructor `GoalTemplate#initialize` now freezes any new class instance.  
-- Mixin module `Core::DSL` new method `defrel` to build custom relations.
+- Mixin module `Glue::DSL` new method `defrel` to build custom relations.
 - File `.rubocop.yml` to please Rubocop 0.89
 
 ## [0.2.00] - 2020-07-12
