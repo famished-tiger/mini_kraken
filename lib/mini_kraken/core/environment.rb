@@ -57,7 +57,7 @@ module MiniKraken
       # Roll up associations from descendent outcome object
       # @param descendent [Outcome]
       def do_propagate(descendent)
-        return unless descendent.successful?
+        return unless descendent.success?
 
         vars.each_key do |var_name|
           # assocs = descendent[var_name]

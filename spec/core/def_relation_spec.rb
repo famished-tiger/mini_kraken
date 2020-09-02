@@ -17,6 +17,7 @@ require_relative '../../lib/mini_kraken/core/def_relation'
 module MiniKraken
   module Core
     describe DefRelation do
+      # (defrel (teao t) (== 'tea t))
       let(:tea) { KSymbol.new(:tea) }
       let(:formal_t) { FormalArg.new('t') }
       let(:t_ref) { FormalRef.new('t') }
@@ -53,13 +54,13 @@ module MiniKraken
           defrel = DefRelation.new('teao', equals_tea, [formal_t])
           solver = defrel.solver_for([tea], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           outcome = solver.resume
           expect(outcome).to be_nil
 
           solver = defrel.solver_for([cup], env)
           outcome = solver.resume
-          expect(outcome).not_to be_successful
+          expect(outcome).not_to be_success
           outcome = solver.resume
           expect(outcome).to be_nil
         end
@@ -69,7 +70,7 @@ module MiniKraken
           env.add_var(Variable.new('x'))
           solver = defrel.solver_for([ref_x], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(ref_x.value(outcome)).to eq(tea)
 
           outcome = solver.resume
@@ -80,11 +81,11 @@ module MiniKraken
           env.add_var(Variable.new('x'))
           solver = subject.solver_for([ref_x], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(ref_x.value(outcome)).to eq(tea)
 
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(ref_x.value(outcome)).to eq(cup)
 
           outcome = solver.resume

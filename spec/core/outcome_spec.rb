@@ -25,6 +25,14 @@ module MiniKraken
           expect(subject.resultant).to eq(:"#s")
         end
 
+        it 'should know whether it represents a failure' do
+          expect(Outcome.new(:"#u")).to be_failure
+        end
+
+        it 'should know whether it represents a success' do
+          expect(subject).to be_success
+        end
+
         it 'should know its parent' do
           expect(subject.parent).to eq(voc)
         end

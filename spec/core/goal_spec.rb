@@ -40,7 +40,7 @@ module MiniKraken
       context 'Provided services:' do
         it 'should fail if relation does not succeed' do
           solver = subject.attain(env)
-          expect(solver.resume).not_to be_successful
+          expect(solver.resume).not_to be_success
 
           # No more solution...
           expect(solver.resume).to be_nil
@@ -50,7 +50,7 @@ module MiniKraken
           instance = Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pea)])
 
           solver = instance.attain(env)
-          expect(solver.resume).to be_successful
+          expect(solver.resume).to be_success
 
           # No more solution...
           expect(solver.resume).to be_nil

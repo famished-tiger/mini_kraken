@@ -11,7 +11,7 @@ module MiniKraken
       def initialize(aValue)
         super(validated_value(aValue))
       end
-      
+
       def to_s
         value.to_s
       end

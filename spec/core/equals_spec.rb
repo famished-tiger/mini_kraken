@@ -106,7 +106,7 @@ module MiniKraken
         it 'should succeed for a right-handed fresh argument' do
           result = solve_for(pea, ref_q)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations.size).to eq(1)
           expect(env.associations['q'].first.value).to eq(pea)
           expect(var_q.fresh?(result)).to be_falsey
@@ -116,7 +116,7 @@ module MiniKraken
         it 'should succeed for a left-handed fresh argument' do
           result = solve_for(ref_q, pea)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations.size).to eq(1)
           expect(env.associations['q'].first.value).to eq(pea)
           expect(var_q.fresh?(result)).to be_falsey
@@ -127,7 +127,7 @@ module MiniKraken
           ref_q.associate(pod, env)
 
           result = solve_for(pod, ref_q)
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations.size).to eq(1) # No new association
           expect(ref_q.fresh?(result)).not_to be_truthy
           expect(ref_q.values(result).first).to eq(pod)
@@ -137,7 +137,7 @@ module MiniKraken
           ref_q.associate(pod, env)
 
           result = solve_for(ref_q, pod)
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).to be_falsey
           expect(ref_q.values(result).first).to eq(pod)
@@ -147,7 +147,7 @@ module MiniKraken
           ref_q.associate(pod, env)
 
           result = solve_for(pea, ref_q)
-          expect(result).not_to be_successful
+          expect(result).not_to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).to be_falsey
           expect(ref_q.values(result).first).to eq(pod)
@@ -157,7 +157,7 @@ module MiniKraken
           ref_q.associate(pod, env)
 
           result = solve_for(ref_q, pea)
-          expect(result).not_to be_successful
+          expect(result).not_to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).to be_falsey
           expect(ref_q.values(result).first).to eq(pod)
@@ -166,7 +166,7 @@ module MiniKraken
         it 'should succeed for a composite and right-handed fresh argument' do
           result = solve_for(sample_cons, ref_q)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations.size).to eq(1)
           expect(ref_q.fresh?(result)).to be_falsey
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -175,7 +175,7 @@ module MiniKraken
         it 'should succeed for composite and left-handed fresh argument' do
           result = solve_for(ref_q, sample_cons)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations.size).to eq(1)
           expect(ref_q.fresh?(result)).to be_falsey
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -186,7 +186,7 @@ module MiniKraken
           composite = ConsCell.new(pea)
           result = solve_for(composite, ref_q)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).not_to be_truthy
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -197,7 +197,7 @@ module MiniKraken
           composite = ConsCell.new(pea)
           result = solve_for(ref_q, composite)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).not_to be_truthy
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -208,7 +208,7 @@ module MiniKraken
           composite = ConsCell.new(pod)
           result = solve_for(composite, ref_q)
 
-          expect(result).not_to be_successful
+          expect(result).to be_failure
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).not_to be_truthy
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -219,7 +219,7 @@ module MiniKraken
           composite = ConsCell.new(pod)
           result = solve_for(ref_q, composite)
 
-          expect(result).not_to be_successful
+          expect(result).not_to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).not_to be_truthy
           expect(ref_q.values(result).first).to eq(sample_cons)
@@ -228,7 +228,7 @@ module MiniKraken
         it 'should succeed for both identical fresh arguments' do
           result = solve_for(ref_q, ref_q)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).to be_truthy
         end
@@ -236,7 +236,7 @@ module MiniKraken
         it 'should succeed for both same fresh arguments' do
           result = solve_for(ref_q, ref_q_bis)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
           expect(ref_q.fresh?(result)).to be_truthy
           expect(ref_q_bis.fresh?(result)).to be_truthy
@@ -245,7 +245,7 @@ module MiniKraken
         it 'should succeed for both distinct fresh arguments' do
           result = solve_for(ref_x, ref_y)
 
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(env.associations).to be_empty # Symmetric association
           expect(ref_x.fresh?(result)).to be_truthy
           expect(ref_y.fresh?(result)).to be_truthy
@@ -258,7 +258,7 @@ module MiniKraken
           expect(ref_y.fresh?(env)).to be_falsey
 
           result = solve_for(ref_x, ref_y)
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(result.associations).to be_empty
         end
 
@@ -269,19 +269,20 @@ module MiniKraken
           expect(ref_y.fresh?(env)).to be_falsey
 
           result = solve_for(ref_x, ref_y)
-          expect(result).not_to be_successful
+          expect(result).not_to be_success
           expect(result.associations).to be_empty
         end
 
         it 'should unify composite terms with variables' do
           # Reasoned S2, frame 1:36
           # (run* q (fresh (x) (==  '(((,q)) ,x) `(((,x)) pod)))) ;; => ('pod)
-          expr1 = cons(cons(cons(ref_q)), ref_x)
-          expr2 = cons(cons(cons(ref_x)), pod)
+          expr1 = cons(cons(cons(ref_q)), cons(ref_x))
+          expect(expr1.to_s).to eq('(((q)) x)')
+          expr2 = cons(cons(cons(ref_x)), cons(pod))
+          expect(expr2.to_s).to eq('(((x)) :pod)')
 
           result = solve_for(expr1, expr2)
-          # require 'debug'
-          expect(result).to be_successful
+          expect(result).to be_success
           expect(ref_x.fresh?(env)).to be_falsey
           expect(ref_q.fresh?(env)).to be_falsey
         end
@@ -297,6 +298,18 @@ module MiniKraken
 
           expect(result.resultant).to eq(:"#u")
           expect(result.associations).to be_empty
+        end
+
+        it 'should unify variables with a list' do
+          # Variant of Reasoned S2, frame 2:3
+          # (== (cons q x) '(a c o r n)) ;; q => :a, x => '(c o r n)
+          expr1 = cons(ref_q, ref_x)
+          acorn = cons(k_symbol(:a), cons(k_symbol(:c),
+            cons(k_symbol(:o), cons(k_symbol(:r), cons(k_symbol(:n))))))
+          result = solve_for(expr1, acorn)
+          expect(result.resultant).to eq(:"#s")
+          q_value = env.associations['q'].first.value
+          expect(q_value).to eq(:a)
         end
       end # context
     end # describe

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'term'
+require_relative 'designation'
 require_relative 'any_value'
 
 module MiniKraken
@@ -15,6 +16,11 @@ module MiniKraken
       def initialize(aName)
         super()
         init_designation(aName)
+        name.freeze
+      end
+
+      def to_s
+        name
       end
 
       # @param aValue [Term]

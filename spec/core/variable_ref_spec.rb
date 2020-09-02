@@ -21,6 +21,9 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
+        it 'knows its text representation' do
+          expect(subject.to_s).to eq('q')
+        end
       end # context
     end # describe
   end # module

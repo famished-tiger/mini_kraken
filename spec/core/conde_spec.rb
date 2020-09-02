@@ -60,7 +60,7 @@ module MiniKraken
 
         it 'should fail when all goals fail' do
           solver = subject.solver_for([fails, fails, fails], env)
-          expect(solver.resume).not_to be_successful
+          expect(solver.resume).not_to be_success
           expect(solver.resume).to be_nil
         end
 
@@ -68,7 +68,7 @@ module MiniKraken
           subgoal = Goal.new(Equals.instance, [olive, ref_q])
           solver = subject.solver_for([subgoal, fails, fails], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations['q'].first.value).to eq(olive)
           expect(solver.resume).to be_nil
         end
@@ -77,7 +77,7 @@ module MiniKraken
           subgoal = Goal.new(Equals.instance, [oil, ref_q])
           solver = subject.solver_for([fails, subgoal, fails], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations['q'].first.value).to eq(oil)
           expect(solver.resume).to be_nil
         end
@@ -86,7 +86,7 @@ module MiniKraken
           subgoal = Goal.new(Equals.instance, [oil, ref_q])
           solver = subject.solver_for([fails, fails, subgoal], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations['q'].first.value).to eq(oil)
           expect(solver.resume).to be_nil
         end
@@ -100,17 +100,17 @@ module MiniKraken
 
           # First solution
           outcome1 = solver.resume
-          expect(outcome1).to be_successful
+          expect(outcome1).to be_success
           expect(outcome1.associations['q'].first.value).to eq(olive)
 
           # Second solution
           outcome2 = solver.resume
-          expect(outcome2).to be_successful
+          expect(outcome2).to be_success
           expect(outcome2.associations['q'].first.value).to eq(oil)
 
           # Third solution
           outcome3 = solver.resume
-          expect(outcome3).to be_successful
+          expect(outcome3).to be_success
           expect(outcome3.associations['q'].first.value).to eq(pea)
 
           expect(solver.resume).to be_nil
@@ -129,13 +129,13 @@ module MiniKraken
 
           # First solution
           outcome1 = solver.resume
-          expect(outcome1).to be_successful
+          expect(outcome1).to be_success
           expect(outcome1.associations['x'].first.value).to eq(split)
           expect(outcome1.associations['y'].first.value).to eq(pea)
 
           # Second solution
           outcome2 = solver.resume
-          expect(outcome2).to be_successful
+          expect(outcome2).to be_success
           expect(outcome2.associations['x'].first.value).to eq(red)
           expect(outcome2.associations['y'].first.value).to eq(bean)
 

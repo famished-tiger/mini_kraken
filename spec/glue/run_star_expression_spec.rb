@@ -23,6 +23,7 @@ module MiniKraken
   module Glue
     describe RunStarExpression do
       include FactoryMethods
+
       let(:pea) { k_symbol(:pea) }
       let(:pod) { k_symbol(:pod) }
       let(:sample_goal) { equals_goal(pea, pod) }
@@ -265,8 +266,8 @@ module MiniKraken
         it 'should unify complex equality expressions (IV)' do
           # Reasoned S2, frame 1:36
           # (run* q (fresh (x) (==  '(((,q)) (,x)) `(((,x)) pod)))) ;; => ('pod)
-          expr1 = cons(cons(cons(ref_q)), ref_x)
-          expr2 = cons(cons(cons(ref_x)), pod)
+          expr1 = cons(cons(cons(ref_q)), cons(ref_x))
+          expr2 = cons(cons(cons(ref_x)), cons(pod))
           goal = equals_goal(expr1, expr2)
           fresh_env = FreshEnv.new(['x'], goal)
           instance = RunStarExpression.new('q', fresh_env)

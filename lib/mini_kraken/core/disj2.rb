@@ -44,7 +44,7 @@ unless MiniKraken::Core.constants(false).include? :Disj2
               break unless outcome1
 
               outcome1.parent = voc unless outcome1.parent
-              if outcome1.successful?
+              if outcome1.success?
                 Fiber.yield outcome1
                 outcome1.clear
               end
@@ -55,7 +55,7 @@ unless MiniKraken::Core.constants(false).include? :Disj2
               break unless outcome2
 
               outcome2.parent = voc unless outcome2.parent
-              if outcome2.successful?
+              if outcome2.success?
                 Fiber.yield outcome2
                 outcome2.clear
               end

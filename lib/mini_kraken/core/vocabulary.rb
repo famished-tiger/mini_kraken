@@ -171,7 +171,7 @@ module MiniKraken
         to_fuse.map { |i_name| i_name2var(i_name) }
       end
 
-      # Fuse the given variables, that is:
+      # Fuse the given variables:
       # Collect all their associations
       # Put them under a new internal name
       # Remove all entries from old internal names
@@ -395,12 +395,16 @@ module MiniKraken
         name2var(aVarName) ? true : false
       end
 
+      def prune(anOutcome)
+        anOutcome # Don't touch outcome
+      end
+
       def inspect
         result = +"#<#{self.class.name}:#{object_id.to_s(16)} @parent="
         if parent
           result << "#<#{parent.class.name}:#{parent.object_id.to_s(16)}>"
         else
-          result << nil
+          result << 'nil'
         end
         result << introspect
         result << '>'

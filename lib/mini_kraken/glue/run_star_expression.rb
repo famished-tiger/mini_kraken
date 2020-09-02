@@ -27,7 +27,7 @@ module MiniKraken
           outcome = solver.resume
           break if outcome.nil?
 
-          env.propagate(outcome) if result.empty? && outcome.successful?
+          env.propagate(outcome) if result.empty? && outcome.success?
           result << build_solution(outcome)
         end
 
@@ -39,7 +39,7 @@ module MiniKraken
       # @return [Array] A vector of assignment for each variable
       def build_solution(outcome)
         env.vars.values.map do |var|
-          outcome.successful? ? var.quote(outcome) : nil
+          outcome.success? ? var.quote(outcome) : nil
         end
       end
 

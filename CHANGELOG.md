@@ -1,3 +1,21 @@
+## [0.2.03] - 2020-09-02
+- The DSL (Domain Specific Language) supports the `caro` relation & passes frames up to 2-8 from Chapter 2.
+
+### NEW
+- Class `ConsCellVisitor`. Its method `df_visitor` builds a Fiber that walks over a ConsCell (list/graph).
+- Method `Outcome#failure?`
+- Method `Outcome#prune!` for removing associations of transient variables.
+- Method `VariableRef#to_s` for providing a text representation of a variable reference
+- Method `Vocabulary#prune` for removing associations of transient variables.
+- Class `FreshEnvFactory` as its name implies, is used to build `FreshEnv` instances.
+
+### CHANGED
+- Method `Outcome#successful?` renamed to `Outcome#success?`
+
+### FIXED
+- Method `Equals#solver_for` now prunes associations of transient variables.
+- Method `Equals#unify_composite_terms` now copes with Conscell vs. VariableRef unification.
+
 ## [0.2.02] - 2020-08-08
 - The DSL (Domain Specific Language) now supports `conde` and passes all examples from Chapter 1.
 

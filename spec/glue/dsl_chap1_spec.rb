@@ -113,7 +113,11 @@ module MiniKraken
           # Reasoned S2, frame 1:34
           # (run* q (==  '(((,q)) pod) `(((pea)) pod))) ;; => ('pea)
 
-          result = run_star('q', equals(cons(cons(q), :pod), cons(cons(:pea), q)))
+          expr1 = cons(cons(cons(q)), cons(:pod))
+          expect(expr1.to_s).to eq('(((q)) :pod)')
+          expr2 = cons(cons(cons(:pea)), cons(:pod))
+          expect(expr2.to_s).to eq('(((:pea)) :pod)')
+          result = run_star('q', equals(expr1, expr2))
           expect(result.car).to eq(:pea)
         end
 
@@ -129,7 +133,11 @@ module MiniKraken
           # Reasoned S2, frame 1:36
           # (run* q (fresh (x) (==  '(((,q)) ,x) `(((,x)) pod)))) ;; => ('pod)
 
-          result = run_star('q', fresh('x', equals(cons(cons(cons(q)), x), cons(cons(cons(x)), :pod))))
+          expr1 = cons(cons(cons(q)), cons(x))
+          expect(expr1.to_s).to eq('(((q)) x)')
+          expr2 = cons(cons(cons(x)), cons(:pod))
+          expect(expr2.to_s).to eq('(((x)) :pod)')
+          result = run_star('q', fresh('x', equals(expr1, expr2)))
           expect(result.car).to eq(:pod)
         end
 

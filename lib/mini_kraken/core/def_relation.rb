@@ -15,6 +15,7 @@ module MiniKraken
 
       # @param aName [String] name of def relation
       # @param aGoalTemplate [GoalTemplate]
+      # @param theFormals [Array<FormalArg>]
       def initialize(aName, aGoalTemplate, theFormals, alternateName = nil)
         super(aName, alternateName)
         @formals = validated_formals(theFormals)
@@ -43,6 +44,8 @@ module MiniKraken
       end
 
       def validated_goal_template(aGoalTemplate)
+        raise StandardError unless aGoalTemplate
+
         aGoalTemplate
       end
     end # class

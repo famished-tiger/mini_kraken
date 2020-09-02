@@ -12,6 +12,7 @@ require_relative '../core/fail'
 require_relative '../core/formal_arg'
 require_relative '../core/formal_ref'
 require_relative '../glue/fresh_env'
+require_relative '../glue/fresh_env_factory'
 require_relative '../core/goal_template'
 require_relative '../core/k_boolean'
 require_relative '../core/k_symbol'
@@ -39,7 +40,7 @@ module MiniKraken
         # require 'debug'
         args = goals.map do |goal_maybe|
           if goal_maybe.kind_of?(Array)
-            goal_maybe.map { |g| convert(g)}
+            goal_maybe.map { |g| convert(g) }
           else
             convert(goal_maybe)
           end
@@ -98,14 +99,22 @@ module MiniKraken
 
       def fresh(var_names, goal)
         vars = nil
-
-        if var_names.kind_of?(String) || var_names.kind_of?(Core::VariableRef)
-          vars = [var_names]
+        if @dsl_mode == :defrel
+          if var_names.kind_of?(String)
+            vars = [var_names]
+          else
+            vars = var_names
+          end
+          FreshEnvFactory.new(vars, goal)
         else
-          vars = var_names
-        end
+          if var_names.kind_of?(String) || var_names.kind_of?(Core::VariableRef)
+            vars = [var_names]
+          else
+            vars = var_names
+          end
 
-        FreshEnv.new(vars, goal)
+          FreshEnv.new(vars, goal)
+        end
       end
 
       def list(*members)
@@ -158,7 +167,7 @@ module MiniKraken
           when Core::FormalRef
             converted = anArgument
           when FreshEnv
-            converted = anArgument            
+            converted = anArgument
           when Core::Goal
             converted = anArgument
           when Core::GoalTemplate

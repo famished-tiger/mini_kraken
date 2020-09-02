@@ -12,4 +12,3 @@ module MiniKraken
 end
 
 # End of file
-

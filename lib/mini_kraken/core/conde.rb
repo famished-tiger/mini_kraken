@@ -63,7 +63,7 @@ unless MiniKraken::Core.constants(false).include? :Conde
               break unless outcome
 
               outcome.parent = voc unless outcome.parent
-              if outcome.successful?
+              if outcome.success?
                 success = true
                 Fiber.yield outcome
                 outcome.clear

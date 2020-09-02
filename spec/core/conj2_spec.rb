@@ -47,12 +47,12 @@ module MiniKraken
         it 'should yield one failure if one of the goal is fail' do
           # Fail as first argument
           solver = subject.solver_for([fails, succeeds], env)
-          expect(solver.resume).not_to be_successful
+          expect(solver.resume).not_to be_success
           expect(solver.resume).to be_nil
 
           # Fail as second argument
           solver = subject.solver_for([succeeds, fails], env)
-          expect(solver.resume).not_to be_successful
+          expect(solver.resume).not_to be_success
           expect(solver.resume).to be_nil
         end
 
@@ -60,7 +60,7 @@ module MiniKraken
           # Covers frame 1-50
           solver = subject.solver_for([succeeds, succeeds], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations).to be_empty
           expect(solver.resume).to be_nil
         end
@@ -71,7 +71,7 @@ module MiniKraken
           sub_goal = Goal.new(Equals.instance, [corn, ref_q])
           solver = subject.solver_for([succeeds, sub_goal], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations).not_to be_empty
           expect(outcome.associations['q'].first.value).to eq(corn)
         end
@@ -82,7 +82,7 @@ module MiniKraken
           sub_goal = Goal.new(Equals.instance, [corn, ref_q])
           solver = subject.solver_for([fails, sub_goal], env)
           outcome = solver.resume
-          expect(outcome).not_to be_successful
+          expect(outcome).not_to be_success
           expect(outcome.associations).to be_empty
         end
 
@@ -93,7 +93,7 @@ module MiniKraken
           sub_goal2 = Goal.new(Equals.instance, [meal, ref_q])
           solver = subject.solver_for([sub_goal1, sub_goal2], env)
           outcome = solver.resume
-          expect(outcome).not_to be_successful
+          expect(outcome).not_to be_success
           expect(outcome.associations).to be_empty
         end
 
@@ -104,7 +104,7 @@ module MiniKraken
           sub_goal2 = Goal.new(Equals.instance, [corn, ref_q])
           solver = subject.solver_for([sub_goal1, sub_goal2], env)
           outcome = solver.resume
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.associations).not_to be_empty
           expect(outcome.associations['q'].first.value).to eq(corn)
         end

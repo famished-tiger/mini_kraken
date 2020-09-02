@@ -2,7 +2,7 @@
 
 require 'singleton'
 require_relative 'binary_relation'
-# require_relative 'any_value'
+require_relative 'cons_cell_visitor'
 require_relative 'duck_fiber'
 require_relative 'variable'
 require_relative 'variable_ref'
@@ -23,7 +23,10 @@ unless MiniKraken::Core.constants(false).include? :Equals
         # @return [Fiber<Outcome>] A Fiber(-like) instance that yields Outcomes
         def solver_for(actuals, anEnv)
           arg1, arg2 = *actuals
-          DuckFiber.new(:custom) { unification(arg1, arg2, anEnv) }
+          DuckFiber.new(:custom) do
+            outcome = unification(arg1, arg2, anEnv)
+            outcome.prune!
+          end
         end
 
         def unification(arg1, arg2, anEnv)
@@ -93,7 +96,10 @@ unless MiniKraken::Core.constants(false).include? :Equals
                 arg1.associate(arg2, result)
               else
                 # Ground case...
-                result = unify_composite_terms(arg1_freshness.associated, arg2, anEnv)
+                arg1_associated = arg1_freshness.associated
+                unless arg1_associated.kind_of?(AtomicTerm)
+                  result = unify_composite_terms(arg1_associated, arg2, anEnv)
+                end
               end
             elsif arg2.kind_of?(VariableRef)
               freshness = [arg1.fresh?(anEnv), arg2.fresh?(anEnv)]
@@ -121,32 +127,63 @@ unless MiniKraken::Core.constants(false).include? :Equals
           result
         end
 
-        # @return [Freshness]
+        # @param arg1 [ConsCell]
+        # @param arg2 [ConsCell]
+        # @return [Outcome]
         def unify_composite_terms(arg1, arg2, anEnv)
           # require 'debug'
-          result = Outcome.failure(anEnv)
-          children1 = arg1.children
-          children2 = arg2.children
+          result = Outcome.success(anEnv)
+          # We'll do parallel iteration
+          visitor1 = ConsCellVisitor.df_visitor(arg1)
+          visitor2 = ConsCellVisitor.df_visitor(arg2)
+          skip_children1 = false
+          skip_children2 = false
 
-          if children1.size == children2.size
-            i = 0
-            subresults = children1.map do |child1|
-              child2 = children2[i]
-              i += 1
-              unification(child1, child2, anEnv)
-            end
-            total_success = subresults.all?(&:successful?)
-            if total_success
-              memo = Outcome.success(anEnv)
-              subresults.reduce(memo) do |sub_total, outcome|
-                sub_total.merge(outcome)
-                sub_total
+          loop do
+            side1, cell1 = visitor1.resume(skip_children1)
+            side2, cell2 = visitor2.resume(skip_children2)
+            if side1 != side2
+              result = Outcome.failure(anEnv)
+            elsif side1 == :stop
+              break
+            else
+              case [cell1.class, cell2.class] # nil, AtomicTerm, ConsCell, VariableRef
+                when [ConsCell, ConsCell]
+                  skip_children1 = false
+                  skip_children2 = false
+                when [ConsCell, VariableRef]
+                  skip_children1 = true
+                  skip_children2 = false
+                  sub_result = unification(cell1, cell2, anEnv)
+                  result = merge_results(result, sub_result)
+                when [VariableRef, ConsCell]
+                  skip_children1 = false
+                  skip_children2 = true
+                  sub_result = do_unification(cell1, cell2, anEnv)
+                  result = merge_results(result, sub_result)
+              else
+                skip_children1 = false
+                skip_children2 = false
+                sub_result = unification(cell1, cell2, anEnv)
+                result = merge_results(result, sub_result)
               end
-              result = memo
             end
+
+            break if result.failure?
           end
 
           result
+        end
+
+        def merge_results(result1, result2)
+          raise StandardError if result2.kind_of?(Hash)
+
+          if result2.success?
+            result1.merge(result2)
+            result1
+          else
+            result2
+          end
         end
       end # class
 

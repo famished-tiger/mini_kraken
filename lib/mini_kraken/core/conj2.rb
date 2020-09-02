@@ -43,14 +43,14 @@ unless MiniKraken::Core.constants(false).include? :Conj2
               break unless outcome1
 
               outcome1.parent = voc unless outcome1.parent
-              if outcome1.successful?
+              if outcome1.success?
                 f2 = g2.attain(outcome1)
                 loop do
                   outcome2 = f2.resume
                   break unless outcome2
 
                   outcome2.parent = voc unless outcome2.parent
-                  if outcome2.successful?
+                  if outcome2.success?
                     res = Outcome.new(:"#s", voc)
                     res.merge(outcome1)
                     res.merge(outcome2)
@@ -63,7 +63,7 @@ unless MiniKraken::Core.constants(false).include? :Conj2
               else
                 Fiber.yield outcome1
               end
-              if outcome1.successful? && (outcome2&.successful? || outcome2.nil?)
+              if outcome1.success? && (outcome2&.success? || outcome2.nil?)
                 voc.clear
               end
             end

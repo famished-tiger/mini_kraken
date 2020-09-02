@@ -24,7 +24,11 @@ unless MiniKraken::Core.constants(false).include? :Outcome
           new(:"#s", aParent)
         end
 
-        def successful?
+        def failure?
+          resultant != :"#s"
+        end
+
+        def success?
           resultant == :"#s"
         end
 
@@ -37,6 +41,12 @@ unless MiniKraken::Core.constants(false).include? :Outcome
           end
 
           are_equal
+        end
+
+        # Remove associations of variables of this environment, if
+        # persistence flag is set to false.
+        def prune!
+          parent.prune(self)
         end
 
         protected

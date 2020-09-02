@@ -40,7 +40,7 @@ module MiniKraken
           succeeding = DuckFiber.new(:success)
           outcome = nil
           expect { outcome = succeeding.resume }.not_to raise_error
-          expect(outcome).to be_successful
+          expect(outcome).to be_success
           expect(outcome.parent).to be_nil
 
           # Only one result should be yielded
