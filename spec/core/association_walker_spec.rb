@@ -2,6 +2,7 @@
 
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/environment'
+require_relative '../support/factory_atomic'
 require_relative '../support/factory_methods'
 
 # Load the class under test
@@ -11,6 +12,7 @@ require_relative '../../lib/mini_kraken/core/association_walker'
 module MiniKraken
   module Core
     describe AssociationWalker do
+      include MiniKraken::FactoryAtomic # Use mix-in module
       include FactoryMethods
 
       subject { AssociationWalker.new }
@@ -26,12 +28,12 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:pea) { KSymbol.new(:pea) }
-        let(:pod) { KSymbol.new(:pod) }
-        let(:var_q) { Variable.new('q') }
-        let(:ref_q) { VariableRef.new('q') }
-        let(:var_x) { Variable.new('x') }
-        let(:ref_x) { VariableRef.new('x') }
+        let(:pea) { k_symbol(:pea) }
+        let(:pod) { k_symbol(:pod) }
+        let(:var_q) { LogVar.new('q') }
+        let(:ref_q) { LogVarRef.new('q') }
+        let(:var_x) { LogVar.new('x') }
+        let(:ref_x) { LogVarRef.new('x') }
         let(:env) { Environment.new }
 
         it 'should return composite when it has only atomic term(s)' do

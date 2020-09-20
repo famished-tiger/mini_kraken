@@ -13,7 +13,6 @@ module MiniKraken
 
       context 'Chapter 1 examples:' do
         it 'passes frame 1:7' do
-          # Reasoned S2, frame 1:7
           # (run* q #u) ;; => ()
 
           result = run_star('q', _fail)
@@ -21,7 +20,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:10' do
-          # Reasoned S2, frame 1:10
           # (run* q (== 'pea 'pod) ;; => ()
 
           result = run_star('q', equals(:pea, :pod))
@@ -29,7 +27,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:11' do
-          # Reasoned S2, frame 1:11
           # (run* q (== q 'pea) ;; => (pea)
 
           result = run_star('q', equals(q, :pea))
@@ -45,7 +42,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:17' do
-          # Reasoned S2, frame 1:17
           # (run* q succeed) ;; => (_0)
 
           result = run_star('q', succeed)
@@ -61,7 +57,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:20' do
-          # Reasoned S2, frame 1:20
           # (run* q (== q q)) ;; => (_0)
 
           result = run_star('q', equals(q, q))
@@ -77,7 +72,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:25' do
-          # Reasoned S2, frame 1:25
           # (run* q (fresh (x) (== (cons x '()) q))) ;; => ((_0))
           # require 'debug' Invalid goal argument
           result = run_star('q', fresh('x', equals(cons(x, null), q)))
@@ -85,7 +79,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:31' do
-          # Reasoned S2, frame 1:31
           # (run* q (fresh (x) (== x q))) ;; => (_0)
 
           result = run_star('q', fresh('x', equals(x, q)))
@@ -93,7 +86,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:32' do
-          # Reasoned S2, frame 1:32
           # (run* q (==  '(((pea)) pod) '(((pea)) pod))) ;; => (_0)
 
           result = run_star('q', equals(cons(cons(:pea), :pod), cons(cons(:pea), :pod)))
@@ -102,7 +94,6 @@ module MiniKraken
 
         it 'passes frame 1:33' do
           # Beware: quasiquoting
-          # Reasoned S2, frame 1:33
           # (run* q (==  '(((pea)) pod) '(((pea)) ,q))) ;; => ('pod)
 
           result = run_star('q', equals(cons(cons(:pea), :pod), cons(cons(:pea), q)))
@@ -110,7 +101,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:34' do
-          # Reasoned S2, frame 1:34
           # (run* q (==  '(((,q)) pod) `(((pea)) pod))) ;; => ('pea)
 
           expr1 = cons(cons(cons(q)), cons(:pod))
@@ -122,7 +112,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:35' do
-          # Reasoned S2, frame 1:35
           # (run* q (fresh (x) (==  '(((,q)) pod) `(((,x)) pod)))) ;; => (_0)
 
           result = run_star('q', fresh('x', equals(cons(cons(q), :pod), cons(cons(x), :pod))))
@@ -130,7 +119,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:36' do
-          # Reasoned S2, frame 1:36
           # (run* q (fresh (x) (==  '(((,q)) ,x) `(((,x)) pod)))) ;; => ('pod)
 
           expr1 = cons(cons(cons(q)), cons(x))
@@ -142,7 +130,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:37' do
-          # Reasoned S2, frame 1:37
           # (run* q (fresh (x) (==  '( ,x ,x) q))) ;; => (_0 _0)
 
           result = run_star('q', fresh('x', equals(cons(x, cons(x)), q)))
@@ -150,7 +137,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:38' do
-          # Reasoned S2, frame 1:38
           # (run* q (fresh (x) (fresh (y) (==  '( ,q ,y) '((,x ,y) ,x))))) ;; => (_0 _0)
 
           result = run_star('q', fresh('x', fresh('y', equals(cons(q, cons(y)), cons(cons(x, cons(y)), cons(x))))))
@@ -167,7 +153,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:42' do
-          # Reasoned S2, frame 1:42
           # (run* s (fresh (t) (fresh (u) (==  '( ,t ,u) s)))) ;; => (_0 _1)
 
           result = run_star('s', fresh('t', fresh('u', equals(cons(t, cons(u)), s))))
@@ -176,7 +161,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:43' do
-          # Reasoned S2, frame 1:43
           # (run* q (fresh (x) (fresh (y) (==  '( ,x ,y ,x) q)))) ;; => (_0 _1 _0)
 
           result = run_star('q', fresh('x', fresh('y', equals(cons(x, cons(y, cons(x))), q))))
@@ -193,7 +177,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:51' do
-          # Reasoned S2, frame 1:51
           # (run* q (conj2 succeed (== 'corn q)) ;; => ('corn)
 
           result = run_star('q', conj2(succeed, equals(:corn, q)))
@@ -201,7 +184,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:52' do
-          # Reasoned S2, frame 1:52
           # (run* q (conj2 fail (== 'corn q)) ;; => ()
 
           result = run_star('q', conj2(_fail, equals(:corn, q)))
@@ -217,7 +199,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:54' do
-          # Reasoned S2, frame 1:54
           # (run* q (conj2 (== 'corn q)(== 'corn q)) ;; => ('corn)
 
           result = run_star('q', conj2(equals(:corn, q), equals(:corn, q)))
@@ -225,7 +206,6 @@ module MiniKraken
         end
 
         it "supports 'disj2' and passes frame 1:55" do
-          # Reasoned S2, frame 1:55
           # (run* q (disj2 fail fail)) ;; => ()
 
           result = run_star('q', disj2(_fail, _fail))
@@ -233,7 +213,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:56' do
-          # Reasoned S2, frame 1:56
           # (run* q (disj2 (== 'olive q) fail)) ;; => ('olive)
 
           result = run_star('q', disj2(equals(:olive, q), _fail))
@@ -241,7 +220,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:57' do
-          # Reasoned S2, frame 1:57
           # (run* q (disj2 fail (== 'oil q))) ;; => (oil)
 
           result = run_star('q', disj2(_fail, equals(:oil, q)))
@@ -249,7 +227,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:58' do
-          # Reasoned S2, frame 1:58
           # (run* q (disj2 (== 'olive q) (== 'oil q))) ;; => (olive oil)
 
           result = run_star('q', disj2(equals(:olive, q), equals(:oil, q)))
@@ -258,7 +235,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:59' do
-          # Reasoned S2, frame 1:59
           # (run* q (fresh (x) (fresh (y) (disj2  (== '( ,x ,y ) q) (== '( ,x ,y ) q)))))
           # ;; => ((_0 _1) (_0 _1))
 
@@ -269,7 +245,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:62' do
-          # Reasoned S2, frame 1:62
           # (run* x (disj2
           #           (conj2 (== 'olive x) fail)
           #           (== 'oil x))) ;; => (oil)
@@ -279,7 +254,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:63' do
-          # Reasoned S2, frame 1:63
           # (run* x (disj2
           #           (conj2 (== 'olive x) succeed)
           #           ('oil x))) ;; => (olive oil)
@@ -289,7 +263,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:64' do
-          # Reasoned S2, frame 1:64
           # (run* x (disj2
           #           (== 'oil x)
           #           (conj2 (== 'olive x) succeed))) ;; => (oil olive)
@@ -299,7 +272,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:65' do
-          # Reasoned S2, frame 1:65
           # (run* x (disj2
           #           (conj2(== 'virgin x) fail)
           #           (disj2
@@ -314,7 +286,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:67' do
-          # Reasoned S2, frame 1:67
           # (run* r
           #   (fresh x
           #     (fresh y
@@ -331,7 +302,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:68' do
-          # Reasoned S2, frame 1:68
           # (run* r
           #   (fresh x
           #     (fresh y
@@ -348,7 +318,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:70' do
-          # Reasoned S2, frame 1:70
           # (run* r
           #   (fresh (x y)
           #     (conj2
@@ -364,7 +333,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:72' do
-          # Reasoned S2, frame 1:72
           # (run* (r x y)
           #   (conj2
           #     (conj2
@@ -397,7 +365,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:75' do
-          # Reasoned S2, frame 1:75
           # (run* (x y)
           #   (conj2
           #     (== 'split x)
@@ -408,7 +375,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:76' do
-          # Reasoned S2, frame 1:76
           # (run* (x y)
           #   (disj2
           #     (conj2 (== 'split x) (== 'pea y))
@@ -422,7 +388,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:77' do
-          # Reasoned S2, frame 1:77
           # (run* r
           #   (fresh (x y)
           #     (conj2
@@ -442,7 +407,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:78' do
-          # Reasoned S2, frame 1:78
           # (run* r
           #   (fresh (x y)
           #     (disj2
@@ -460,7 +424,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:80' do
-          # Reasoned S2, frame 1:80
           # (run* (x y z)
           #   (disj2
           #     (conj2 (== 'split x) (== 'pea y))
@@ -476,7 +439,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:81' do
-          # Reasoned S2, frame 1:81
           # (run* (x y)
           #   (== 'split x)
           #   (== 'pea y)) ;; => ((split pea))
@@ -486,7 +448,6 @@ module MiniKraken
         end
 
         it "supports 'defrel' and passes frame 1:82" do
-          # Reasoned S2, frame 1:82
           # (defrel (teacupo t)
           #   (disj2 (== 'tea t) (== 'cup t)))
 
@@ -551,7 +512,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:85' do
-          # Reasoned S2, frame 1:85
           # (run* (x y)
           #   (teacupo x)
           #   (teacupo y)) ;; => ((tea tea)(tea cup)(cup tea)(cup c))
@@ -566,7 +526,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:86' do
-          # Reasoned S2, frame 1:86
           # (run* (x y)
           #   (teacupo x)
           #   (teacupo x)) ;; => ((tea _0)(cup _0))
@@ -577,7 +536,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:87' do
-          # Reasoned S2, frame 1:87
           # (run* (x y)
           #   (disj2
           #     (conj2 (teacupo x) (teacupo x))
@@ -598,7 +556,6 @@ module MiniKraken
         end
 
         it 'supports conde and passes frame 1:88 (i)' do
-          # Reasoned S2, frame 1:88
           # (run* (x y)
           #   (conde
           #     ((teacupo x) (teacupo x))
@@ -643,7 +600,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:90' do
-          # Reasoned S2, frame 1:90
           # (run* (x y)
           #   (conde
           #     ((fresh (z)
@@ -658,7 +614,6 @@ module MiniKraken
         end
 
         it 'passes frame 1:91' do
-          # Reasoned S2, frame 1:91
           # (run* (x y)
           #   (conde
           #     ((== 'split x) (== 'pea y))

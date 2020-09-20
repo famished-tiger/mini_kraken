@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../support/factory_atomic'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 require_relative '../support/factory_methods'
 
 # Load the class under test
@@ -22,7 +22,7 @@ module MiniKraken
     end # class
 
     # Helper module that simulates an environment-like object.
-    module VariableBearer
+    module LogVarBearer
       attr_reader :vars
       attr_accessor :ivars
 
@@ -33,12 +33,13 @@ module MiniKraken
       end
 
       def add_var(aVarName)
-        vars[aVarName] = Variable.new(aVarName)
+        vars[aVarName] = LogVar.new(aVarName)
         ivars[aVarName] = Set.new([aVarName])
       end
     end # module
 
     describe Vocabulary do
+      include MiniKraken::FactoryAtomic # Use mix-in module
       include FactoryMethods
 
       let(:parent) { TestVocabulary.new }
@@ -65,13 +66,13 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:pea) { KSymbol.new(:pea) }
-        let(:pod) { KSymbol.new(:pod) }
-        let(:ref_q) { VariableRef.new('q') }
-        let(:ref_x) { VariableRef.new('x') }
+        let(:pea) { k_symbol(:pea) }
+        let(:pod) { k_symbol(:pod) }
+        let(:ref_q) { LogVarRef.new('q') }
+        let(:ref_x) { LogVarRef.new('x') }
         let(:grandma) do
           voc = TestVocabulary.new
-          voc.extend(VariableBearer)
+          voc.extend(LogVarBearer)
           voc.init_var_bearer
         end
         let(:mother) { TestVocabulary.new(grandma) }
@@ -93,7 +94,7 @@ module MiniKraken
           expect(grandma.include?('x')).to be_truthy
           expect(mother.include?('x')).to be_truthy
           expect(subject.include?('x')).to be_truthy
-          subject.extend(VariableBearer)
+          subject.extend(LogVarBearer)
           subject.init_var_bearer
           subject.add_var('y')
           expect(subject.include?('y')).to be_truthy

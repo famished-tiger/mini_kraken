@@ -13,6 +13,7 @@ require_relative '../../lib/mini_kraken/core/formal_ref'
 require_relative '../../lib/mini_kraken/core/goal_template'
 require_relative '../../lib/mini_kraken/core/succeed'
 
+require_relative '../support/factory_atomic'
 require_relative '../support/factory_methods'
 
 # Load the class under test
@@ -22,6 +23,7 @@ require_relative '../../lib/mini_kraken/glue/run_star_expression'
 module MiniKraken
   module Glue
     describe RunStarExpression do
+      include MiniKraken::FactoryAtomic # Use mix-in module
       include FactoryMethods
 
       let(:pea) { k_symbol(:pea) }
@@ -70,15 +72,15 @@ module MiniKraken
         let(:split) { k_symbol(:split) }
         let(:tea) { k_symbol(:tea) }
         let(:virgin) { k_symbol(:virgin) }
-        let(:ref_q) { Core::VariableRef.new('q') }
-        let(:ref_r) { Core::VariableRef.new('r') }
-        let(:ref_x) { Core::VariableRef.new('x') }
-        let(:ref_y) { Core::VariableRef.new('y') }
-        let(:ref_z) { Core::VariableRef.new('z') }
-        let(:ref_s) { Core::VariableRef.new('s') }
-        let(:ref_t) { Core::VariableRef.new('t') }
-        let(:ref_u) { Core::VariableRef.new('u') }
-        let(:ref_z) { Core::VariableRef.new('z') }
+        let(:ref_q) { Core::LogVarRef.new('q') }
+        let(:ref_r) { Core::LogVarRef.new('r') }
+        let(:ref_x) { Core::LogVarRef.new('x') }
+        let(:ref_y) { Core::LogVarRef.new('y') }
+        let(:ref_z) { Core::LogVarRef.new('z') }
+        let(:ref_s) { Core::LogVarRef.new('s') }
+        let(:ref_t) { Core::LogVarRef.new('t') }
+        let(:ref_u) { Core::LogVarRef.new('u') }
+        let(:ref_z) { Core::LogVarRef.new('z') }
         let(:t_ref) { Core::FormalRef.new('t') }
         let(:equals_tea) { Core::GoalTemplate.new(Core::Equals.instance, [tea, t_ref]) }
         let(:equals_cup) { Core::GoalTemplate.new(Core::Equals.instance, [cup, t_ref]) }
@@ -148,8 +150,8 @@ module MiniKraken
         end
 
         it 'should keep variable fresh when no unification occurs (II)' do
-          ref1_q = Core::VariableRef.new('q')
-          ref2_q = Core::VariableRef.new('q')
+          ref1_q = Core::LogVarRef.new('q')
+          ref2_q = Core::LogVarRef.new('q')
           goal = equals_goal(ref1_q, ref2_q)
           instance = RunStarExpression.new('q', goal)
 

@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/mini_kraken/core/any_value'
-require_relative '../../lib/mini_kraken/core/cons_cell'
-require_relative '../../lib/mini_kraken/core/k_boolean'
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/atomic/all_atomic'
+require_relative '../../lib/mini_kraken/composite/cons_cell'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 
 module MiniKraken
   # Mix-in module that provides convenience factory methods.
@@ -24,7 +23,7 @@ module MiniKraken
     # @param obj2 [Term]
     # @return [Core::ConsCell]
     def cons(obj1, obj2 = nil)
-      Core::ConsCell.new(obj1, obj2)
+      Composite::ConsCell.new(obj1, obj2)
     end
 
     # Factory method for constructing a goal using the Equals relation.
@@ -58,32 +57,18 @@ module MiniKraken
       Core::Goal.new(Core::Disj2.instance, [g1, g2])
     end
 
-    # Factory method for constructing a KBoolean instance
-    # @param aValue [Boolean]
-    # @return [Core::KBoolean]
-    def k_boolean(aValue)
-      Core::KBoolean.new(aValue)
-    end
-
-    # Factory method for constructing a KSymbol instance
-    # @param aSymbol [Symbol]
-    # @return [Core::KSymbol]
-    def k_symbol(aSymbol)
-      Core::KSymbol.new(aSymbol)
-    end
-
-    # Factory method for constructing a Variable
+    # Factory method for constructing a LogVar
     # @param var_name [String]
-    # @return [Core::Variable]
+    # @return [Core::LogVar]
     def variable(var_name)
-      Core::Variable.new(var_name)
+      Core::LogVar.new(var_name)
     end
 
-    # Factory method for constructing a VariableRef
+    # Factory method for constructing a LogVarRef
     # @param var_name [String]
-    # @return [Core::VariableRef]
+    # @return [Core::LogVarRef]
     def var_ref(var_name)
-      Core::VariableRef.new(var_name)
+      Core::LogVarRef.new(var_name)
     end
   end # end
 end # module

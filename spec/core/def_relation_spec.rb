@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
+require_relative '../support/factory_atomic'
 require_relative '../../lib/mini_kraken/core/disj2'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/formal_arg'
 require_relative '../../lib/mini_kraken/core/formal_ref'
 require_relative '../../lib/mini_kraken/core/goal'
 require_relative '../../lib/mini_kraken/core/goal_template'
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 require_relative '../../lib/mini_kraken/core/environment'
 
 # Load the class under test
@@ -17,8 +17,10 @@ require_relative '../../lib/mini_kraken/core/def_relation'
 module MiniKraken
   module Core
     describe DefRelation do
+      include MiniKraken::FactoryAtomic # Use mix-in module
+
       # (defrel (teao t) (== 'tea t))
-      let(:tea) { KSymbol.new(:tea) }
+      let(:tea) { k_symbol(:tea) }
       let(:formal_t) { FormalArg.new('t') }
       let(:t_ref) { FormalRef.new('t') }
       let(:equals_tea) { GoalTemplate.new(Equals.instance, [tea, t_ref]) }
@@ -43,8 +45,8 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:cup) { KSymbol.new(:cup) }
-        let(:ref_x) { VariableRef.new('x') }
+        let(:cup) { Atomic::KSymbol.new(:cup) }
+        let(:ref_x) { LogVarRef.new('x') }
         let(:equals_cup) { GoalTemplate.new(Equals.instance, [cup, t_ref]) }
         let(:g_template) { GoalTemplate.new(Disj2.instance, [equals_tea, equals_cup]) }
         subject { DefRelation.new('teacup', g_template, [formal_t]) }
@@ -67,7 +69,7 @@ module MiniKraken
 
         it 'should provide solver for a single-node goal' do
           defrel = DefRelation.new('teao', equals_tea, [formal_t])
-          env.add_var(Variable.new('x'))
+          env.add_var(LogVar.new('x'))
           solver = defrel.solver_for([ref_x], env)
           outcome = solver.resume
           expect(outcome).to be_success
@@ -78,7 +80,7 @@ module MiniKraken
         end
 
         it 'should provide solver for a single-node goal' do
-          env.add_var(Variable.new('x'))
+          env.add_var(LogVar.new('x'))
           solver = subject.solver_for([ref_x], env)
           outcome = solver.resume
           expect(outcome).to be_success

@@ -5,6 +5,7 @@ require_relative '../../lib/mini_kraken/core/formal_arg'
 require_relative '../../lib/mini_kraken/core/formal_ref'
 require_relative '../../lib/mini_kraken/core/goal_template'
 
+require_relative '../support/factory_atomic'
 require_relative '../support/factory_methods'
 
 # Load the class under test
@@ -14,6 +15,7 @@ require_relative '../../lib/mini_kraken/glue/fresh_env_factory'
 module MiniKraken
   module Glue
     describe FreshEnvFactory do
+      include MiniKraken::FactoryAtomic # Use mix-in module
       include FactoryMethods
 
       # (fresh (d) (== d r))
@@ -48,7 +50,7 @@ module MiniKraken
         let(:q_ref) { var_ref('q') }
         let(:r_formal) { Core::FormalRef.new('r') }
         let(:a_formal) { Core::FormalRef.new('a') }
-        let(:t_param1) { Core::ConsCell.new(a_formal, d_ref) }
+        let(:t_param1) { Composite::ConsCell.new(a_formal, d_ref) }
         let(:other_goal_t) do
           Core::GoalTemplate.new(Core::Equals.instance, [t_param1, r_formal])
         end
@@ -59,14 +61,14 @@ module MiniKraken
 
           # Are variables correctly built?
           expect(created).to be_kind_of(FreshEnv)
-          expect(created.vars['d']).to be_kind_of(Core::Variable)
+          expect(created.vars['d']).to be_kind_of(Core::LogVar)
 
           # Is the goal correectly built?
           goal = created.goal
           expect(goal.relation).to eq(Core::Equals.instance)
-          expect(goal.actuals[0]).to be_kind_of(Core::VariableRef)
+          expect(goal.actuals[0]).to be_kind_of(Core::LogVarRef)
           expect(goal.actuals[0].name).to eq('d')
-          expect(goal.actuals[1]).to be_kind_of(Core::KSymbol)
+          expect(goal.actuals[1]).to be_kind_of(Atomic::KSymbol)
           expect(goal.actuals[1]).to eq(:pea)
         end
 
@@ -78,17 +80,17 @@ module MiniKraken
 
           # Are variables correctly built?
           expect(created).to be_kind_of(FreshEnv)
-          expect(created.vars['d']).to be_kind_of(Core::Variable)
+          expect(created.vars['d']).to be_kind_of(Core::LogVar)
 
           # Is the goal correctly built?
           goal = created.goal
           expect(goal.relation).to eq(Core::Equals.instance)
-          expect(goal.actuals[0]).to be_kind_of(Core::ConsCell)
-          expect(goal.actuals[0].car).to be_kind_of(Core::VariableRef)
+          expect(goal.actuals[0]).to be_kind_of(Composite::ConsCell)
+          expect(goal.actuals[0].car).to be_kind_of(Core::LogVarRef)
           expect(goal.actuals[0].car.name).to eq('q')
-          expect(goal.actuals[0].cdr).to be_kind_of(Core::VariableRef)
+          expect(goal.actuals[0].cdr).to be_kind_of(Core::LogVarRef)
           expect(goal.actuals[0].cdr.name).to eq('d')
-          expect(goal.actuals[1]).to be_kind_of(Core::ConsCell)
+          expect(goal.actuals[1]).to be_kind_of(Composite::ConsCell)
           expect(goal.actuals[1].to_s).to eq('(:a :c :o :r :n)')
         end
       end # context

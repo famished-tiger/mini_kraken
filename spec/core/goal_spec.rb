@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
+require_relative '../../lib/mini_kraken/atomic/k_symbol'
 require_relative '../../lib/mini_kraken/core/environment'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/fail'
-require_relative '../../lib/mini_kraken/core/k_symbol'
+
 
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/goal'
@@ -16,7 +17,7 @@ module MiniKraken
       subject { Goal.new(nullary_relation, []) }
       let(:binary_relation) { Equals.instance }
       let(:env) { Environment.new }
-      subject { Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pod)]) }
+      subject { Goal.new(binary_relation, [Atomic::KSymbol.new(:pea), Atomic::KSymbol.new(:pod)]) }
 
       context 'Initialization:' do
         it 'should accept one nullary relation and empty argument array' do
@@ -24,7 +25,7 @@ module MiniKraken
         end
 
         it 'should accept one binary relation and 2-elements array' do
-          expect { Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pod)]) }.not_to raise_error
+          expect { Goal.new(binary_relation, [Atomic::KSymbol.new(:pea), Atomic::KSymbol.new(:pod)]) }.not_to raise_error
         end
 
         it 'should know its relation' do
@@ -32,7 +33,7 @@ module MiniKraken
         end
 
         it 'should know its actual arguments' do
-          expectations = [KSymbol.new(:pea), KSymbol.new(:pod)]
+          expectations = [Atomic::KSymbol.new(:pea), Atomic::KSymbol.new(:pod)]
           expect(subject.actuals).to eq(expectations)
         end
       end # context
@@ -47,7 +48,7 @@ module MiniKraken
         end
 
         it 'should succeed if relation succeeds' do
-          instance = Goal.new(binary_relation, [KSymbol.new(:pea), KSymbol.new(:pea)])
+          instance = Goal.new(binary_relation, [Atomic::KSymbol.new(:pea), Atomic::KSymbol.new(:pea)])
 
           solver = instance.attain(env)
           expect(solver.resume).to be_success

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
+require_relative '../support/factory_atomic'
 require_relative '../../lib/mini_kraken/core/fail'
 require_relative '../../lib/mini_kraken/core/succeed'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/environment'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/conde'
@@ -15,6 +15,8 @@ require_relative '../../lib/mini_kraken/core/conde'
 module MiniKraken
   module Core
     describe Conde do
+      include MiniKraken::FactoryAtomic # Use mix-in module
+
       subject { Conde.instance }
 
       context 'Initialization:' do
@@ -28,22 +30,22 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:bean) { KSymbol.new(:bean) }
-        let(:corn) { KSymbol.new(:corn) }
-        let(:meal) { KSymbol.new(:meal) }
-        let(:oil) { KSymbol.new(:oil) }
-        let(:olive) { KSymbol.new(:olive) }
-        let(:pea) { KSymbol.new(:pea) }
-        let(:red) { KSymbol.new(:red) }
-        let(:split) { KSymbol.new(:split) }
+        let(:bean) { k_symbol(:bean) }
+        let(:corn) {k_symbol(:corn) }
+        let(:meal) { k_symbol(:meal) }
+        let(:oil) { k_symbol(:oil) }
+        let(:olive) { k_symbol(:olive) }
+        let(:pea) { k_symbol(:pea) }
+        let(:red) { k_symbol(:red) }
+        let(:split) { k_symbol(:split) }
         let(:fails) { Goal.new(Fail.instance, []) }
         let(:succeeds) { Goal.new(Succeed.instance, []) }
-        let(:var_q) { Variable.new('q') }
-        let(:var_x) { Variable.new('x') }
-        let(:var_y) { Variable.new('y') }
-        let(:ref_q) { VariableRef.new('q') }
-        let(:ref_x) { VariableRef.new('x') }
-        let(:ref_y) { VariableRef.new('y') }
+        let(:var_q) { LogVar.new('q') }
+        let(:var_x) { LogVar.new('x') }
+        let(:var_y) { LogVar.new('y') }
+        let(:ref_q) { LogVarRef.new('q') }
+        let(:ref_x) { LogVarRef.new('x') }
+        let(:ref_y) { LogVarRef.new('y') }
         let(:env) do
           e = Environment.new
           e.add_var(var_q)

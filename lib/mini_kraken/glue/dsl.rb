@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'set'
+require_relative '../atomic/all_atomic'
 require_relative '../core/any_value'
 require_relative '../core/conde'
 require_relative '../core/conj2'
-require_relative '../core/cons_cell'
+require_relative '../composite/cons_cell'
 require_relative '../core/def_relation'
 require_relative '../core/disj2'
 require_relative '../core/equals'
@@ -14,10 +15,9 @@ require_relative '../core/formal_ref'
 require_relative '../glue/fresh_env'
 require_relative '../glue/fresh_env_factory'
 require_relative '../core/goal_template'
-require_relative '../core/k_boolean'
-require_relative '../core/k_symbol'
 require_relative '../core/succeed'
-require_relative '../core/variable_ref'
+require_relative '../core/tap'
+require_relative '../core/log_var_ref'
 require_relative 'fresh_env'
 require_relative 'run_star_expression'
 
@@ -30,7 +30,7 @@ module MiniKraken
     module DSL
       # A run* expression tries to find all the solutions
       # that meet the given goal.
-      # @return [Core::ConsCell] A list of solutions
+      # @return [Composite::ConsCell] A list of solutions
       def run_star(var_names, goal)
         program = RunStarExpression.new(var_names, goal)
         program.run
@@ -61,7 +61,7 @@ module MiniKraken
 
       def cons(car_item, cdr_item = nil)
         tail = cdr_item.nil? ? cdr_item : convert(cdr_item)
-        Core::ConsCell.new(convert(car_item), tail)
+        Composite::ConsCell.new(convert(car_item), tail)
       end
 
       def defrel(relationName, theFormals, &aGoalTemplateExpr)
@@ -107,7 +107,7 @@ module MiniKraken
           end
           FreshEnvFactory.new(vars, goal)
         else
-          if var_names.kind_of?(String) || var_names.kind_of?(Core::VariableRef)
+          if var_names.kind_of?(String) || var_names.kind_of?(Core::LogVarRef)
             vars = [var_names]
           else
             vars = var_names
@@ -121,19 +121,23 @@ module MiniKraken
         return null if members.empty?
 
         head = nil
-        members.reverse_each { |elem| head = Core::ConsCell.new(convert(elem), head) }
+        members.reverse_each { |elem| head = Composite::ConsCell.new(convert(elem), head) }
 
         head
       end
 
       # @return [ConsCell] Returns an empty list, that is, a pair whose members are nil.
       def null
-        Core::ConsCell.new(nil, nil)
+        Composite::ConsCell.new(nil, nil)
       end
 
       # @return [Core::Succeed] A goal that unconditionally succeeds.
       def succeed
         goal_class.new(Core::Succeed.instance, [])
+      end
+
+      def tap(arg1)
+        goal_class.new(Core::Tap.instance, [convert(arg1)])
       end
 
       private
@@ -149,20 +153,20 @@ module MiniKraken
               any_val.instance_variable_set(:@rank, rank)
               converted = any_val
             elsif anArgument.id2name =~ /^"#[ft]"$/
-              converted = Core::KBoolean.new(anArgument)
+              converted = Atomic::KBoolean.new(anArgument)
             else
-              converted = Core::KSymbol.new(anArgument)
+              converted = Atomic::KSymbol.new(anArgument)
             end
           when String
             if anArgument =~ /^#[ft]$/
-              converted = Core::KBoolean.new(anArgument)
+              converted = Atomic::KBoolean.new(anArgument)
             else
               msg = "Internal error: undefined conversion for #{anArgument.class}"
               raise StandardError, msg
             end
           when false, true
-            converted = Core::KBoolean.new(anArgument)
-          when Core::KBoolean
+            converted = Atomic::KBoolean.new(anArgument)
+          when Atomic::KBoolean, Atomic::KSymbol
             converted = anArgument
           when Core::FormalRef
             converted = anArgument
@@ -172,9 +176,9 @@ module MiniKraken
             converted = anArgument
           when Core::GoalTemplate
             converted = anArgument
-          when Core::VariableRef
+          when Core::LogVarRef
             converted = anArgument
-          when Core::ConsCell
+          when Composite::ConsCell
             converted = anArgument
           else
             msg = "Internal error: undefined conversion for #{anArgument.class}"
@@ -224,7 +228,7 @@ module MiniKraken
             if @dsl_mode == :defrel && @defrel_formals.include?(name)
               result = Core::FormalRef.new(name)
             else
-              result = Core::VariableRef.new(name)
+              result = Core::LogVarRef.new(name)
             end
           end
         end

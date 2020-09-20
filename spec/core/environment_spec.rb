@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../support/factory_atomic'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 require_relative '../../lib/mini_kraken/core/outcome'
 
 # Load the class under test
@@ -12,6 +12,8 @@ require_relative '../../lib/mini_kraken/core/environment'
 module MiniKraken
   module Core
     describe Environment do
+      include MiniKraken::FactoryAtomic # Use mix-in module
+
       subject { Environment.new }
 
       context 'Initialization:' do
@@ -40,13 +42,13 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:var_a) { Variable.new('a') }
-        let(:var_b) { Variable.new('b') }
-        let(:var_c) { Variable.new('c') }
-        let(:var_c_bis) { Variable.new('c') }
-        let(:pea) { KSymbol.new(:pea) }
-        let(:pod) { KSymbol.new(:pod) }
-        let(:pad) { KSymbol.new(:pad) }
+        let(:var_a) { LogVar.new('a') }
+        let(:var_b) { LogVar.new('b') }
+        let(:var_c) { LogVar.new('c') }
+        let(:var_c_bis) { LogVar.new('c') }
+        let(:pea) { k_symbol(:pea) }
+        let(:pod) { k_symbol(:pod) }
+        let(:pad) { k_symbol(:pad) }
 
         it 'should accept the addition of a variable' do
           subject.add_var(var_a)

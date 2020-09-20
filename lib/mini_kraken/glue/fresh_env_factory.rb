@@ -3,7 +3,7 @@
 require_relative '../core/environment'
 require_relative '../core/conj2'
 require_relative '../core/goal_template'
-require_relative '../core/variable'
+require_relative '../core/log_var'
 require_relative 'fresh_env'
 
 module MiniKraken

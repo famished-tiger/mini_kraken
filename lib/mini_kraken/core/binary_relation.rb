@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'relation'
-require_relative 'composite_term'
+require_relative '../composite/composite_term'
 
 module MiniKraken
   module Core
@@ -25,26 +25,26 @@ module MiniKraken
       # |arg1                | arg2               | arg2.ground? || Commute |
       # | isa? Atomic        | isa? Atomic        | dont_care    || Yes     |
       # | isa? Atomic        | isa? CompositeTerm | dont_care    || Yes     |
-      # | isa? Atomic        | isa? VariableRef   | dont_care    || Yes     |
+      # | isa? Atomic        | isa? LogVarRef   | dont_care    || Yes     |
       # | isa? CompositeTerm | isa? Atomic        | true         || No      |
       # | isa? CompositeTerm | isa? CompositeTerm | false        || Yes     |
       # | isa? CompositeTerm | isa? CompositeTerm | true         || No      |
-      # | isa? CompositeTerm | isa? VariableRef   | dont_care    || Yes     |
-      # | isa? VariableRef   | isa? Atomic        | dont_care    || No      |
-      # | isa? VariableRef   | isa? CompositeTerm | dont_care    || No      |
-      # | isa? VariableRef   | isa? VariableRef   | false        || Yes     |
-      # | isa? VariableRef   | isa? VariableRef   | true         || No      |
+      # | isa? CompositeTerm | isa? LogVarRef   | dont_care    || Yes     |
+      # | isa? LogVarRef   | isa? Atomic        | dont_care    || No      |
+      # | isa? LogVarRef   | isa? CompositeTerm | dont_care    || No      |
+      # | isa? LogVarRef   | isa? LogVarRef   | false        || Yes     |
+      # | isa? LogVarRef   | isa? LogVarRef   | true         || No      |
       def commute_cond(arg1, arg2, env)
         commuting = true
-        arg2_is_var_ref = arg2.kind_of?(VariableRef)
+        arg2_is_var_ref = arg2.kind_of?(LogVarRef)
 
-        if arg1.kind_of?(CompositeTerm)
+        if arg1.kind_of?(Composite::CompositeTerm)
           if arg2_is_var_ref
             commuting = true
           else
             commuting = !arg2.ground?(env)
           end
-        elsif arg1.kind_of?(VariableRef)
+        elsif arg1.kind_of?(LogVarRef)
           if arg2_is_var_ref
             commuting = !arg2.ground?(env)
           else

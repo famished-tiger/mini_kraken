@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
+require_relative '../../lib/mini_kraken/atomic/k_symbol'
 require_relative '../../lib/mini_kraken/core/goal'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/fail'
-require_relative '../../lib/mini_kraken/core/k_symbol'
 require_relative '../../lib/mini_kraken/core/succeed'
 
 # Load the class under test
@@ -14,8 +14,8 @@ require_relative '../../lib/mini_kraken/glue/fresh_env'
 module MiniKraken
   module Glue
     describe FreshEnv do
-      let(:pea) { Core::KSymbol.new(:pea) }
-      let(:pod) { Core::KSymbol.new(:pod) }
+      let(:pea) { Atomic::KSymbol.new(:pea) }
+      let(:pod) { Atomic::KSymbol.new(:pod) }
       let(:sample_goal) do
         Core::Goal.new(Core::Equals.instance, [pea, pod])
       end

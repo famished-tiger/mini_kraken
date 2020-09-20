@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable'
+require_relative '../support/factory_atomic'
+require_relative '../../lib/mini_kraken/core/log_var'
 
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/association'
@@ -10,7 +10,9 @@ require_relative '../../lib/mini_kraken/core/association'
 module MiniKraken
   module Core
     describe Association do
-      let(:pea) { KSymbol.new(:pea) }
+      include MiniKraken::FactoryAtomic # Use mix-in module
+
+      let(:pea) { k_symbol(:pea) }
       subject { Association.new('q', pea) }
 
       context 'Initialization:' do
@@ -19,7 +21,7 @@ module MiniKraken
         end
 
         it 'should be initialized with a variable and a value' do
-          expect { Association.new(Variable.new('p'), pea) }.not_to raise_error
+          expect { Association.new(LogVar.new('p'), pea) }.not_to raise_error
         end
 
         it 'should know the variable name' do

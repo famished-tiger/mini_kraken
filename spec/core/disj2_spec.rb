@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
+require_relative '../support/factory_atomic'
 require_relative '../../lib/mini_kraken/core/fail'
 require_relative '../../lib/mini_kraken/core/succeed'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/environment'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/disj2'
@@ -15,6 +15,7 @@ require_relative '../../lib/mini_kraken/core/disj2'
 module MiniKraken
   module Core
     describe Disj2 do
+      include MiniKraken::FactoryAtomic # Use mix-in module    
       subject { Disj2.instance }
 
       context 'Initialization:' do
@@ -28,15 +29,15 @@ module MiniKraken
       end # context
 
       context 'Provided services:' do
-        let(:corn) { KSymbol.new(:corn) }
-        let(:meal) { KSymbol.new(:meal) }
-        let(:oil) { KSymbol.new(:oil) }
-        let(:olive) { KSymbol.new(:olive) }
-        let(:pea) { KSymbol.new(:pea) }
+        let(:corn) { k_symbol(:corn) }
+        let(:meal) { k_symbol(:meal) }
+        let(:oil) { k_symbol(:oil) }
+        let(:olive) { k_symbol(:olive) }
+        let(:pea) { k_symbol(:pea) }
         let(:fails) { Goal.new(Fail.instance, []) }
         let(:succeeds) { Goal.new(Succeed.instance, []) }
-        let(:var_q) { Variable.new('q') }
-        let(:ref_q) { VariableRef.new('q') }
+        let(:var_q) { LogVar.new('q') }
+        let(:ref_q) { LogVarRef.new('q') }
         let(:env) do
           e = Environment.new
           e.add_var(var_q)

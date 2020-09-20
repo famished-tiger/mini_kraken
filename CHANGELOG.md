@@ -1,3 +1,12 @@
+## [0.2.04] - 2020-09-02
+- Intermediate version before vast code rework.
+
+### CHANGED
+- Classes `KBoolean`, `KSymbol`, `KInteger` moved to namespace `Atomic`
+- Classes `ConsCell`, `ConsCellVisitor` moved to namespace `Composite`
+- Class `Variable` renamed to `LogVar`
+- Class `VariableRef` renamed to `LogVarRef`
+
 ## [0.2.03] - 2020-09-02
 - The DSL (Domain Specific Language) supports the `caro` relation & passes frames up to 2-8 from Chapter 2.
 

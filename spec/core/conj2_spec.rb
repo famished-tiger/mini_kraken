@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
-require_relative '../../lib/mini_kraken/core/k_symbol'
+require_relative '../support/factory_atomic'
 require_relative '../../lib/mini_kraken/core/fail'
 require_relative '../../lib/mini_kraken/core/succeed'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/environment'
-require_relative '../../lib/mini_kraken/core/variable'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/core/log_var'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/conj2'
@@ -16,6 +16,8 @@ require_relative '../../lib/mini_kraken/core/conj2'
 module MiniKraken
   module Core
     describe Conj2 do
+      include MiniKraken::FactoryAtomic # Use mix-in module
+
       subject { Conj2.instance }
 
       context 'Initialization:' do
@@ -30,13 +32,13 @@ module MiniKraken
 
       context 'Provided services:' do
         let(:env) { Environment.new }
-        let(:pea) { KSymbol.new(:pea) }
-        let(:corn) { KSymbol.new(:corn) }
-        let(:meal) { KSymbol.new(:meal) }
+        let(:pea) { k_symbol(:pea) }
+        let(:corn) { k_symbol(:corn) }
+        let(:meal) { k_symbol(:meal) }
         let(:fails) { Goal.new(Fail.instance, []) }
         let(:succeeds) { Goal.new(Succeed.instance, []) }
-        let(:var_q) { Variable.new('q') }
-        let(:ref_q) { VariableRef.new('q') }
+        let(:var_q) { LogVar.new('q') }
+        let(:ref_q) { LogVarRef.new('q') }
 
         it 'should complain when one of its argument is not a goal' do
           err = StandardError

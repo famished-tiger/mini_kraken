@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../core/any_value'
-require_relative '../core/cons_cell'
+require_relative '../composite/cons_cell'
 require_relative 'fresh_env'
 
 module MiniKraken
@@ -59,7 +59,7 @@ module MiniKraken
 
         new_tail = nil
         anArray.reverse_each do |elem|
-          new_tail = Core::ConsCell.new(elem, new_tail)
+          new_tail = Composite::ConsCell.new(elem, new_tail)
         end
 
         new_tail

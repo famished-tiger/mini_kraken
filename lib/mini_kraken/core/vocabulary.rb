@@ -138,12 +138,12 @@ module MiniKraken
       # Check that the provided variable must be fused with the argument.
       # @return [Array<Variable>]
       def detect_fuse(aVariable, aTerm)
-        return [] unless aTerm.kind_of?(VariableRef)
+        return [] unless aTerm.kind_of?(LogVarRef)
 
         assocs = self[aTerm.var_name]
         # Simplified implementation: cope with binary cycles only...
         # TODO: Extend to n-ary (n > 2) cycles
-        assoc_refs = assocs.select { |a| a.value.kind_of?(VariableRef) }
+        assoc_refs = assocs.select { |a| a.value.kind_of?(LogVarRef) }
         return [] if assoc_refs.empty? # No relevant association...
 
         visitees = Set.new
@@ -159,7 +159,7 @@ module MiniKraken
             to_fuse << assc.i_name unless assc.i_name == aVariable.i_name
           end
           other_assocs = self[ref.var_name]
-          other_assoc_refs = other_assocs.select { |a| a.value.kind_of?(VariableRef) }
+          other_assoc_refs = other_assocs.select { |a| a.value.kind_of?(LogVarRef) }
           other_assoc_refs.each do |a|
             to_visit << a unless visitess.include?(a)
           end
@@ -192,7 +192,7 @@ module MiniKraken
             if voc.associations.include?(old_i_name)
               assocs = voc.associations[old_i_name]
               keep_assocs = assocs.reject do |assc|
-                assc.value.kind_of?(VariableRef) && old_names.include?(assc.value.var_name)
+                assc.value.kind_of?(LogVarRef) && old_names.include?(assc.value.var_name)
               end
               unless keep_assocs.empty?
                 keep_assocs.each { |assc| assc.i_name = new_i_name }
@@ -224,14 +224,14 @@ module MiniKraken
         end
       end
 
-      # @param var [Variable, VariableRef] the variable to check.
+      # @param var [Variable, LogVarRef] the variable to check.
       # @return [Boolean]
       def fresh?(var)
         ground_term = ground_value(var)
         ground_term.nil? ? true : false
       end
 
-      # @param var [Variable, VariableRef] variable for which the value to retrieve
+      # @param var [Variable, LogVarRef] variable for which the value to retrieve
       # @return [Term, NilClass]
       def ground_value(var)
         name = var.respond_to?(:var_name) ? var.var_name : var.name
@@ -260,14 +260,14 @@ module MiniKraken
       end
 
       # Determine whether the reference points to a fresh, bound or ground term.
-      # @param aVariableRef [VariableRef]
+      # @param aVariableRef [LogVarRef]
       # @return [Freshness]
       def freshness_ref(aVariableRef)
         walker = AssociationWalker.new
         walker.determine_freshness(aVariableRef, self)
       end
 
-      # @param aVariableRef [VariableRef]
+      # @param aVariableRef [LogVarRef]
       # @return [Term, NilClass]
       def quote_ref(aVariableRef)
         walker = AssociationWalker.new

@@ -15,9 +15,9 @@ module MiniKraken
 
       def validated_args(actuals)
         actuals.each do |arg|
-          unless arg.kind_of?(Goal)
+          unless arg.kind_of?(Goal) || arg.kind_of?(Glue::FreshEnv)
             prefix = "#{name} expects goal as argument, found a "
-            raise StandardError, prefix + "'#{arg.class}'"
+            raise StandardError, prefix + "'#{arg.class}': #{arg}"
           end
         end
 

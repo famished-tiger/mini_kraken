@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper' # Use the RSpec framework
+require_relative '../../lib/mini_kraken/atomic/k_symbol'
 require_relative '../../lib/mini_kraken/core/disj2'
 require_relative '../../lib/mini_kraken/core/equals'
 require_relative '../../lib/mini_kraken/core/formal_arg'
 require_relative '../../lib/mini_kraken/core/formal_ref'
 require_relative '../../lib/mini_kraken/core/goal'
-require_relative '../../lib/mini_kraken/core/k_symbol'
-require_relative '../../lib/mini_kraken/core/variable_ref'
+require_relative '../../lib/mini_kraken/core/log_var_ref'
 # require_relative '../../lib/mini_kraken/core/environment'
 
 # Load the class under test
@@ -17,7 +17,7 @@ require_relative '../../lib/mini_kraken/core/goal_template'
 module MiniKraken
   module Core
     describe GoalTemplate do
-      let(:tea) { KSymbol.new(:tea) }
+      let(:tea) { Atomic::KSymbol.new(:tea) }
       let(:t_ref) { FormalRef.new('t') }
       subject { GoalTemplate.new(Equals.instance, [tea, t_ref]) }
 
@@ -38,8 +38,8 @@ module MiniKraken
 
       context 'Provided services:' do
         let(:formal_t) { FormalArg.new('t') }
-        let(:cup) { KSymbol.new(:cup) }
-        let(:ref_x) { VariableRef.new('x') }
+        let(:cup) { Atomic::KSymbol.new(:cup) }
+        let(:ref_x) { LogVarRef.new('x') }
         # let(:env) { Environment.new }
 
         it 'should instantiate a single-node goal' do

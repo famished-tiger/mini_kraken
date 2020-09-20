@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'set'
-require_relative 'atomic_term'
-require_relative 'cons_cell'
+require_relative '../atomic/atomic_term'
+require_relative '../composite/cons_cell'
 
 module MiniKraken
   module Core
@@ -26,7 +26,7 @@ module MiniKraken
         # Treat easy cases first...
         return nil if assocs.empty?
 
-        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(AtomicTerm) }
+        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(Atomic::AtomicTerm) }
         return assoc_atomic.value if assoc_atomic
 
         result = nil
@@ -45,17 +45,17 @@ module MiniKraken
       end
 
       def walk_value(aTerm, anEnv)
-        return aTerm if aTerm.kind_of?(AtomicTerm) || aTerm.kind_of?(AnyValue)
+        return aTerm if aTerm.kind_of?(Atomic::AtomicTerm) || aTerm.kind_of?(AnyValue)
 
         result = nil
 
-        if aTerm.kind_of?(CompositeTerm)
+        if aTerm.kind_of?(Composite::CompositeTerm)
           children = aTerm.children.compact
           walk_results = children.map do |child|
             walk_value(child, anEnv)
           end
           result = aTerm unless walk_results.any?(&:nil?)
-        else # VariableRef or Variable
+        else # LogVarRef or Variable
           name = aTerm.respond_to?(:name) ? aTerm.name : aTerm.var_name
           result = find_ground(name, anEnv)
         end
@@ -74,9 +74,9 @@ module MiniKraken
         # require 'debug'
         result = nil
 
-        if aTerm.kind_of?(AtomicTerm)
+        if aTerm.kind_of?(Atomic::AtomicTerm)
           result = Freshness.new(:ground, aTerm)
-        elsif aTerm.kind_of?(CompositeTerm)
+        elsif aTerm.kind_of?(Composite::CompositeTerm)
           children = aTerm.children.compact
           walk_results = children.map { |chd| determine_freshness(chd, anEnv) }
 
@@ -89,7 +89,7 @@ module MiniKraken
             degree = :bound
           end
           result = Freshness.new(degree, aTerm)
-        else # VariableRef or Variable
+        else # LogVarRef or Variable
           name = aTerm.respond_to?(:name) ? aTerm.name : aTerm.var_name
           assocs = anEnv[name]
           if assocs.empty?
@@ -103,7 +103,7 @@ module MiniKraken
       end
 
       def freshness_associated(assocs, anEnv)
-        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(AtomicTerm) }
+        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(Atomic::AtomicTerm) }
         return Freshness.new(:ground, assoc_atomic.value) if assoc_atomic
 
         raw_results = assocs.map do |assc|
@@ -133,11 +133,11 @@ module MiniKraken
         # require 'debug'
         result = nil
 
-        if aTerm.kind_of?(AtomicTerm)
+        if aTerm.kind_of?(Atomic::AtomicTerm)
           result = aTerm.quote(anEnv)
-        elsif aTerm.kind_of?(ConsCell)
+        elsif aTerm.kind_of?(Composite::ConsCell)
           result = aTerm.quote(anEnv)
-        else # VariableRef or Variable
+        else # LogVarRef or Variable
           name = aTerm.respond_to?(:name) ? aTerm.name : aTerm.var_name
           assocs = anEnv[name]
           if assocs.empty?
@@ -151,7 +151,7 @@ module MiniKraken
       end
 
       def quote_associated(assocs, anEnv)
-        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(AtomicTerm) }
+        assoc_atomic = assocs.find { |assc| assc.value.kind_of?(Atomic::AtomicTerm) }
         return assoc_atomic.value if assoc_atomic
 
         raw_results = assocs.map do |assc|

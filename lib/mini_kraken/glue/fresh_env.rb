@@ -3,7 +3,7 @@
 require_relative '../core/environment'
 require_relative '../core/conj2'
 require_relative '../core/goal_template'
-require_relative '../core/variable'
+require_relative '../core/log_var'
 
 module MiniKraken
   module Glue
@@ -27,10 +27,15 @@ module MiniKraken
         super()
         @goal = valid_goal(aGoal)
         theNames.each do |nm|
-          var = Core::Variable.new(nm)
+          var = Core::LogVar.new(nm)
           add_var(var)
         end
         @persistent = persistence
+      end
+
+      # @return [Relation] The relation associated with the main goal.
+      def relation
+        goal.relation
       end
 
       # Attempt to achieve the goal given this environment

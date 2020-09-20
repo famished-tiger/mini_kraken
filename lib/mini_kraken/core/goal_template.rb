@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'base_arg'
-require_relative 'cons_cell_visitor'
+require_relative '../composite/cons_cell_visitor'
 
 module MiniKraken
   module Core
@@ -54,7 +54,7 @@ module MiniKraken
             goal_args << formals2actuals[arg.name]
           elsif arg.kind_of?(GoalTemplate)
             goal_args << arg.send(:do_instantiate, formals2actuals)
-          elsif arg.kind_of?(ConsCell)
+          elsif arg.kind_of?(Composite::ConsCell)
             # if list contains a formal_ref it must be replaced by the actual
             goal_args << transform(arg, formals2actuals)
           else
@@ -71,9 +71,9 @@ module MiniKraken
         return aConsCell if aConsCell.null?
 
         member = { car: :@car, cdr: :@cdr }
-        visitor = ConsCellVisitor.df_visitor(aConsCell)
+        visitor = Composite::ConsCellVisitor.df_visitor(aConsCell)
         side, cell = visitor.resume
-        result = ConsCell.new(nil, nil)
+        result = Composite::ConsCell.new(nil, nil)
         node = result
 
         loop do
@@ -84,15 +84,15 @@ module MiniKraken
           case cell
             when FormalRef
               converted = formals2actuals[cell.name]
-            when ConsCell
-              converted = ConsCell.new(nil, nil)
+            when Composite::ConsCell
+              converted = Composite::ConsCell.new(nil, nil)
             when GoalTemplate
               converted = cell.send(:do_instantiate, formals2actuals)
             else
               converted = cell
           end
           node.instance_variable_set(member[side], converted)
-          node = converted if converted.kind_of?(ConsCell)
+          node = converted if converted.kind_of?(Composite::ConsCell)
         end
 
         result

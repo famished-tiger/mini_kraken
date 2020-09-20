@@ -3,6 +3,7 @@
 require_relative '../spec_helper' # Use the RSpec framework
 require_relative '../../lib/mini_kraken/core/environment'
 
+require_relative '../support/factory_atomic'
 require_relative '../support/factory_methods'
 # Load the class under test
 require_relative '../../lib/mini_kraken/core/equals'
@@ -10,6 +11,7 @@ require_relative '../../lib/mini_kraken/core/equals'
 module MiniKraken
   module Core
     describe Equals do
+      include MiniKraken::FactoryAtomic # Use mix-in module
       include FactoryMethods
 
       subject { Equals.instance }
@@ -26,13 +28,13 @@ module MiniKraken
 
       context 'Provided services:' do
         def build_var(aName)
-          new_var = Variable.new(aName)
+          new_var = LogVar.new(aName)
           env.add_var(new_var)
           new_var
         end
 
         def build_var_ref(aName)
-          VariableRef.new(aName)
+          LogVarRef.new(aName)
         end
 
         def solve_for(arg1, arg2)
@@ -42,10 +44,10 @@ module MiniKraken
           outcome
         end
 
-        let(:pea) { KSymbol.new(:pea) }
-        let(:pod) { KSymbol.new(:pod) }
-        let(:sample_cons) { ConsCell.new(pea) }
-        let(:a_composite) { ConsCell.new(pod) }
+        let(:pea) { k_symbol(:pea) }
+        let(:pod) { k_symbol(:pod) }
+        let(:sample_cons) { Composite::ConsCell.new(pea) }
+        let(:a_composite) { Composite::ConsCell.new(pod) }
         let(:env) { Environment.new }
         let(:var_q) { build_var('q') }
         let(:ref_q) do
@@ -183,7 +185,7 @@ module MiniKraken
 
         it 'should succeed for a right-handed bound equal argument' do
           ref_q.associate(sample_cons, env)
-          composite = ConsCell.new(pea)
+          composite = Composite::ConsCell.new(pea)
           result = solve_for(composite, ref_q)
 
           expect(result).to be_success
@@ -194,7 +196,7 @@ module MiniKraken
 
         it 'should succeed for a left-handed bound equal argument' do
           ref_q.associate(sample_cons, env)
-          composite = ConsCell.new(pea)
+          composite = Composite::ConsCell.new(pea)
           result = solve_for(ref_q, composite)
 
           expect(result).to be_success
@@ -205,7 +207,7 @@ module MiniKraken
 
         it 'should succeed for a right-handed bound unequal argument' do
           ref_q.associate(sample_cons, env)
-          composite = ConsCell.new(pod)
+          composite = Composite::ConsCell.new(pod)
           result = solve_for(composite, ref_q)
 
           expect(result).to be_failure
@@ -216,7 +218,7 @@ module MiniKraken
 
         it 'should succeed for a left-handed bound unequal argument' do
           ref_q.associate(sample_cons, env)
-          composite = ConsCell.new(pod)
+          composite = Composite::ConsCell.new(pod)
           result = solve_for(ref_q, composite)
 
           expect(result).not_to be_success
