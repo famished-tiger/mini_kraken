@@ -7,7 +7,7 @@ module MiniKraken
     class Specification
       # @return [String] Name of the specification object.
       attr_reader :name
-      
+
       # @return [Arity] arity = allowed number of arguments
       attr_reader :arity
 
@@ -28,7 +28,7 @@ module MiniKraken
       def inspect
         name + "[#{arity.low}]"
       end
-      
+
       # Control that the number of actual arguments matches
       # the relation's arity.
       # Raise an exception if the check fails
@@ -40,7 +40,7 @@ module MiniKraken
           msg2 = " is out of allowed range (#{arity.low}, #{arity.high})."
           raise StandardError, msg1 + msg2
         end
-        
+
         actuals
       end
     end # class

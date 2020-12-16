@@ -95,6 +95,7 @@ module MiniKraken
 
       def list(*members)
         return null if members.empty?
+
         converted = members.map { |e| convert(e) }
         Composite::List.make_list(converted)
       end

@@ -13,9 +13,9 @@ module MiniKraken
       # Abstract method.
       # Make a copy of self with all the variable reference being
       # replaced by the corresponding value in the Hash.
-      # @param substitutions [Hash {String => Term}]
+      # @param _substitutions [Hash {String => Term}]
       # @return [Term]
-      def dup_cond(substitutions)
+      def dup_cond(_substitutions)
         raise NotImplementedError, "Not implementation for #{self.class}."
       end
     end # class

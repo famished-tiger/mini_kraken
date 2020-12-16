@@ -31,7 +31,7 @@ module MiniKraken
       # @param aScope [Core::Scope,NilClass] The top-level Scope
       def initialize(aScope = nil)
         @name2scopes = {}
-        set_root(aScope) # Set default (global) scope
+        init_root(aScope) # Set default (global) scope
       end
 
       # Returns iff there is no entry in the symbol table
@@ -61,6 +61,7 @@ module MiniKraken
           end
         end
         raise StandardError, 'Cannot remove root scope.' if current_scope == root
+
         @current_scope = current_scope.parent
       end
 
@@ -89,20 +90,21 @@ module MiniKraken
         sc = scopes.last
         sc.defns[aName]
       end
-      
+
       # Search for the object with the given i_name
       # @param anIName [String]
       # @return [Core::LogVar]
       def lookup_i_name(anIName)
         found = nil
         scope = current_scope
-        
+
         begin
           found = scope.defns.values.find { |e| e.i_name == anIName }
           break if found
+
           scope = scope.parent
         end while scope
-        
+
         found
       end
 
@@ -111,18 +113,18 @@ module MiniKraken
       def all_variables
         vars = []
         skope = current_scope
-        while skope do
+        while skope
           vars_of_scope = skope.defns.select { |_, item| item.kind_of?(LogVar) }
           vars = vars_of_scope.values.concat(vars)
           skope = skope.parent
         end
-        
+
         vars
       end
 
       private
 
-      def set_root(aScope)
+      def init_root(aScope)
         @root = valid_scope(aScope)
         @current_scope = @root
       end
