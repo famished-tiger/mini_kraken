@@ -7,12 +7,6 @@ module MiniKraken
     # A specialized atomic term that represents a symbolic value
     # in MiniKraken.
     class KSymbol < AtomicTerm
-      # Initialize a MiniKraken symbol with a given Ruby Symbol value.
-      # @param aValue [Symbol] Ruby representation of symbol value
-      def initialize(aValue)
-        super(aValue)
-      end
-
       # Returns the name or string corresponding to value.
       # @return [String]
       def id2name

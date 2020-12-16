@@ -6,20 +6,13 @@ require_relative 'context'
 module MiniKraken
   module Core
     class Goal < ParametrizedTerm
-      alias relation specification      
-
-      # @param aRelation [Relation] The relation corresponding to this goal
-      # @param args [Array<Term>] The actual aguments of the goal   
-      def initialize(aRelation, args)
-        super(aRelation, args)
-      end
+      alias relation specification
 
       # Attempt to obtain one or more solutions for the goal in a given context.
       # @param ctx [Core::Context] The context in which the goal takes place.
       # @return [Fiber<Context>] A Fiber object that will generate the results.
       def achieve(ctx)
-        solver = relation.solver_for(actuals, ctx)
-        solver
+        relation.solver_for(actuals, ctx)
       end
 
       private

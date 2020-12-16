@@ -45,7 +45,6 @@ module MiniKraken
 
         return visitor
       end
-
     end # class
   end # module
 end # module

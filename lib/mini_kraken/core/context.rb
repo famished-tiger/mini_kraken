@@ -214,7 +214,7 @@ module MiniKraken
 
         # Update the mappings
         @cv2vars[cv_i_name] = i_names.dup
-        i_names.each { |i_nm|  @vars2cv[i_nm]  = cv_i_name }
+        i_names.each { |i_nm| @vars2cv[i_nm] = cv_i_name }
 
         # Add fusion record to blackboard
         fs = Fusion.new(cv_i_name, i_names)
@@ -248,6 +248,7 @@ module MiniKraken
         # require 'debug'
         symbol_table.root.defns.each_pair do |nm, item|
           next unless item.kind_of?(LogVar)
+
           if failure?
             solution[nm] = nil
             next
@@ -255,12 +256,13 @@ module MiniKraken
           i_name = item.i_name
           assocs = blackboard.associations_for(i_name, true)
           if assocs.nil? || assocs.empty? ||
-            (blackboard.fused?(i_name) && assocs.empty?)
+             (blackboard.fused?(i_name) && assocs.empty?)
             solution[nm] = AnyValue.new(ranking[i_name])
           else
             my_assocs = []
             assocs.each { |a| my_assocs << a if a.kind_of?(Association) }
             next if my_assocs.empty?
+
             # TODO: if multiple associations, conj2 them...
             as = my_assocs.first
 
@@ -372,20 +374,24 @@ Thus the logVarRef may not embed the value but refer to a value indexed by solut
       def build_solution
         solution = {}
         return solution if failure?
+
         substitutions = {}
 
         # Fill in substitutions hash by starting with root variables
-        symbol_table.root.defns.each_pair do |nm, item|
+        symbol_table.root.defns.each_pair do |_nm, item|
           next unless item.kind_of?(LogVar)
+
           add_substitution_for(item.i_name, substitutions)
         end
         # require 'debug'
         handle_unbound_vars(substitutions)
 
         # Copy the needed associations by expanding the substitutions
-        symbol_table.root.defns.each_pair do |nm, item|
+        symbol_table.root.defns.each_pair do |_nm, item|
           next unless item.kind_of?(LogVar)
+
           next if item.name =~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+
           i_name = item.i_name
           solution[item.name] = expand_value_of(i_name, substitutions)
         end
@@ -417,7 +423,7 @@ Method add_substitution_for(q, substitutions):
 
         i_name = blackboard.fused?(iName) ? blackboard.vars2cv[iName] : iName
         assocs = blackboard.associations_for(i_name, true)
-        assocs.delete_if {|e| e.kind_of?(Core::Fusion) }
+        assocs.delete_if { |e| e.kind_of?(Core::Fusion) }
 
         if assocs.empty?
           theSubstitutions[iName] = nil # Unbound variable
@@ -516,15 +522,14 @@ Method add_substitution_for(q, substitutions):
         # Rank the variables...
         scope = symbol_table.current_scope
         sorted_entries = []
-        begin
+        loop do
           vars_in_scope = scope.defns.values.select { |e| e.kind_of?(LogVar) }
-          if vars_in_scope
-            vars_in_scope.reverse_each do |e|
-              sorted_entries.unshift(e) if ranked.include? e.i_name
-            end
+          vars_in_scope&.reverse_each do |e|
+            sorted_entries.unshift(e) if ranked.include? e.i_name
           end
           scope = scope.parent
-        end until scope.nil?
+          break if scope.nil?
+        end
 
         rk_number = 0
         # Ensure that fused variables have same rank number
@@ -554,7 +559,7 @@ Method add_substitution_for(q, substitutions):
       # @return [Term]
       def substitute(anAssoc)
         val = anAssoc.value
-        deps = anAssoc.dependencies(self)
+        anAssoc.dependencies(self)
         if val.kind_of?(LogVarRef)
           i_name = anAssoc.i_name
           anAssoc.instance_variable_set(:@value, AnyValue.new(ranking[i_name]))
@@ -571,7 +576,7 @@ Method add_substitution_for(q, substitutions):
       def substitute_composite(anAssoc)
         # require 'debug'
         val = anAssoc.value
-        deps = anAssoc.dependencies(self)
+        anAssoc.dependencies(self)
         visitor = Composite::ConsCellVisitor.df_visitor(val)
         result = curr_cell = nil
         path = []

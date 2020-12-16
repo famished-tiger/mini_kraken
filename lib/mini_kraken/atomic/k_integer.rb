@@ -8,10 +8,6 @@ module MiniKraken
     # in MiniKraken
     # @note As MiniKraken doesn't support integer values yet, this class is WIP.
     class KInteger < AtomicTerm
-      # @param aValue [Integer] Ruby representation of integer value
-      def initialize(aValue)
-        super(aValue)
-      end
     end # class
   end # module
 end # module

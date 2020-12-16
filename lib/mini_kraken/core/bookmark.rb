@@ -36,7 +36,7 @@ module MiniKraken
 
       def validated_kind(aKind)
         if aKind != :scope && aKind != :bt_point
-          raise StandardError, "Invalid kind: {aKind}"
+          raise StandardError, "Invalid kind: #{aKind}"
         end
 
         aKind

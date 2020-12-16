@@ -89,7 +89,7 @@ module MiniKraken
       # @param _substitutions [Hash {String => Term}]
       # @return [Term]
       def dup_cond(_substitutions)
-        self.dup
+        dup
       end
     end # class
   end # module

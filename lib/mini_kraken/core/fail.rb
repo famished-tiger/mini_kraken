@@ -18,10 +18,10 @@ module MiniKraken
       # Returns a Fiber-like object (a DuckFiber).
       # When that object receives the message resume, it will
       # signal a failure to the provided context.
-      # @param actuals [Array] MUST be empty array for nullary relation.
+      # @param _actuals [Array] MUST be empty array for nullary relation.
       # @param ctx [Core::Context] Runtime context
       # @return [Core::DuckFiber]
-      def solver_for(actuals, ctx)
+      def solver_for(_actuals, ctx)
         DuckFiber.new(-> { ctx.failed! })
       end
     end # class

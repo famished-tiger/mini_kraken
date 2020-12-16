@@ -16,6 +16,7 @@ module MiniKraken
       # Create a reference to a logical variable with given name
       # @param aName [String] The name of the variable
       def initialize(aName)
+        super()
         init_name(aName)
       end
 
@@ -32,6 +33,7 @@ module MiniKraken
       def unbound?(aContext)
         vr = aContext.lookup(name)
         raise StandardError, "Unknown variable #{name}" unless vr
+
         bindings = aContext.associations_for(name)
         bindings.empty? || (bindings.size == 1 && bindings[0].kind_of?(Fusion))
       end
@@ -44,6 +46,7 @@ module MiniKraken
       def floating?(aContext)
         vr = aContext.lookup(name)
         raise StandardError, "Unknown variable #{name}" unless vr
+
         assocs = aContext.associations_for(name)
         unless assocs.empty?
           assocs.none? { |as| as.pinned?(aContext) }
@@ -61,6 +64,7 @@ module MiniKraken
 
         vr = aContext.lookup(name)
         raise StandardError, "Unknown variable #{name}" unless vr
+
         assocs = aContext.associations_for(name)
         unless assocs.empty?
           @pinned = assocs.all? { |as| as.pinned?(aContext) }
@@ -85,12 +89,12 @@ module MiniKraken
       # @param substitutions [Hash {String => Term}]
       # @return [Term]
       def dup_cond(substitutions)
-        key = i_name ? i_name : name
+        key = i_name || name
         if substitutions.include? key
           val = substitutions[key]
           val.kind_of?(Term) ? val.dup_cond(substitutions) : val
         else
-          self.dup
+          dup
         end
       end
 

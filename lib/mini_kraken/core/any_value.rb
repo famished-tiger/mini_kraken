@@ -51,6 +51,7 @@ module MiniKraken
       def valid_rank(aRank)
         unless aRank.kind_of?(Integer)
           msg = "Rank number MUST be an Integer, found a #{aRank.class}"
+          raise StandardError, msg
         end
 
         aRank

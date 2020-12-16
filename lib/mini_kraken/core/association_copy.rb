@@ -4,7 +4,7 @@ require_relative 'association'
 
 module MiniKraken
   module Core
-    # A specialized association that bind a variable to a value from another 
+    # A specialized association that bind a variable to a value from another
     # association.
     class AssociationCopy < Association
       # @return [String] internal name of variable being associated the value.
@@ -35,13 +35,13 @@ module MiniKraken
       def pinned?(ctx)
         source.pinned?(ctx)
       end
- 
-      # @return [Term] the MiniKraken value associated with the variable 
+
+      # @return [Term] the MiniKraken value associated with the variable
       def value
         source.value
       end
-      
-      # @return [Array<String>] The i_names of direct dependent variables      
+
+      # @return [Array<String>] The i_names of direct dependent variables
       def dependencies(ctx)
          source.dependencies(ctx)
       end

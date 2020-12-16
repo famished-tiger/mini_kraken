@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'set'
 
 require_relative 'composite_term'
@@ -64,7 +65,7 @@ module MiniKraken
       # Specialized constructor for null list.
       # @return [ConsCell] Null list
       def self.null
-        self.new(nil, nil)
+        new(nil, nil)
       end
 
       def children
@@ -95,8 +96,8 @@ module MiniKraken
       # Does the composite have a definite value?
       # @return [Boolean]
       def pinned?(ctx)
-        @pinned_car = car.nil? || car.pinned?(ctx) unless @pinned_car
-        @pinned_cdr = cdr.nil? || cdr.pinned?(ctx) unless @pinned_cdr
+        @pinned_car ||= car.nil? || car.pinned?(ctx)
+        @pinned_cdr ||= cdr.nil? || cdr.pinned?(ctx)
 
         @pinned_car && @pinned_cdr
       end
@@ -159,7 +160,6 @@ module MiniKraken
         Set.new(deps)
       end
 
-
       # @param ctx [Core::Context]
       # @param theSubstitutions [Hash{String => Association}]
       def expand(ctx, theSubstitutions)
@@ -180,7 +180,7 @@ module MiniKraken
               if curr_cell
                 curr_cell.set!(side, new_cell)
                 path.push(curr_cell)
-              end            
+              end
               curr_cell = new_cell
               head ||= new_cell
 
@@ -203,18 +203,18 @@ module MiniKraken
 
         head
       end
-      
-      
+
+
       # @param ctx [Core::Context]
       # @param theSubstitutions [Hash{String => Association}]
 
 
       # File 'lib/mini_kraken/atomic/atomic_term.rb', line 91
-      # Make a copy of self with all the variable reference being replaced 
+      # Make a copy of self with all the variable reference being replaced
       # by the corresponding value in the Hash.
       # @param substitutions [Hash {String => Term}]
       # @return [ConsCell]
-      def dup_cond(substitutions)      
+      def dup_cond(substitutions)
         head = curr_cell = nil
         path = []
 
@@ -231,7 +231,7 @@ module MiniKraken
             if curr_cell
               curr_cell.set!(side, new_cell)
               path.push(curr_cell)
-            end            
+            end
             curr_cell = new_cell
             head ||= new_cell
 
@@ -243,7 +243,7 @@ module MiniKraken
         end
 
         head
-      end      
+      end
 
       # Set one element of the pair
       # @param member [Symbol]

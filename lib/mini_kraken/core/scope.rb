@@ -15,7 +15,7 @@ module MiniKraken
 
       # Mapping from user-defined name to related definition
       #  (say, a logical variable object)
-      # @return [Hash{String => LogVar}] Pairs of the kind 
+      # @return [Hash{String => LogVar}] Pairs of the kind
       attr_reader :defns
 
       # Construct a scope instance.
@@ -40,7 +40,7 @@ module MiniKraken
       # Returns a string with a human-readable representation of the object.
       # @return [String]
       def inspect
-        result = +"#<#{self.class}:#{object_id.to_s(16)}>"
+        +"#<#{self.class}:#{object_id.to_s(16)}>"
       end
 
       private
@@ -48,7 +48,7 @@ module MiniKraken
       def validated_entry(anEntry)
         name = anEntry.name
         unless name.kind_of?(String) && !name.empty?
-          err_msg = "Invalid variable name argument."
+          err_msg = 'Invalid variable name argument.'
           raise StandardError, err_msg
         end
         if defns.include?(name)

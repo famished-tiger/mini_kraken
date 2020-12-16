@@ -1,3 +1,10 @@
+## [0.3.00] - 2020-12-16
+- Version number bump because this is a vast code rewrite
+
+### CHANGED
+- Most classes have been reworked
+- Relation `Equals` has been renamed to `Unify`
+
 ## [0.2.04] - 2020-09-02
 - Intermediate version before vast code rework.
 

@@ -75,12 +75,12 @@ module MiniKraken
       end
 
       # Indicate whether the variable is fused with another one
-      # @param iName [String] Internal name of a logical variable      
+      # @param iName [String] Internal name of a logical variable
       # @return [Boolean]
       def fused?(iName)
         vars2cv.include? iName
       end
-      
+
       # If the variable is fused, then return the internal name of the
       # combining variable, otherwise return the input value as is.
       # @param iName [String] Internal name of a logical variable
@@ -97,7 +97,7 @@ module MiniKraken
       # @return [Array<Association>]
       def associations_for(iName, shared = false)
         assocs_idx = nil
-        if shared && fused?(iName)        
+        if shared && fused?(iName)
           assocs_idx = i_name2moves[vars2cv[iName]]
           if assocs_idx && move_queue[assocs_idx.first].kind_of?(Fusion)
               assocs_idx = assocs_idx.dup
@@ -160,7 +160,7 @@ module MiniKraken
 
         # Remove all items until most recent backtrack point.
         until move_queue.empty? ||
-          (last_move.kind_of?(Bookmark) && last_move.kind == :bt_point) do
+              (last_move.kind_of?(Bookmark) && last_move.kind == :bt_point)
           dequeue_item
         end
       end
@@ -175,29 +175,29 @@ module MiniKraken
       def place_bt_point
         add_bookmark(:bt_point)
       end
-      
+
       # Remove all items until most recent backtrack bookmark found.
       # The boobmark is not remove from the queue
-      # @return [Array<Association, Bookmark, Fusion>]       
+      # @return [Array<Association, Bookmark, Fusion>]
       def next_alternative
         removed = []
 
         # Remove all items until most recent scope bookmark.
         until move_queue.empty? ||
-          (last_move.kind_of?(Bookmark) && last_move.kind == :bt_point) do
+              (last_move.kind_of?(Bookmark) && last_move.kind == :bt_point)
          removed << dequeue_item
         end
 
-        removed       
+        removed
       end
-      
+
       # Remove all items until most recent backtrack bookmark found.
-      # @return [Array<Association, Bookmark, Fusion>]      
+      # @return [Array<Association, Bookmark, Fusion>]
       def retract_bt_point
         removed = next_alternative
         dequeue_item unless move_queue.empty? # Remove the bookmark (if any)
 
-        removed      
+        removed
       end
 
       # React to event 'enter_scope' by putting a scope bookmark on move queue.
@@ -213,7 +213,7 @@ module MiniKraken
 
         # Remove all items until most recent scope bookmark.
         until move_queue.empty? ||
-          (last_move.kind_of?(Bookmark) && last_move.kind == :scope) do
+              (last_move.kind_of?(Bookmark) && last_move.kind == :scope)
          removed << dequeue_item
         end
         dequeue_item unless move_queue.empty? # Remove the bookmark (if any)
@@ -262,11 +262,10 @@ module MiniKraken
       # @param aKind [Symbol] One of: :scope, :bt_point
       # @return [Integer] Serial number of new bookmark
       def add_bookmark(aKind)
-        before_size = move_queue.size
+        move_queue.size
         serial_number = next_serial_num
         @move_queue << Bookmark.new(aKind, serial_number)
         @next_serial_num += 1
-        # @bookmarks << before_size
 
         serial_number
       end
@@ -296,6 +295,7 @@ module MiniKraken
         unless move_queue.last.kind_of?(Bookmark)
           raise StandardError, 'Expected a bookmark on top of stack.'
         end
+
         move_queue.pop
       end
 
@@ -305,6 +305,7 @@ module MiniKraken
         unless  last_move.kind_of?(Fusion)
           raise StandardError, 'Fusion on top of stack.'
         end
+
         last_move.elements.each { |e| vars2cv.delete(e) }
 
         dequeue_move

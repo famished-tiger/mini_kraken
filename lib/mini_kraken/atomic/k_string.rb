@@ -6,13 +6,7 @@ module MiniKraken
   module Atomic
     # A specialized atomic term that represents a string value
     # in MiniKraken.
-    class KString< AtomicTerm
-      # Initialize a MiniKraken symbol with a given Ruby Symbol value.
-      # @param aValue [Symbol] Ruby representation of symbol value
-      def initialize(aValue)
-        super(aValue)
-      end
-
+    class KString < AtomicTerm
       # Returns a string representing the MiniKraken symbol.
       # @return [String]
       def to_s

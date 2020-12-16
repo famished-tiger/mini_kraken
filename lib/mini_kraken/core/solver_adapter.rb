@@ -11,13 +11,13 @@ module MiniKraken
     class SolverAdapter
       # @return [#resume] A Fiber-like object as adaptee
       attr_reader :adaptee
-      
+
       # ->(adapter, aContext) do
         # aContext.push_bookmark(adapter.adaptee)
         # result = adapter.adaptee.resume
         # aContext.pop_bookmark
         # result
-      # end        
+      # end
       # @return [Proc] lambda to execute when resume is called
       attr_reader :around_resume
 
@@ -43,7 +43,7 @@ module MiniKraken
       private
 
       def validated_adaptee(fib)
-        raise StandardError, "No resume method" unless fib.respond_to?(:resume)
+        raise StandardError, 'No resume method' unless fib.respond_to?(:resume)
 
         fib
       end

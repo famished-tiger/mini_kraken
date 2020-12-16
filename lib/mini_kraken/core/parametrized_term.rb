@@ -34,7 +34,8 @@ module MiniKraken
       # @return [Term]
       def dup_cond(substitutions)
         duplicate = dup
-        duplicate.actuals.concat actuals.map { |e| e.dup_cond(substitutions) }
+        updated_actuals = actuals.map { |e| e.dup_cond(substitutions) }
+        duplicate.actuals.concat(updated_actuals)
 
         duplicate
       end
@@ -45,7 +46,7 @@ module MiniKraken
         unless theSpecification.kind_of?(Specification)
           msg_part1 = 'Expected kind_of Specification,'
           msg_part2 = "instead of #{theSpecification.class}."
-          raise StandardError, msg_part1 + ' ' + msg_part2
+          raise StandardError, "#{msg_part1} #{msg_part2}"
         end
 
         theSpecification

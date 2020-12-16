@@ -40,6 +40,7 @@ module MiniKraken
       def dependencies(ctx)
         @dependencies ||= value.dependencies(ctx)
         raise StandardError unless @dependencies.kind_of?(Set) || @dependencies.kind_of?(NilClass)
+
         @dependencies
       end
 
