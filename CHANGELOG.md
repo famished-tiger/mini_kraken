@@ -1,3 +1,9 @@
+## [0.3.01] - 2020-12-17
+- Minor: updated Rubocop config file `.rubocop.yml`
+
+### CHANGED
+- Config file `.rubocop.yml` updated to incorporate the cops from Rubocop 1.6.1
+
 ## [0.3.00] - 2020-12-16
 - Version number bump because this is a vast code rewrite
 
