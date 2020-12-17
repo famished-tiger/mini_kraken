@@ -3,6 +3,8 @@
 
 ### CHANGED
 - Config file `.rubocop.yml` updated to incorporate the cops from Rubocop 1.6.1
+- Several files re-styled to please Rubocop
+- `README.md` Checkbox for `cdro` is now ticked
 
 ## [0.3.00] - 2020-12-16
 - Version number bump because this is a vast code rewrite

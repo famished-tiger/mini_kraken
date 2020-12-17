@@ -25,7 +25,7 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [X] disj2
 - [X] defrel  
 - [X] caro
-- [ ] cdro
+- [X] cdro
 
 ### TODO
 
