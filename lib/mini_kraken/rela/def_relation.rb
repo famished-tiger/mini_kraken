@@ -49,7 +49,36 @@ module MiniKraken
       def validated_expression(aGoalTemplate)
         raise StandardError unless aGoalTemplate
 
-        aGoalTemplate
+        compose_goals(aGoalTemplate)
+      end
+
+      def compose_goals(subgoals)
+        nested_goal = nil
+
+        case subgoals
+          when Core::Goal
+            nested_goal = subgoals
+
+          when Array
+            goal_array = subgoals
+            loop do
+              conjunctions = []
+              goal_array.each_slice(2) do |uno_duo|
+                if uno_duo.size == 2
+                  conjunctions << Core::Goal.new(Conj2.instance, uno_duo)
+                else
+                  conjunctions << uno_duo[0]
+                end
+              end
+              if conjunctions.size == 1
+                nested_goal = conjunctions[0]
+                break
+              end
+              goal_array = conjunctions
+            end
+          end
+
+        nested_goal
       end
 
       # With the given expression, create a new expression where

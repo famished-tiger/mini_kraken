@@ -215,11 +215,67 @@ module MiniKraken
           #     (== 'a x))) ;; l => ('(a c o r n))
 
           result = run_star('l', fresh('x',
-            [cdro(l, corn), # WRONG l => a c o r n (side effect from other tests)
+            [cdro(l, corn),
               caro(l, x),
               unify(:a, x)]))
           expect(result.to_s).to eq('((:a :c :o :r :n))')
         end
+
+        it 'accepts conso definition inspired from frame 2:25' do
+          defrel_caro
+          defrel_cdro
+
+          # Reasoned S2, frame 2:25
+          # (defrel (conso a p d)
+          #   (caro  p a)
+          #   (cdro p d))
+
+          # As 'p' has a special meaning in Ruby, the argument has been remaned to 'r'
+          conso_rel = defrel('conso', %w[a r d], [caro(r, a), cdro(r, d)])
+
+          expect(conso_rel).to be_kind_of(Rela::DefRelation)
+          expect(conso_rel.name).to eq('conso')
+          expect(conso_rel.arity).to eq(3)
+          expect(conso_rel.formals[0]).to match(/^a_[-0-9a-f]+$/)
+          expect(conso_rel.formals[1]).to match(/^r_[-0-9a-f]+$/)
+          expect(conso_rel.formals[2]).to match(/^d_[-0-9a-f]+$/)
+          g_template = conso_rel.expression
+          expect(g_template.relation).to be_kind_of(Rela::Conj2)
+          g1 = g_template.actuals[0]
+          expect(g1).to be_kind_of(Core::Goal)
+          expect(g1.relation.name).to eq('caro')
+          expect(g1.actuals[0].name).to match(/^r_/)
+          expect(g1.actuals[1].name).to match(/^a_/)
+
+          g2 = g_template.actuals[1]
+          expect(g2).to be_kind_of(Core::Goal)
+          expect(g2.relation.name).to eq('cdro')
+          expect(g2.actuals[0].name).to match(/^r_/)
+          expect(g2.actuals[1].name).to match(/^d_/)
+        end
+
+        # In Scheme:
+          # (defrel (conso a p d)
+          #   (caro  p a)
+          #   (cdro p d))
+        # In Ruby, `p`is a standard Kernel method => replace it by `r`
+        def defrel_conso
+          defrel_caro
+          defrel_cdro
+
+          defrel('conso', %w[a r d], [caro(r, a), cdro(r, d)])
+        end
+
+        # TODO: FIX THIS EXAMPLE
+        # it 'passes frame 2:19' do
+          # defrel_conso
+
+          # # (run* l
+          # #   (conso '(a b c) '(d e) l)) ;; => ((abc) (d e))
+
+          # result = run_star('l', conso( list(:a, :b, :c), list(:d, :e), l))
+          # expect(result.to_s).to eq('((:a :b :c) (:d :e))')
+        # end
       end # context
     end # describe
   end # module

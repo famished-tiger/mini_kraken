@@ -8,12 +8,6 @@ require_relative '../../lib/mini_kraken/core/duck_fiber'
 module MiniKraken
   module Core
     describe DuckFiber do
-      Callable = Struct.new(:proc) do
-        def call
-          proc.call
-        end
-      end
-
       let(:ctx) { Core::Context.new }
       let(:callable) { -> { ctx.failed! } }
       subject { DuckFiber.new(callable) }

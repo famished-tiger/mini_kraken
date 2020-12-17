@@ -44,7 +44,8 @@ module MiniKraken
         end
 
         it 'performs data value comparison' do
-          expect(subject == subject).to be_truthy
+          itself = subject # Renaming as workaround to Rubocop complaint
+          expect(subject == itself).to be_truthy
           expect(subject == subject.value).to be_truthy
 
           expect(subject == other_value).to be_falsy

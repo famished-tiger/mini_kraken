@@ -33,6 +33,9 @@ Layout/EndOfLine:
 
 Layout/FirstArgumentIndentation:
   Enabled: false
+  
+Layout/HashAlignment:
+  Enabled: false
 
 Layout/IndentationWidth:
   Enabled: false
@@ -45,10 +48,10 @@ Layout/HeredocIndentation:
 
 Layout/MultilineHashBraceLayout:
   Enabled: true
-  
+
 Layout/MultilineMethodCallBraceLayout:
   Enabled: true
-  EnforcedStyle: same_line  
+  EnforcedStyle: same_line
 
 Layout/SpaceAroundOperators:
   Enabled: true
@@ -58,7 +61,7 @@ Layout/SpaceInsideParens:
 
 Layout/IndentationStyle:
   Enabled: true
-  
+
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
@@ -68,16 +71,40 @@ Layout/TrailingEmptyLines:
 Layout/TrailingWhitespace:
   Enabled: true
 
+Lint/DuplicateBranch:
+  Enabled: true
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: true
+
+Lint/EmptyBlock:
+  Enabled: true
+
+Lint/EmptyClass:
+  Enabled: false
+
 Lint/Loop:
   Enabled: true
-  
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
 Lint/RaiseException:
   Enabled: true
 
 Lint/RescueException:
   Enabled: true
-  
+
 Lint/StructNewOverride:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: true
+
+Lint/UnmodifiedReduceAccumulator:
   Enabled: true
 
 Lint/UnusedMethodArgument:
@@ -98,14 +125,14 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Enabled: true
   Max: 350
-  
+
 Metrics/BlockNesting:
   Enabled: true
   Max: 5
 
 Metrics/ClassLength:
   Enabled: true
-  Max: 350
+  Max: 450
 
 Metrics/CyclomaticComplexity:
   Enabled: false
@@ -116,7 +143,7 @@ Layout/LineLength:
 
 Metrics/MethodLength:
   Enabled: true
-  Max: 50
+  Max: 60
 
 Metrics/ModuleLength:
   Enabled: true
@@ -143,8 +170,8 @@ Naming/VariableName:
 Style/Alias:
   Enabled: true
 
-Layout/HashAlignment:
-  Enabled: false
+Style/ArgumentsForwarding:
+  Enabled: true
 
 Style/AsciiComments:
   Enabled: false
@@ -163,6 +190,9 @@ Style/ClassCheck:
 
 Style/ClassVars:
   Enabled: false
+  
+Style/CollectionCompact:
+  Enabled: true
 
 Style/ColonMethodCall:
   Enabled: false
@@ -181,22 +211,25 @@ Style/DefWithParentheses:
 
 Style/Documentation:
   Enabled: false
+  
+Style/DocumentDynamicEvalDefinition:
+  Enabled: true
 
 Style/ExpandPathArguments:
   Enabled: false
-  
+
 Style/ExponentialNotation:
   Enabled: true
 
 Style/GuardClause:
   Enabled: false
-  
+
 Style/HashEachMethods:
   Enabled: true
-  
+
 Style/HashTransformKeys:
   Enabled: true
-  
+
 Style/HashTransformValues:
   Enabled: true
 
@@ -205,17 +238,26 @@ Style/IfUnlessModifier:
 
 Style/InverseMethods:
   Enabled: true
-  
-Style/MissingRespondToMissing:  
+
+Style/MissingRespondToMissing:
   Enabled: false
+  
+Style/NegatedIfElseCondition:
+  Enabled: true
 
 Style/Next:
   Enabled: false
+  
+Style/NilLambda:
+  Enabled: true
 
 Style/NumericLiterals:
   Enabled: false
 
 Style/RaiseArgs:
+  Enabled: true
+  
+Style/RedundantArgument:
   Enabled: true
 
 Style/RedundantReturn:
@@ -235,13 +277,16 @@ Style/StderrPuts:
 
 Style/StringLiterals:
   Enabled: true
+  
+Style/SwapValues:
+  Enabled: true
 
 Style/TernaryParentheses:
   Enabled: false
 
 Style/UnlessElse:
   Enabled: false
-  
+
 # Rubocop complains when it doesn't find an explicit setting for the following cops:
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true

@@ -74,7 +74,8 @@ module MiniKraken
         end
 
         it 'should know whether is equal to another arity' do
-          expect(subject == subject).to be_truthy
+          itself = subject # Renaming as workaround to Rubocop complaint
+          expect(subject == itself).to be_truthy
 
           same = Arity.new(0, 1)
           expect(subject == same).to be_truthy

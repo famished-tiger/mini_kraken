@@ -85,10 +85,7 @@ module MiniKraken
 
         actuals.each do |arg|
           case arg
-            when Core::Goal
-              result << arg
-
-            when Core::Context
+            when Core::Goal, Core::Context
               result << arg
 
             when Array

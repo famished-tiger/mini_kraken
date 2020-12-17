@@ -62,16 +62,6 @@ module MiniKraken
         end
         rela = Rela::DefRelation.new(relationName, aGoalExpr, formals)
         add_defrel(rela)
-
-       # start_defrel
-
-        # formals = @defrel_formals.map { |name| Core::FormalArg.new(name) }
-        # g_template = aGoalTemplateExpr.call
-        # result = Core::DefRelation.new(relationName, g_template, formals)
-        # add_defrel(result)
-
-        # end_defrel
-        # result
       end
 
       def disj2(arg1, arg2)
@@ -117,15 +107,16 @@ module MiniKraken
 
         case anArgument
           when Symbol
-            if anArgument.id2name =~ /_\d+/
-              rank = anArgument.id2name.slice(1..-1).to_i
-              any_val = Core::AnyValue.allocate
-              any_val.instance_variable_set(:@rank, rank)
-              converted = any_val
-            elsif anArgument.id2name =~ /^"#[ft]"$/
-              converted = Atomic::KBoolean.new(anArgument)
-            else
-              converted = Atomic::KSymbol.new(anArgument)
+            case anArgument.id2name
+              when /_\d+/
+                rank = anArgument.id2name.slice(1..-1).to_i
+                any_val = Core::AnyValue.allocate
+                any_val.instance_variable_set(:@rank, rank)
+                converted = any_val
+              when /^"#[ft]"$/
+                converted = Atomic::KBoolean.new(anArgument)
+              else
+                converted = Atomic::KSymbol.new(anArgument)
             end
           when String
             if anArgument =~ /^#[ft]$/
@@ -136,15 +127,9 @@ module MiniKraken
             end
           when false, true
             converted = Atomic::KBoolean.new(anArgument)
-          when Atomic::KBoolean, Atomic::KSymbol
+          when NilClass, Atomic::KBoolean, Atomic::KSymbol
             converted = anArgument
-          when Core::Goal
-            converted = anArgument
-          when Core::LogVarRef
-            converted = anArgument
-          when Composite::ConsCell
-            converted = anArgument
-          when NilClass
+          when Core::Goal, Core::LogVarRef, Composite::ConsCell
             converted = anArgument
           else
             msg = "Internal error: undefined conversion for #{anArgument.class}"
