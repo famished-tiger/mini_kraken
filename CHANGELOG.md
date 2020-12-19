@@ -1,3 +1,13 @@
+## [0.3.02] - 2020-12-19
+- `mini_kraken` now implements `conso` relation.
+
+### CHANGED
+- Method `Context#build_solution` old source code (redundant) removed.
+- File `README.md` minor changes.
+
+### FIXED
+- Method `ConsCell#expand` pushed a node in the stack even if it was fully visited.
+
 ## [0.3.01] - 2020-12-17
 - Minor: updated Rubocop config file `.rubocop.yml`
 

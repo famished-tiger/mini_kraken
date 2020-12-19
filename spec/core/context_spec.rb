@@ -31,9 +31,13 @@ module MiniKraken
         end
       end # context
 
-      context 'Initialization:' do
+      context 'Provided services:' do
         def var(aName)
           LogVar.new(aName)
+        end
+
+        def cons(term1, term2 = nil)
+          Composite::ConsCell.new(term1, term2)
         end
 
         it 'should accept the addition of an entry in symbol table' do
@@ -189,7 +193,7 @@ module MiniKraken
           expect(subject.send(:substitute, assoc_q).to_s).to eq('(_0 :foo . :bar)')
         end
 
-        it 'should build a solution' do
+        it 'should build a solution (atomic terms)' do
           subject.add_vars(%w[x y z])
 
           subject.succeeded!
@@ -214,6 +218,26 @@ module MiniKraken
           expect(sol['x']).to eq(foo)
           expect(sol['y']).to eq(bar)
           expect(sol['z']).to eq(:_0)
+        end
+
+        it 'should build a solution (composite terms)' do
+          subject.add_vars(['l'])
+          new_scope = Scope.new
+          subject.enter_scope(new_scope)
+          a = k_symbol(:a)
+          b = k_symbol(:b)
+          c = k_symbol(:c)
+          subject.add_vars(['d'])
+          d_ref = LogVarRef.new('d')
+          subject.associate('l', cons(cons(a, cons(b)), d_ref))
+          subject.associate('d', cons(c))
+
+          subject.succeeded!
+          sol = subject.build_solution
+          expect(sol.size).to eq(1)
+
+          # TODO: fix next line. Actual is: ((a :c))
+          expect(sol['l'].to_s).to eq('((:a :b) :c)')
         end
       end
     end # describe

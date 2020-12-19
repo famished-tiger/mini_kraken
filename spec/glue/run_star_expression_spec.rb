@@ -80,7 +80,7 @@ module MiniKraken
 
         # @return [Core::Goal]
         def fresh(names, subgoal)
-          puts "#{__callee__} #{names}"
+          # puts "#{__callee__} #{names}"
           if names.kind_of?(Array)
             k_names = names.map { |nm| Atomic::KString.new(nm) }
           else

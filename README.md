@@ -14,10 +14,10 @@ ISBN: 9780262535519, (2018), MIT Press.
 - Pure Ruby implementation, not a port from another language
 - Object-Oriented design
 - No runtime dependencies
-- Test suite patterned on the examples from the reference book.
+- Test suite patterned on examples from the reference book.
 
 ### miniKanren Features
-- [X] ==  
+- [X] ( == ) unify
 - [X] run\*  
 - [X] fresh
 - [X] conde
@@ -26,13 +26,13 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [X] defrel  
 - [X] caro
 - [X] cdro
+- [X] conso 
 
 ### TODO
 
 - [ ] Occurs check
 
-List-centric relations from Chapter 2
-- [ ] conso  
+Pair-centric relations from Chapter 2 
 - [ ] nullo  
 - [ ] pairo  
 - [ ] singletono  

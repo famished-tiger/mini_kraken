@@ -231,14 +231,14 @@ module MiniKraken
           #   (cdro p d))
 
           # As 'p' has a special meaning in Ruby, the argument has been remaned to 'r'
-          conso_rel = defrel('conso', %w[a r d], [caro(r, a), cdro(r, d)])
+          conso_rel = defrel('conso', %w[a d r], [caro(r, a), cdro(r, d)])
 
           expect(conso_rel).to be_kind_of(Rela::DefRelation)
           expect(conso_rel.name).to eq('conso')
           expect(conso_rel.arity).to eq(3)
           expect(conso_rel.formals[0]).to match(/^a_[-0-9a-f]+$/)
-          expect(conso_rel.formals[1]).to match(/^r_[-0-9a-f]+$/)
-          expect(conso_rel.formals[2]).to match(/^d_[-0-9a-f]+$/)
+          expect(conso_rel.formals[1]).to match(/^d_[-0-9a-f]+$/)
+          expect(conso_rel.formals[2]).to match(/^r_[-0-9a-f]+$/)
           g_template = conso_rel.expression
           expect(g_template.relation).to be_kind_of(Rela::Conj2)
           g1 = g_template.actuals[0]
@@ -255,7 +255,7 @@ module MiniKraken
         end
 
         # In Scheme:
-          # (defrel (conso a p d)
+          # (defrel (conso a d p)
           #   (caro  p a)
           #   (cdro p d))
         # In Ruby, `p`is a standard Kernel method => replace it by `r`
@@ -263,19 +263,87 @@ module MiniKraken
           defrel_caro
           defrel_cdro
 
-          defrel('conso', %w[a r d], [caro(r, a), cdro(r, d)])
+          # Definition derived from frame 2:25
+          # defrel('conso', %w[a d r], [caro(r, a), cdro(r, d)])
+
+          # Definition derived from frame 2:26
+          defrel('conso', %w[a d r], [unify(cons(a, d), r)])
         end
 
-        # TODO: FIX THIS EXAMPLE
-        # it 'passes frame 2:19' do
-          # defrel_conso
+        it 'passes frame 2:19' do
+          defrel_conso
 
-          # # (run* l
-          # #   (conso '(a b c) '(d e) l)) ;; => ((abc) (d e))
+          # (run* l
+          #   (conso '(a b c) '(d e) l)) ;; => (((a b c) d e))
 
-          # result = run_star('l', conso( list(:a, :b, :c), list(:d, :e), l))
-          # expect(result.to_s).to eq('((:a :b :c) (:d :e))')
-        # end
+          result = run_star('l', conso(list(:a, :b, :c), list(:d, :e), l))
+          expect(result.to_s).to eq('(((:a :b :c) :d :e))')
+        end
+
+        it 'passes frame 2:20' do
+          defrel_conso
+
+          # (run* x
+          #   (conso x '(a b c) '(d a b c))) ;; => (d)
+
+          result = run_star('x', conso(x, list(:a, :b, :c), list(:d, :a, :b, :c)))
+          expect(result.to_s).to eq('(:d)')
+        end
+
+        it 'passes frame 2:21' do
+          defrel_conso
+
+          # (run* r
+          #   (fresh (x y z)
+          #     (== '(e a d ,x) r)
+          #     (conso y '(a ,z c) r))) ;; => ((e a d c)
+
+          expr = fresh(%w[x y z],
+            [unify(list(:e, :a, :d, x), r),
+              conso(y, list(:a, z, :c), r)])
+          result = run_star('r', expr)
+          expect(result.to_s).to eq('((:e :a :d :c))')
+        end
+
+        it 'passes frame 2:22' do
+          defrel_conso
+
+          # (run* x
+          #   (conso x '(a ,x c) '(d a ,x c))) ;; => (d)
+
+          result = run_star('x', conso(x, list(:a, x, :c), list(:d, :a, x, :c)))
+          expect(result.to_s).to eq('(:d)')
+        end
+
+        it 'passes frame 2:23' do
+          defrel_conso
+
+          # (run* l
+          #   (fresh (x)
+          #     (== '(d a ,x c) l)
+          #     (conso x '(a ,x c) l))) ;; => ((d a d c)
+
+          expr = fresh(%w[x],
+            [unify(list(:d, :a, x, :c), l),
+              conso(x, list(:a, x, :c), l)])
+          result = run_star('l', expr)
+          expect(result.to_s).to eq('((:d :a :d :c))')
+        end
+
+        it 'passes frame 2:24' do
+          defrel_conso
+
+          # (run* l
+          #   (fresh (x)
+          #     (conso x '(a ,x c) l)))
+          #     (== '(d a ,x c) l) ;; => ((d a d c)
+
+          expr = fresh(%w[x],
+            [conso(x, list(:a, x, :c), l),
+              unify(list(:d, :a, x, :c), l)])
+          result = run_star('l', expr)
+          expect(result.to_s).to eq('((:d :a :d :c))')
+        end
       end # context
     end # describe
   end # module

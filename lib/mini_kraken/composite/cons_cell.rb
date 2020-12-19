@@ -179,7 +179,7 @@ module MiniKraken
               new_cell = ConsCell.null
               if curr_cell
                 curr_cell.set!(side, new_cell)
-                path.push(curr_cell)
+                path.push(curr_cell) unless side == :cdr
               end
               curr_cell = new_cell
               head ||= new_cell
