@@ -1,5 +1,19 @@
+## [0.3.03] - 2020-12-20
+- `mini_kraken` now implements the `nullo`, `pairo` relations.
+- Passes all examples from 2:1 up to 2:51 but 2:37
+
+### CHANGED
+- Class `ConsCell`: default value for cdr is NullList instead of nil.
+- Method `ConsCellVisitor#df_visitor`: no visit of car and cdr fiels of a null ConsCell
+- Method `Unify#unify_references` now supports the unification of of floating references
+
+### FIXED
+- Method `ParametrizedTerm#dup_cond` now performs replacement of Array elements.
+- Method `Unify#unify_composite_terms` fixed typo in a method call
+- Method `Unify#unify_references` fixed typo of exception class
+
 ## [0.3.02] - 2020-12-19
-- `mini_kraken` now implements `conso` relation.
+- `mini_kraken` now implements the `conso` relation.
 
 ### CHANGED
 - Method `Context#build_solution` old source code (redundant) removed.

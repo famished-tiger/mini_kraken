@@ -32,8 +32,8 @@ module MiniKraken
           null_list = ConsCell.null
           visitor = subject.df_visitor(null_list)
           expect(visitor.resume).to eq([:car, null_list])
-          expect(visitor.resume).to eq([:car, nil])
-          expect(visitor.resume).to eq([:cdr, nil])
+
+          # The car and cdr fields aren't visited
           expect(visitor.resume).to eq([:stop, nil])
         end
 
@@ -41,7 +41,7 @@ module MiniKraken
           visitor = subject.df_visitor(l_pea)
           expect(visitor.resume).to eq([:car, l_pea])
           expect(visitor.resume).to eq([:car, pea])
-          expect(visitor.resume).to eq([:cdr, nil])
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:stop, nil])
         end
 
@@ -51,7 +51,7 @@ module MiniKraken
           expect(visitor.resume).to eq([:car, pea])
           expect(visitor.resume).to eq([:cdr, l_pea_pod.cdr])
           expect(visitor.resume).to eq([:car, pod])
-          expect(visitor.resume).to eq([:cdr, nil])
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:stop, nil])
         end
 
@@ -63,7 +63,7 @@ module MiniKraken
           expect(visitor.resume).to eq([:car, pod])
           expect(visitor.resume).to eq([:cdr, l_pea_pod_corn.cdr.cdr])
           expect(visitor.resume).to eq([:car, corn])
-          expect(visitor.resume).to eq([:cdr, nil])
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:stop, nil])
         end
       end # context
@@ -106,8 +106,8 @@ module MiniKraken
           expect(visitor.resume).to eq([:car, composite.car])
           expect(visitor.resume).to eq([:car, composite.car.car])
           expect(visitor.resume).to eq([:car, pea])
-          expect(visitor.resume).to eq([:cdr, nil])
-          expect(visitor.resume).to eq([:cdr, nil])
+          expect(visitor.resume).to eq([:cdr, NullList])
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:cdr, pod])
         end
       end # context
@@ -134,7 +134,7 @@ module MiniKraken
           # Tell to skip children by passing a true value to resume
           expect(visitor.resume(true)).to eq([:cdr, tree.cdr.cdr])
           expect(visitor.resume).to eq([:car, corn])
-          expect(visitor.resume).to eq([:cdr, nil])
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:stop, nil])
         end
       end # context
@@ -149,7 +149,9 @@ module MiniKraken
           expect(visitor.resume).to eq([:car, first_cell])
           expect(visitor.resume).to eq([:car, pea])
           expect(visitor.resume).to eq([:cdr, second_cell])
-          expect(visitor.resume).to eq([:cdr, nil]) # Skip car (was already visited)
+
+          # Skip car (was already visited)
+          expect(visitor.resume).to eq([:cdr, NullList])
           expect(visitor.resume).to eq([:stop, nil])
         end
       end # context

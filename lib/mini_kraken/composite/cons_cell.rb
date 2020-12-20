@@ -52,11 +52,11 @@ module MiniKraken
       # will silently replace the null list by a nil.
       # @param obj1 [Term, NilClass]
       # @param obj2 [Term, NilClass]
-      def initialize(obj1, obj2 = nil)
+      def initialize(obj1, obj2 = NullList)
         super()
         @car = obj1
         if obj2.kind_of?(ConsCell) && obj2.null?
-          @cdr = nil
+          @cdr = NullList
         else
           @cdr = obj2
         end
@@ -66,6 +66,35 @@ module MiniKraken
       # @return [ConsCell] Null list
       def self.null
         new(nil, nil)
+      end
+
+      # Set one element of the pair
+      # @param member [Symbol]
+      # @param element [Term]
+      def set!(member, element)
+        case member
+          when :car
+            set_car!(element)
+          when :cdr
+            set_cdr!(element)
+          else
+            raise StandardError, "Undefined cons cell member #{member}"
+          end
+      end
+
+      # Change the car of ConsCell to 'element'.
+      # Analogue of set-car! procedure in Scheme.
+      # @param element [Term]
+      def set_car!(element)
+        @cdr = NullList if null?
+        @car = element
+      end
+
+      # Change the cdr of ConsCell to 'element'.
+      # Analogue of set-cdr! procedure in Scheme.
+      # @param element [Term]
+      def set_cdr!(element)
+        @cdr = element
       end
 
       def children
@@ -93,13 +122,13 @@ module MiniKraken
         !pinned?(ctx)
       end
 
-      # Does the composite have a definite value?
+      # Does the cons cell have a definite value?
       # @return [Boolean]
       def pinned?(ctx)
-        @pinned_car ||= car.nil? || car.pinned?(ctx)
-        @pinned_cdr ||= cdr.nil? || cdr.pinned?(ctx)
+        pinned_car = car.nil? || car.pinned?(ctx)
+        pinned_cdr = cdr.nil? || cdr.pinned?(ctx)
 
-        @pinned_car && @pinned_cdr
+        pinned_car && pinned_cdr
       end
 
       # Return true if car and cdr fields have the same values as the other
@@ -166,7 +195,7 @@ module MiniKraken
         head = curr_cell = nil
         path = []
 
-        visitor = ConsCellVisitor.df_visitor(self) # Breadth-first!
+        visitor = ConsCellVisitor.df_visitor(self)
         skip_children = false
 
         loop do
@@ -180,9 +209,15 @@ module MiniKraken
               if curr_cell
                 curr_cell.set!(side, new_cell)
                 path.push(curr_cell) unless side == :cdr
+              else
+                head = new_cell                
+                path.push(new_cell)
               end
-              curr_cell = new_cell
-              head ||= new_cell
+              if side == :cdr && cell.null?
+                curr_cell = path.pop
+              else
+                curr_cell = new_cell
+              end
 
             when Core::LogVarRef
               # Is this robust?
@@ -194,7 +229,6 @@ module MiniKraken
               expanded = ctx.expand_value_of(i_name, theSubstitutions)
               curr_cell.set!(side, expanded)
               curr_cell = path.pop if side == :cdr
-
             else
               curr_cell.set!(side, cell)
               curr_cell = path.pop if side == :cdr
@@ -245,47 +279,15 @@ module MiniKraken
         head
       end
 
-      # Set one element of the pair
-      # @param member [Symbol]
-      # @param element [Term]
-      def set!(member, element)
-        case member
-          when :car
-            set_car!(element)
-          when :cdr
-            @pinned_cdr = nil
-            @cdr = element
-          else
-            raise StandardError, "Undefined cons cell member #{member}"
-          end
-      end
-
-      # Change the car of ConsCell to 'element'.
-      # Analogue of set-car! procedure in Scheme.
-      # @param element [Term]
-      def set_car!(element)
-        @pinned_car = nil # To force re-evaluation
-        @car = element
-      end
-
-      # Change the cdr of ConsCell to 'element'.
-      # Analogue of set-cdr! procedure in Scheme.
-      # @param element [Term]
-      def set_cdr!(element)
-        @pinned_cdr = nil # To force re-evaluation
-        @cdr = (element.kind_of?(ConsCell) && element.null?) ? nil : element
-      end
-
       protected
 
       def pair_to_s
         result = +car.to_s
         if cdr
-          result << ' '
           if cdr.kind_of?(ConsCell)
-            result << cdr.pair_to_s
+            result << " #{cdr.pair_to_s}" unless cdr.null?
           else
-            result << ". #{cdr}"
+            result << " . #{cdr}"
           end
         end
 

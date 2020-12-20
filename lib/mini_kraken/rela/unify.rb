@@ -156,11 +156,11 @@ module MiniKraken
         skip_children1 = skip_children2 = false
 
         loop do
-          # side.. can be: :car, :cdr, :stop
+          # side can be: :car, :cdr, :stop
           side1, cell1 = visitor1.resume(skip_children1)
           side2, cell2 = visitor2.resume(skip_children2)
           if side1 != side2
-            ctx.failed
+            ctx.failed!
           elsif side1 == :stop
             break
           else
@@ -244,8 +244,15 @@ module MiniKraken
         if ref1.unbound?(ctx) || ref2.unbound?(ctx)
           ctx.fuse([ref1.name, ref2.name])
           ctx.succeeded!
+        elsif ref1.floating?(ctx) && ref2.floating?(ctx)
+          raise StandarrError if  ctx.associations_for(ref1.name).size > 1
+          val1 = ctx.associations_for(ref1.name)[0].value
+          raise StandarrError if  ctx.associations_for(ref2.name).size > 1          
+          val2 = ctx.associations_for(ref2.name)[0].value
+          unification(val1, val2, ctx)
+          ctx.fuse([ref1.name, ref2.name]) if ctx.success?
         else
-          raise NotImplentedError
+          raise NotImplementedError
         end
         # if both refs are fresh, fuse them
         # if one ref is fresh & the other one isn't then bind fresh one (occurs check)

@@ -60,6 +60,7 @@ module MiniKraken
           when Array
             formals = theFormals
         end
+
         rela = Rela::DefRelation.new(relationName, aGoalExpr, formals)
         add_defrel(rela)
       end

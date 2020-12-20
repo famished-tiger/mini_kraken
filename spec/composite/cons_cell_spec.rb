@@ -53,10 +53,10 @@ module MiniKraken
           expect(NullList).to be_null
         end
 
-        it 'simplifies cdr if its referencing a null list' do
+        it 'initialize cdr if its referencing the null list' do
           instance = ConsCell.new(pea, NullList)
           expect(instance.car).to eq(pea)
-          expect(instance.cdr).to be_nil
+          expect(instance.cdr).to be_null
         end
       end # context
 
@@ -83,7 +83,7 @@ module MiniKraken
           head = ConsCell.new(pod)
           instance.set_car!(head)
           expect(instance.car).to eq(head)
-          expect(instance.cdr).to be_nil
+          expect(instance.cdr).to be_null
         end
 
         it 'should set_cdr! another cons cell' do

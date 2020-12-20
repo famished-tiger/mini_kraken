@@ -230,7 +230,8 @@ module MiniKraken
           #   (caro  p a)
           #   (cdro p d))
 
-          # As 'p' has a special meaning in Ruby, the argument has been remaned to 'r'
+          # As 'p' has a special meaning in Ruby, the argument has been renamed
+          # to 'r'
           conso_rel = defrel('conso', %w[a d r], [caro(r, a), cdro(r, d)])
 
           expect(conso_rel).to be_kind_of(Rela::DefRelation)
@@ -254,16 +255,17 @@ module MiniKraken
           expect(g2.actuals[1].name).to match(/^d_/)
         end
 
-        # In Scheme:
-          # (defrel (conso a d p)
-          #   (caro  p a)
-          #   (cdro p d))
-        # In Ruby, `p`is a standard Kernel method => replace it by `r`
+
         def defrel_conso
           defrel_caro
           defrel_cdro
 
           # Definition derived from frame 2:25
+          # In Scheme:
+          # (defrel (conso a d p)
+          #   (caro  p a)
+          #   (cdro p d))
+          # In Ruby, `p`is a standard Kernel method => replace it by `r`
           # defrel('conso', %w[a d r], [caro(r, a), cdro(r, d)])
 
           # Definition derived from frame 2:26
@@ -344,6 +346,189 @@ module MiniKraken
           result = run_star('l', expr)
           expect(result.to_s).to eq('((:d :a :d :c))')
         end
+
+        # it 'passes frame 2:25' do
+          # defrel_conso
+
+          # # (run* l
+          # #   (fresh (d t x y w)
+          # #     (conso w '(n u s) t)
+          # #     (cdro l t)
+          # #     (caro l x)
+          # #     (== 'b x)
+          # #     (cdro l d)
+          # #     (caro d y)
+          # #     (== 'o y))) ;; => ((b o n u s))
+
+          # expr = fresh(%w[d t x y w],
+            # [conso(w, list(:n, :u, :s), t),
+              # cdro(l, t),
+              # caro(l, x),
+              # unify(:b, x),
+              # cdro(l, d),
+              # caro(d, y),
+              # unify(:o, y)])
+          # result = run_star('l', expr)
+          # expect(result.to_s).to eq('((:b :o :n :u :s))')
+        # end
+
+        it 'accepts nullo definition inspired from frame 2:33' do
+          # Reasoned S2, frame 2:33
+          # (defrel (nullo x)
+          #   (==  '() x)
+
+          nullo_rel = defrel('nullo', %w[x], unify(null, x))
+
+          expect(nullo_rel).to be_kind_of(Rela::DefRelation)
+          expect(nullo_rel.name).to eq('nullo')
+          expect(nullo_rel.arity).to eq(1)
+          expect(nullo_rel.formals[0]).to match(/^x_[-0-9a-f]+$/)
+          g_template = nullo_rel.expression
+          expect(g_template.relation).to be_kind_of(Rela::Unify)
+          expect(g_template.actuals[0]).to be_null
+          expect(g_template.actuals[1]).to be_kind_of(Core::LogVarRef)
+          expect(g_template.actuals[1].name).to match(/^x_[-0-9a-f]+$/)
+        end
+
+        def defrel_nullo
+          # Definition derived from frame 2:33
+          defrel('nullo', %w[x], unify(null_list, x))
+        end
+
+        it 'passes frame 2:30' do
+          defrel_nullo
+
+          # (run* q
+          #   (nullo '(grape raisin pear))) ;; => ()
+
+          result = run_star('q', nullo(list(:grape, :raisin, :pear)))
+          expect(result).to be_null
+        end
+
+        it 'passes frame 2:31' do
+          defrel_nullo
+
+          # (run* q
+          #   (nullo '())) ;; => (_0)
+
+          result = run_star('q', nullo(null_list))
+          expect(result.to_s).to eq('(_0)')
+        end
+
+        it 'passes frame 2:32' do
+          defrel_nullo
+
+          # (run* x
+          #   (nullo x)) ;; => (())
+
+          result = run_star('x', nullo(x))
+          expect(result.to_s).to eq('(())')
+        end
+
+        it 'passes frame 2:35' do
+          defrel_nullo
+
+          # (run* r
+          #   (fresh (x y)
+          #     (== (cons x (cons y 'salad)) r))) ;; => ((_0 _1 . salad))
+
+          result = run_star('r', fresh(%w[x y],
+            unify(cons(x, cons(y, :salad)), r)))
+          expect(result.to_s).to eq('((_0 _1 . :salad))')
+        end
+
+        it 'passes frame 2:45' do
+          defrel_nullo
+
+          # (run* r
+          #   (fresh (x y)
+          #     (== (cons x (cons y 'salad)) r))) ;; => ((_0 _1 . salad))
+
+          result = run_star('r', fresh(%w[x y],
+            unify(cons(x, cons(y, :salad)), r)))
+          expect(result.to_s).to eq('((_0 _1 . :salad))')
+        end
+
+        it 'accepts pairo definition inspired from frame 2:46' do
+          defrel_conso
+
+          # Reasoned S2, frame 2:46
+          # (defrel (pairo r)
+          #   (fresh (a d)
+          #     (conso a d r)))
+
+          pairo_rel = defrel('pairo', %w[r],fresh(%w[a d], conso(a, d, r)))
+
+          expect(pairo_rel).to be_kind_of(Rela::DefRelation)
+          expect(pairo_rel.name).to eq('pairo')
+          expect(pairo_rel.arity).to eq(1)
+          expect(pairo_rel.formals[0]).to match(/^r_[-0-9a-f]+$/)
+          g_template = pairo_rel.expression
+          expect(g_template.relation).to be_kind_of(Rela::Fresh)
+          expect(g_template.actuals[0]).to eq(%w[a d])
+          expect(g_template.actuals[1]).to be_kind_of(Core::Goal)
+          expect(g_template.actuals[1].relation.name).to eq('conso')
+          expect(g_template.actuals[1].actuals[0].name).to eq('a')
+          expect(g_template.actuals[1].actuals[1].name).to eq('d')
+          expect(g_template.actuals[1].actuals[2].name).to match(/^r_[-0-9a-f]+$/)
+        end
+
+        def defrel_pairo
+          defrel_conso
+
+          # Definition derived from frame 2:46
+          defrel('pairo', %w[r],fresh(%w[a d], conso(a, d, r)))
+        end
+
+        it 'passes frame 2:47' do
+          defrel_pairo
+
+          # (run* q
+          #   (pairo (cons q q))) ;; => (_0)
+
+          result = run_star('q', pairo(cons(q, q)))
+          expect(result.to_s).to eq('(_0)')
+        end
+        
+        it 'passes frame 2:48' do
+          defrel_pairo
+
+          # (run* q
+          #   (pairo '())) ;; => ()
+
+          result = run_star('q', pairo(null_list))
+          expect(result.to_s).to eq('()')
+        end
+
+        it 'passes frame 2:49' do
+          defrel_pairo
+
+          # (run* q
+          #   (pairo 'pair)) ;; => ()
+
+          result = run_star('q', pairo(:pair))
+          expect(result.to_s).to eq('()')
+        end
+
+        it 'passes frame 2:50' do
+          defrel_pairo
+
+          # (run* x
+          #   (pairo x)) ;; => ((_0 . _1))
+
+          result = run_star('x', pairo(x))
+          expect(result.to_s).to eq('((_0 . _1))')
+        end
+
+        it 'passes frame 2:51' do
+          defrel_pairo
+
+          # (run* r
+          #   (pairo (cons r '()))) ;; => (_0)
+
+          result = run_star('r', pairo(cons(r, null_list)))
+          expect(result.to_s).to eq('(_0)')
+        end         
       end # context
     end # describe
   end # module

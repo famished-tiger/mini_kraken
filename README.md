@@ -11,10 +11,10 @@ Daniel P. Friedman, William E. Byrd, Oleg Kiselyov, and Jason Hemann: "The Reaso
 ISBN: 9780262535519, (2018), MIT Press.
 
 ### Features
+- Test suite patterned on examples from the reference book
 - Pure Ruby implementation, not a port from another language
 - Object-Oriented design
 - No runtime dependencies
-- Test suite patterned on examples from the reference book.
 
 ### miniKanren Features
 - [X] ( == ) unify
@@ -26,16 +26,24 @@ ISBN: 9780262535519, (2018), MIT Press.
 - [X] defrel  
 - [X] caro
 - [X] cdro
-- [X] conso 
+- [X] conso
+- [X] nullo  
+- [X] pairo 
 
 ### TODO
 
 - [ ] Occurs check
 
-Pair-centric relations from Chapter 2 
-- [ ] nullo  
-- [ ] pairo  
-- [ ] singletono  
+Pair-centric relations from Chapter 2  
+- [ ] singletono
+
+List-centric relations from Chapter 3
+- [ ] listo 
+- [ ] lolo  
+- [ ] loso 
+- [ ] membero
+- [ ] proper_membero
+
 
 ## Installation
 

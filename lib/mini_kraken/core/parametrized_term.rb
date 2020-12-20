@@ -34,7 +34,14 @@ module MiniKraken
       # @return [Term]
       def dup_cond(substitutions)
         duplicate = dup
-        updated_actuals = actuals.map { |e| e.dup_cond(substitutions) }
+
+        updated_actuals = actuals.map do |e|
+          if e.is_a?(Array)
+            e.map {|item| item.dup_cond(substitutions) }
+          else
+            e.dup_cond(substitutions) 
+          end
+        end
         duplicate.actuals.concat(updated_actuals)
 
         duplicate

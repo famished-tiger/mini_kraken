@@ -33,7 +33,7 @@ module MiniKraken
             next if skip_children || skipping
 
             skipping = false
-            if cell.is_a?(ConsCell)
+            if cell.is_a?(ConsCell) && !cell.null?
               visit_stack.push([:cdr, cell.cdr])
               visit_stack.push([:car, cell.car])
             end
